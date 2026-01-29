@@ -8,7 +8,6 @@ import {
     PiggyBank,
     Calculator,
     Building,
-    Download,
     FileText,
     Table,
     BarChart3,
@@ -59,12 +58,14 @@ function Sidebar({ previsionnelId }: { previsionnelId: string }) {
 
             {/* Actions export */}
             <div className="mt-8 pt-8 border-t border-border">
-                <div className="text-xs font-medium text-muted-foreground uppercase tracking-wide mb-3">Exports</div>
+                <div className="text-xs font-medium text-muted-foreground uppercase tracking-wide mb-3">Documents</div>
                 <div className="space-y-2">
-                    <Button variant="outline" size="sm" className="w-full justify-start" disabled>
-                        <FileText className="h-4 w-4 mr-2" />
-                        Export PDF (bientot)
-                    </Button>
+                    <Link href={`/previsionnel/${previsionnelId}/rapport`}>
+                        <Button variant="default" size="sm" className="w-full justify-start">
+                            <FileText className="h-4 w-4 mr-2" />
+                            Rapport complet
+                        </Button>
+                    </Link>
                     <a href={`/api/exports/excel/${previsionnelId}`} download>
                         <Button variant="outline" size="sm" className="w-full justify-start">
                             <Table className="h-4 w-4 mr-2" />
@@ -182,10 +183,12 @@ export default function DashboardPage({
                         <h1 className="text-2xl font-semibold tracking-tight">Tableau de Bord</h1>
                         <p className="text-muted-foreground">Synthese du previsionnel sur 3 ans</p>
                     </div>
-                    <Button variant="outline">
-                        <Download className="h-4 w-4 mr-2" />
-                        Exporter tout
-                    </Button>
+                    <Link href={`/previsionnel/${previsionnelId}/rapport`}>
+                        <Button variant="default">
+                            <FileText className="h-4 w-4 mr-2" />
+                            Generer le rapport
+                        </Button>
+                    </Link>
                 </div>
 
                 {/* Alertes */}
