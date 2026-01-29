@@ -1,0 +1,550 @@
+// Schéma Prisma pour SAAS Expert-Comptable
+// Conforme au Plan Comptable Général (PCG) français
+
+generator client {
+  provider = "prisma-client"
+  output   = "../src/generated/prisma"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+// ========================
+// GESTION UTILISATEURS & CABINET
+// ========================
+
+model User {
+  id            String    @id @default(cuid())
+  email         String    @unique
+  emailVerified DateTime?
+  password      String?
+  name          String?
+  firstName     String?
+  image         String?
+  role          UserRole  @default(CLIENT)
+  
+  cabinetId     String?
+  cabinet       Cabinet?  @relation(fields: [cabinetId], references: [id])
+  
+  accounts      Account[]
+  sessions      Session[]
+  
+  createdAt     DateTime  @default(now())
+  updatedAt     DateTime  @updatedAt
+}
+
+enum UserRole {
+  ADMIN
+  EXPERT_COMPTABLE
+  COLLABORATEUR
+  CLIENT
+}
+
+model Account {
+  id                String  @id @default(cuid())
+  userId            String
+  type              String
+  provider          String
+  providerAccountId String
+  refresh_token     String?
+  access_token      String?
+  expires_at        Int?
+  token_type        String?
+  scope             String?
+  id_token          String?
+  session_state     String?
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([provider, providerAccountId])
+}
+
+model Session {
+  id           String   @id @default(cuid())
+  sessionToken String   @unique
+  userId       String
+  expires      DateTime
+  user         User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+}
+
+model Cabinet {
+  id          String   @id @default(cuid())
+  name        String
+  siren       String?  @unique
+  address     String?
+  city        String?
+  postalCode  String?
+  phone       String?
+  email       String?
+  logo        String?
+  
+  users       User[]
+  clients     Client[]
+  
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+}
+
+// ========================
+// CLIENTS (Entreprises)
+// ========================
+
+model Client {
+  id              String          @id @default(cuid())
+  cabinetId       String
+  cabinet         Cabinet         @relation(fields: [cabinetId], references: [id])
+  
+  raisonSociale   String
+  formeJuridique  FormeJuridique  @default(SARL)
+  siren           String?
+  siret           String?
+  codeNAF         String?
+  
+  address         String?
+  city            String?
+  postalCode      String?
+  
+  exerciceDebut   Int             @default(1) // Mois de début d'exercice
+  exerciceFin     Int             @default(12) // Mois de fin d'exercice
+  regimeFiscal    RegimeFiscal    @default(IS)
+  regimeTVA       RegimeTVA       @default(REEL_NORMAL)
+  
+  previsionnels   Previsionnel[]
+  
+  createdAt       DateTime        @default(now())
+  updatedAt       DateTime        @updatedAt
+}
+
+enum FormeJuridique {
+  EI
+  EIRL
+  EURL
+  SARL
+  SAS
+  SASU
+  SA
+  SNC
+  SCI
+  MICRO
+  AUTO_ENTREPRENEUR
+}
+
+enum RegimeFiscal {
+  IS           // Impôt sur les sociétés
+  IR           // Impôt sur le revenu (BIC/BNC)
+  MICRO_BIC    // Micro-entreprise BIC
+  MICRO_BNC    // Micro-entreprise BNC
+  BIC_REEL     // BIC réel simplifié ou normal
+  BNC_REEL     // BNC déclaration contrôlée (2035)
+}
+
+enum RegimeTVA {
+  FRANCHISE      // Franchise en base
+  REEL_SIMPLIFIE
+  REEL_NORMAL
+  MINI_REEL
+}
+
+// ========================
+// PRÉVISIONNEL
+// ========================
+
+model Previsionnel {
+  id              String            @id @default(cuid())
+  clientId        String
+  client          Client            @relation(fields: [clientId], references: [id])
+  
+  titre           String
+  description     String?
+  statut          StatutPrevisionnel @default(BROUILLON)
+  
+  dateDebut       DateTime          // Date de début du prévisionnel
+  nombreMois      Int               @default(36) // 12, 24, 36 mois
+  
+  // Régime fiscal et format du prévisionnel
+  regimeFiscal    RegimeFiscal      @default(IS)
+  formatDocument  FormatDocument    @default(PCG_STANDARD)
+  
+  hypotheses      Hypotheses?
+  lignesCA        LigneCA[]
+  lignesCharge    LigneCharge[]
+  investissements Investissement[]
+  financements    Financement[]
+  effectifs       Effectif[]
+  
+  // Lignes spécifiques 2035 (BNC)
+  lignes2035      Ligne2035[]
+  
+  createdAt       DateTime          @default(now())
+  updatedAt       DateTime          @updatedAt
+}
+
+enum FormatDocument {
+  PCG_STANDARD    // Compte de résultat classique PCG
+  LIASSE_2035     // Déclaration 2035 BNC
+  LIASSE_2031     // Déclaration 2031 BIC (futur)
+}
+
+enum StatutPrevisionnel {
+  BROUILLON
+  EN_REVISION
+  VALIDE
+  ARCHIVE
+}
+
+// ========================
+// HYPOTHÈSES DU PRÉVISIONNEL
+// ========================
+
+model Hypotheses {
+  id                      String       @id @default(cuid())
+  previsionnelId          String       @unique
+  previsionnel            Previsionnel @relation(fields: [previsionnelId], references: [id], onDelete: Cascade)
+  
+  // TVA
+  tauxTVAVentes           Float        @default(20.0)
+  tauxTVAAchats           Float        @default(20.0)
+  
+  // Délais de paiement (en jours)
+  delaiPaiementClients    Int          @default(30)
+  delaiPaiementFournisseurs Int        @default(30)
+  
+  // Charges sociales
+  tauxChargesSocialesPatronales Float  @default(45.0)
+  tauxChargesSocialesSalariales Float  @default(22.0)
+  
+  // Fiscalité
+  tauxIS                  Float        @default(25.0)
+  tauxIR                  Float?       // Si applicable
+  
+  // Stock
+  dureeStockJours         Int          @default(30)
+  
+  createdAt               DateTime     @default(now())
+  updatedAt               DateTime     @updatedAt
+}
+
+// ========================
+// CHIFFRE D'AFFAIRES
+// ========================
+
+model LigneCA {
+  id              String       @id @default(cuid())
+  previsionnelId  String
+  previsionnel    Previsionnel @relation(fields: [previsionnelId], references: [id], onDelete: Cascade)
+  
+  libelle         String
+  categorie       CategorieCA
+  comptePCG       String       @default("701000") // Compte PCG par défaut
+  
+  // Montants mensuels (JSON array de 36 valeurs max)
+  montantsMensuels Json
+  
+  // Évolution annuelle en %
+  evolutionAn2    Float        @default(0)
+  evolutionAn3    Float        @default(0)
+  
+  tauxTVA         Float        @default(20.0)
+  
+  createdAt       DateTime     @default(now())
+  updatedAt       DateTime     @updatedAt
+}
+
+enum CategorieCA {
+  VENTE_MARCHANDISES      // 707
+  PRODUCTION_VENDUE_BIENS // 701
+  PRODUCTION_VENDUE_SERVICES // 706
+  PRESTATIONS_SERVICES    // 706
+  SUBVENTIONS             // 74
+  AUTRES_PRODUITS         // 75
+}
+
+// ========================
+// CHARGES
+// ========================
+
+model LigneCharge {
+  id              String       @id @default(cuid())
+  previsionnelId  String
+  previsionnel    Previsionnel @relation(fields: [previsionnelId], references: [id], onDelete: Cascade)
+  
+  libelle         String
+  categorie       CategorieCharge
+  comptePCG       String
+  
+  typeCharge      TypeCharge   @default(FIXE)
+  
+  // Montants mensuels ou annuels
+  montantsMensuels Json
+  
+  // Évolution annuelle en %
+  evolutionAn2    Float        @default(0)
+  evolutionAn3    Float        @default(0)
+  
+  tauxTVA         Float?       // null si pas de TVA
+  deductibleTVA   Boolean      @default(true)
+  
+  recurrence      Recurrence   @default(MENSUEL)
+  
+  createdAt       DateTime     @default(now())
+  updatedAt       DateTime     @updatedAt
+}
+
+enum CategorieCharge {
+  // Classe 60 - Achats
+  ACHATS_MARCHANDISES         // 607
+  ACHATS_MATIERES_PREMIERES   // 601
+  ACHATS_FOURNITURES          // 602
+  
+  // Classe 61 - Services extérieurs
+  SOUS_TRAITANCE              // 611
+  LOCATIONS                   // 613
+  ENTRETIEN_REPARATIONS       // 615
+  ASSURANCES                  // 616
+  DOCUMENTATION               // 618
+  
+  // Classe 62 - Autres services extérieurs
+  HONORAIRES                  // 622
+  PUBLICITE                   // 623
+  TRANSPORTS                  // 624
+  DEPLACEMENTS                // 625
+  FRAIS_POSTAUX_TELECOM       // 626
+  SERVICES_BANCAIRES          // 627
+  AUTRES_SERVICES             // 628
+  
+  // Classe 63 - Impôts et taxes
+  IMPOTS_TAXES                // 63
+  CFE                         // 635
+  CVAE                        // 635
+  
+  // Classe 66 - Charges financières
+  INTERETS_EMPRUNTS           // 661
+  
+  // Classe 67 - Charges exceptionnelles
+  CHARGES_EXCEPTIONNELLES     // 67
+}
+
+enum TypeCharge {
+  FIXE
+  VARIABLE
+}
+
+enum Recurrence {
+  MENSUEL
+  TRIMESTRIEL
+  SEMESTRIEL
+  ANNUEL
+  PONCTUEL
+}
+
+// ========================
+// INVESTISSEMENTS
+// ========================
+
+model Investissement {
+  id              String       @id @default(cuid())
+  previsionnelId  String
+  previsionnel    Previsionnel @relation(fields: [previsionnelId], references: [id], onDelete: Cascade)
+  
+  libelle         String
+  categorie       CategorieInvestissement
+  comptePCG       String
+  
+  montantHT       Float
+  tauxTVA         Float        @default(20.0)
+  dateAcquisition DateTime
+  
+  dureeAmortissement Int       // en mois
+  modeAmortissement ModeAmortissement @default(LINEAIRE)
+  valeurResiduelle Float       @default(0)
+  
+  createdAt       DateTime     @default(now())
+  updatedAt       DateTime     @updatedAt
+}
+
+enum CategorieInvestissement {
+  // Immobilisations incorporelles (20)
+  FRAIS_ETABLISSEMENT         // 201
+  CONCESSIONS_BREVETS         // 205
+  FONDS_COMMERCIAL            // 207
+  LOGICIELS                   // 205
+  
+  // Immobilisations corporelles (21)
+  TERRAINS                    // 211
+  CONSTRUCTIONS               // 213
+  INSTALLATIONS_TECHNIQUES    // 215
+  MATERIEL_INDUSTRIEL         // 215
+  MATERIEL_TRANSPORT          // 218
+  MATERIEL_BUREAU             // 218
+  MOBILIER                    // 218
+  AGENCEMENTS                 // 218
+}
+
+enum ModeAmortissement {
+  LINEAIRE
+  DEGRESSIF
+  NON_AMORTISSABLE
+}
+
+// ========================
+// FINANCEMENTS
+// ========================
+
+model Financement {
+  id              String       @id @default(cuid())
+  previsionnelId  String
+  previsionnel    Previsionnel @relation(fields: [previsionnelId], references: [id], onDelete: Cascade)
+  
+  libelle         String
+  type            TypeFinancement
+  
+  montant         Float
+  dateDebut       DateTime
+  
+  // Pour les emprunts
+  duree           Int?         // en mois
+  tauxInteret     Float?       // taux annuel en %
+  differe         Int?         // différé en mois
+  
+  // Tableau d'amortissement calculé (JSON)
+  echeancier      Json?
+  
+  createdAt       DateTime     @default(now())
+  updatedAt       DateTime     @updatedAt
+}
+
+enum TypeFinancement {
+  CAPITAL_SOCIAL
+  COMPTE_COURANT_ASSOCIE
+  EMPRUNT_BANCAIRE
+  CREDIT_BAIL
+  PRET_HONNEUR
+  SUBVENTION
+  CROWDFUNDING
+  LOVE_MONEY
+}
+
+// ========================
+// EFFECTIFS
+// ========================
+
+model Effectif {
+  id              String       @id @default(cuid())
+  previsionnelId  String
+  previsionnel    Previsionnel @relation(fields: [previsionnelId], references: [id], onDelete: Cascade)
+  
+  poste           String
+  typeContrat     TypeContrat
+  
+  salaireBrutMensuel Float
+  primes          Float        @default(0)
+  
+  dateEmbauche    DateTime
+  dateFin         DateTime?
+  
+  tauxChargesPatronales Float  @default(45.0)
+  
+  createdAt       DateTime     @default(now())
+  updatedAt       DateTime     @updatedAt
+}
+
+enum TypeContrat {
+  CDI
+  CDD
+  ALTERNANCE
+  STAGE
+  INTERIM
+  DIRIGEANT
+}
+
+// ========================
+// PLAN COMPTABLE GÉNÉRAL
+// ========================
+
+model ComptePCG {
+  id          String   @id @default(cuid())
+  numero      String   @unique
+  libelle     String
+  classe      Int      // 1 à 7
+  type        TypeCompte
+  
+  createdAt   DateTime @default(now())
+}
+
+enum TypeCompte {
+  CAPITAUX            // Classe 1
+  IMMOBILISATIONS     // Classe 2
+  STOCKS              // Classe 3
+  TIERS               // Classe 4
+  FINANCIERS          // Classe 5
+  CHARGES             // Classe 6
+  PRODUITS            // Classe 7
+}
+
+// ========================
+// LIGNES SPÉCIFIQUES 2035 (BNC)
+// ========================
+
+model Ligne2035 {
+  id              String       @id @default(cuid())
+  previsionnelId  String
+  previsionnel    Previsionnel @relation(fields: [previsionnelId], references: [id], onDelete: Cascade)
+  
+  rubrique        Rubrique2035
+  numeroLigne     Int          // Numéro de ligne officiel (ex: 1, 2, 27, 33...)
+  libelle         String
+  
+  // Montants mensuels ou annuels
+  montantsMensuels Json
+  
+  createdAt       DateTime     @default(now())
+  updatedAt       DateTime     @updatedAt
+}
+
+// Rubriques de la déclaration 2035
+enum Rubrique2035 {
+  // === 2035-A : RECETTES ===
+  RECETTES_HONORAIRES           // Ligne 1 - Honoraires encaissés
+  RECETTES_DEBOURS              // Ligne 2 - Débours payés pour le compte des clients
+  RECETTES_GAINS_DIVERS         // Ligne 6 - Gains divers
+  RECETTES_TOTAL                // Ligne 7 - Total des recettes
+  
+  // === 2035-A : DÉPENSES ===
+  DEPENSES_ACHATS               // Ligne 8 - Achats
+  DEPENSES_FRAIS_PERSONNEL      // Ligne 9 - Frais de personnel
+  DEPENSES_IMPOTS_TAXES         // Ligne 10 - Impôts et taxes
+  DEPENSES_CSG_DEDUCTIBLE       // Ligne 14 - CSG déductible
+  DEPENSES_LOYERS               // Ligne 20 - Loyers et charges locatives
+  DEPENSES_LOCATION_MATERIEL    // Ligne 21 - Location de matériel
+  DEPENSES_ENTRETIEN            // Ligne 22 - Entretien et réparations
+  DEPENSES_PERSONNEL_EXTERIEUR  // Ligne 23 - Personnel intérimaire
+  DEPENSES_PETIT_OUTILLAGE      // Ligne 24 - Petit outillage
+  DEPENSES_CHAUFFAGE_EAU        // Ligne 25 - Chauffage, eau, gaz, électricité
+  DEPENSES_HONORAIRES_RETROCEDES // Ligne 26 - Honoraires rétrocédés
+  DEPENSES_FOURNITURES_BUREAU   // Ligne 27 - Fournitures de bureau
+  DEPENSES_FRAIS_ACTES          // Ligne 28 - Frais d'actes et de contentieux
+  DEPENSES_COTISATIONS          // Ligne 29 - Cotisations syndicales et professionnelles
+  DEPENSES_AUTRES_FRAIS         // Ligne 30 - Autres frais divers de gestion
+  DEPENSES_FRAIS_FINANCIERS     // Ligne 31 - Frais financiers
+  DEPENSES_PERTES_DIVERSES      // Ligne 32 - Pertes diverses
+  DEPENSES_TOTAL                // Ligne 33 - Total des dépenses
+  
+  // === 2035-A : RÉSULTAT ===
+  EXCEDENT                      // Ligne 34 - Excédent (recettes - dépenses)
+  PLUS_MOINS_VALUES             // Ligne 35 - Plus ou moins-values
+  
+  // === 2035-B : RÉINTÉGRATIONS ===
+  REINTEGRATION_AMORTISSEMENTS_EXCESSIFS // Ligne 36
+  REINTEGRATION_FRAIS_VEHICULE  // Amortissements excédentaires véhicules
+  REINTEGRATION_DIVERS          // Autres réintégrations
+  
+  // === 2035-B : DÉDUCTIONS ===
+  DEDUCTION_PLUS_VALUES_CT      // Plus-values court terme étalées
+  DEDUCTION_ABATTEMENTS         // Abattements et exonérations
+  DEDUCTION_DIVERS              // Autres déductions
+  
+  // === RÉSULTAT FISCAL ===
+  RESULTAT_FISCAL               // Résultat fiscal définitif
+}
