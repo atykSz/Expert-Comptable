@@ -1,6 +1,7 @@
 'use client'
 
 import { useState } from 'react'
+import { createClient } from '@/lib/supabase/client'
 import { useRouter } from 'next/navigation'
 import Link from 'next/link'
 import { Eye, EyeOff, Lock, Mail, User, Building, FileSpreadsheet, Shield, Check } from 'lucide-react'
@@ -57,29 +58,31 @@ export default function RegisterPage() {
 
         setIsLoading(true)
 
+        const supabase = createClient()
+
         try {
-            const response = await fetch('/api/auth/register', {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({
-                    name: formData.name,
-                    email: formData.email,
-                    password: formData.password,
-                    cabinetName: formData.cabinetName,
-                }),
+            const { error } = await supabase.auth.signUp({
+                email: formData.email,
+                password: formData.password,
+                options: {
+                    data: {
+                        name: formData.name,
+                        cabinet_name: formData.cabinetName,
+                    },
+                    emailRedirectTo: `${window.location.origin}/auth/callback`,
+                },
             })
 
-            const data = await response.json()
-
-            if (!response.ok) {
-                setError(data.error || 'Erreur lors de la création du compte')
+            if (error) {
+                if (error.message === 'User already registered') {
+                    setError('Un compte existe déjà avec cet email')
+                } else {
+                    setError(error.message)
+                }
                 return
             }
 
             setSuccess(true)
-            setTimeout(() => {
-                router.push('/login')
-            }, 2000)
         } catch {
             setError('Une erreur est survenue. Veuillez réessayer.')
         } finally {
@@ -94,8 +97,14 @@ export default function RegisterPage() {
                     <div className="inline-flex items-center justify-center w-16 h-16 bg-green-100 rounded-full mb-4">
                         <Check className="h-8 w-8 text-green-600" />
                     </div>
-                    <h2 className="text-xl font-bold text-gray-900 mb-2">Compte créé avec succès !</h2>
-                    <p className="text-gray-500">Redirection vers la page de connexion...</p>
+                    <h2 className="text-xl font-bold text-gray-900 mb-2">Vérifiez votre email !</h2>
+                    <p className="text-gray-500 mb-4">
+                        Un email de confirmation a été envoyé à <strong>{formData.email}</strong>.
+                        Cliquez sur le lien pour activer votre compte.
+                    </p>
+                    <Link href="/login">
+                        <Button variant="primary">Retour à la connexion</Button>
+                    </Link>
                 </Card>
             </div>
         )
@@ -255,7 +264,7 @@ export default function RegisterPage() {
                     En créant un compte, vous acceptez nos{' '}
                     <Link href="/cgu" className="underline">Conditions d&apos;utilisation</Link>
                     {' '}et notre{' '}
-                    <Link href="/confidentialite" className="underline">Politique de confidentialité</Link>.
+                    <Link href="/politique-confidentialite" className="underline">Politique de confidentialité</Link>.
                 </p>
             </div>
         </div>

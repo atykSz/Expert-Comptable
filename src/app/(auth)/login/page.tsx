@@ -1,7 +1,7 @@
 'use client'
 
 import { useState, Suspense } from 'react'
-import { signIn } from 'next-auth/react'
+import { createClient } from '@/lib/supabase/client'
 import Link from 'next/link'
 import { useRouter, useSearchParams } from 'next/navigation'
 import { Eye, EyeOff, Lock, Mail, FileSpreadsheet, Shield } from 'lucide-react'
@@ -10,28 +10,36 @@ import { Button, Input, Card, CardContent, CardHeader, CardTitle } from '@/compo
 function LoginForm() {
     const router = useRouter()
     const searchParams = useSearchParams()
-    const callbackUrl = searchParams.get('callbackUrl') || '/previsionnel/demo/dashboard'
+    const callbackUrl = searchParams.get('callbackUrl') || '/previsionnel'
+    const errorParam = searchParams.get('error')
 
     const [email, setEmail] = useState('')
     const [password, setPassword] = useState('')
     const [showPassword, setShowPassword] = useState(false)
     const [isLoading, setIsLoading] = useState(false)
-    const [error, setError] = useState('')
+    const [error, setError] = useState(errorParam === 'auth_callback_error' ? 'Erreur d\'authentification. Veuillez réessayer.' : '')
 
     const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault()
         setError('')
         setIsLoading(true)
 
+        const supabase = createClient()
+
         try {
-            const result = await signIn('credentials', {
+            const { error } = await supabase.auth.signInWithPassword({
                 email,
                 password,
-                redirect: false,
             })
 
-            if (result?.error) {
-                setError('Email ou mot de passe incorrect')
+            if (error) {
+                if (error.message === 'Invalid login credentials') {
+                    setError('Email ou mot de passe incorrect')
+                } else if (error.message === 'Email not confirmed') {
+                    setError('Veuillez confirmer votre email avant de vous connecter')
+                } else {
+                    setError(error.message)
+                }
             } else {
                 router.push(callbackUrl)
                 router.refresh()

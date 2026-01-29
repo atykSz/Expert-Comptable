@@ -1,6 +1,5 @@
-import { NextResponse } from 'next/server'
-import type { NextRequest } from 'next/server'
-import { getToken } from 'next-auth/jwt'
+import { type NextRequest, NextResponse } from 'next/server'
+import { updateSession } from '@/lib/supabase/middleware'
 
 // Routes protégées nécessitant une authentification
 const protectedRoutes = [
@@ -9,77 +8,45 @@ const protectedRoutes = [
     '/clients',
 ]
 
-// Routes d'API protégées
-const protectedApiRoutes = [
-    '/api/previsionnels',
-    '/api/clients',
-]
-
 // Routes publiques (accessibles sans authentification)
 const publicRoutes = [
     '/login',
     '/register',
     '/forgot-password',
-    '/api/auth',
-    '/api/exports',          // Exports accessibles sans auth
-    '/previsionnel/demo',    // Mode démo sans authentification
+    '/auth/callback',
+    '/politique-confidentialite',
+    '/cgu',
 ]
 
 export async function middleware(request: NextRequest) {
     const { pathname } = request.nextUrl
 
-    // Créer la réponse avec les headers de sécurité
-    const response = NextResponse.next()
+    // Update session and get user
+    const { user, supabaseResponse } = await updateSession(request)
 
-    // Headers de sécurité pour toutes les réponses
-    response.headers.set('X-XSS-Protection', '1; mode=block')
-    response.headers.set('X-Frame-Options', 'DENY')
-    response.headers.set('X-Content-Type-Options', 'nosniff')
-    response.headers.set('Referrer-Policy', 'strict-origin-when-cross-origin')
-    response.headers.set(
-        'Permissions-Policy',
-        'camera=(), microphone=(), geolocation=(), interest-cohort=()'
-    )
+    // Add security headers
+    supabaseResponse.headers.set('X-XSS-Protection', '1; mode=block')
+    supabaseResponse.headers.set('X-Frame-Options', 'DENY')
+    supabaseResponse.headers.set('X-Content-Type-Options', 'nosniff')
+    supabaseResponse.headers.set('Referrer-Policy', 'strict-origin-when-cross-origin')
 
-    // Vérifier si c'est une route publique
+    // Check if it's a public route or home
     const isPublicRoute = publicRoutes.some(route => pathname.startsWith(route))
     if (isPublicRoute || pathname === '/') {
-        return response
+        return supabaseResponse
     }
 
-    // Vérifier si c'est une route protégée (pages ou API)
+    // Check if it's a protected route
     const isProtectedRoute = protectedRoutes.some(route => pathname.startsWith(route))
-    const isProtectedApi = protectedApiRoutes.some(route => pathname.startsWith(route))
 
-    if (isProtectedRoute || isProtectedApi) {
-        // Vérifier le token JWT (compatible Edge Runtime)
-        const token = await getToken({
-            req: request,
-            secret: process.env.AUTH_SECRET,
-        })
-
-        if (!token) {
-            if (isProtectedApi) {
-                // Pour les APIs, retourner 401
-                return NextResponse.json(
-                    { error: 'Non authentifié' },
-                    { status: 401 }
-                )
-            }
-
-            // Pour les pages, rediriger vers login
-            const loginUrl = new URL('/login', request.url)
-            loginUrl.searchParams.set('callbackUrl', pathname)
-            return NextResponse.redirect(loginUrl)
-        }
-
-        // Vérifier les permissions selon le rôle
-        if (pathname.startsWith('/admin') && token.role !== 'ADMIN') {
-            return NextResponse.redirect(new URL('/unauthorized', request.url))
-        }
+    if (isProtectedRoute && !user) {
+        // Redirect to login
+        const loginUrl = new URL('/login', request.url)
+        loginUrl.searchParams.set('callbackUrl', pathname)
+        return NextResponse.redirect(loginUrl)
     }
 
-    return response
+    return supabaseResponse
 }
 
 export const config = {
