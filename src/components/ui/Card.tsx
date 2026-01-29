@@ -8,9 +8,9 @@ export interface CardProps extends React.HTMLAttributes<HTMLDivElement> {
 const Card = React.forwardRef<HTMLDivElement, CardProps>(
     ({ className, variant = 'default', ...props }, ref) => {
         const variants = {
-            default: 'bg-white rounded-xl',
-            bordered: 'bg-white rounded-xl border border-gray-200',
-            elevated: 'bg-white rounded-xl shadow-lg',
+            default: 'bg-card rounded-2xl',
+            bordered: 'bg-card rounded-2xl border border-border',
+            elevated: 'bg-card rounded-2xl shadow-lg shadow-foreground/5',
         }
 
         return (
@@ -30,7 +30,7 @@ const CardHeader = React.forwardRef<
 >(({ className, ...props }, ref) => (
     <div
         ref={ref}
-        className={cn('px-6 py-4 border-b border-gray-100', className)}
+        className={cn('px-6 py-5 border-b border-border', className)}
         {...props}
     />
 ))
@@ -42,7 +42,7 @@ const CardTitle = React.forwardRef<
 >(({ className, ...props }, ref) => (
     <h3
         ref={ref}
-        className={cn('text-lg font-semibold text-gray-900', className)}
+        className={cn('text-lg font-semibold tracking-tight', className)}
         {...props}
     />
 ))
@@ -54,7 +54,7 @@ const CardDescription = React.forwardRef<
 >(({ className, ...props }, ref) => (
     <p
         ref={ref}
-        className={cn('text-sm text-gray-500 mt-1', className)}
+        className={cn('text-sm text-muted-foreground mt-1', className)}
         {...props}
     />
 ))
@@ -66,7 +66,7 @@ const CardContent = React.forwardRef<
 >(({ className, ...props }, ref) => (
     <div
         ref={ref}
-        className={cn('px-6 py-4', className)}
+        className={cn('px-6 py-5', className)}
         {...props}
     />
 ))
@@ -78,7 +78,7 @@ const CardFooter = React.forwardRef<
 >(({ className, ...props }, ref) => (
     <div
         ref={ref}
-        className={cn('px-6 py-4 border-t border-gray-100 bg-gray-50/50 rounded-b-xl', className)}
+        className={cn('px-6 py-4 border-t border-border bg-secondary/50 rounded-b-2xl', className)}
         {...props}
     />
 ))
