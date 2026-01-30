@@ -1,7 +1,8 @@
 'use client'
 
-import { useState, useMemo } from 'react'
+import { useState, useMemo, useEffect } from 'react'
 import Link from 'next/link'
+import { useParams } from 'next/navigation'
 import {
     ArrowLeft,
     Plus,
@@ -227,47 +228,105 @@ function LigneDepenseRow({
     )
 }
 
-export default function Declaration2035Page({
-    params
-}: {
-    params: Promise<{ id: string }>
-}) {
-    const previsionnelId = 'demo'
+export default function Declaration2035Page() {
+    const params = useParams()
+    const previsionnelId = params.id as string
 
     const mois = ['Jan', 'Fév', 'Mar', 'Avr', 'Mai', 'Jun', 'Jul', 'Aoû', 'Sep', 'Oct', 'Nov', 'Déc']
 
     // État pour les lignes de recettes
-    const [lignesRecettes, setLignesRecettes] = useState<LigneRecette[]>([
-        {
-            id: generateId(),
-            rubrique: 'HONORAIRES',
-            libelle: 'Honoraires consultations',
-            montantsMensuels: Array(12).fill(8000),
-        }
-    ])
+    const [lignesRecettes, setLignesRecettes] = useState<LigneRecette[]>([])
 
     // État pour les lignes de dépenses
-    const [lignesDepenses, setLignesDepenses] = useState<LigneDepense[]>([
-        {
-            id: generateId(),
+    const [lignesDepenses, setLignesDepenses] = useState<LigneDepense[]>([])
+
+    // Chargement des données
+    useEffect(() => {
+        if (!previsionnelId || previsionnelId === 'demo') {
+            // Mock data fallback
+            setLignesRecettes([{
+                id: generateId(),
+                rubrique: 'HONORAIRES',
+                libelle: 'Honoraires consultations',
+                montantsMensuels: Array(12).fill(8000),
+            }])
+            setLignesDepenses([{
+                id: generateId(),
+                rubrique: 'LOYERS',
+                numeroLigne: 20,
+                libelle: 'Loyer cabinet',
+                montantsMensuels: Array(12).fill(1200),
+            }])
+            return
+        }
+
+        const fetchData = async () => {
+            try {
+                const res = await fetch(`/api/previsionnels/${previsionnelId}`)
+                if (!res.ok) throw new Error('Erreur chargement')
+                const data = await res.json()
+
+                // Mapper les données API vers le format local
+                if (data.lignesCA?.length) {
+                    setLignesRecettes(data.lignesCA.map((l: any) => ({
+                        id: l.id || generateId(),
+                        rubrique: l.categorie || 'HONORAIRES',
+                        libelle: l.libelle,
+                        montantsMensuels: l.montantsMensuels || Array(12).fill(0)
+                    })))
+                } else {
+                    setLignesRecettes([{
+                        id: generateId(),
+                        rubrique: 'HONORAIRES',
+                        libelle: 'Honoraires consultations',
+                        montantsMensuels: Array(12).fill(data.hypotheses?.tauxTVAVentes ? 0 : 8000), // Exemple
+                    }])
+                }
+
+                if (data.lignesCharge?.length) {
+                    setLignesDepenses(data.lignesCharge.map((l: any) => ({
+                        id: l.id || generateId(),
+                        rubrique: l.categorie || 'AUTRES_FRAIS',
+                        numeroLigne: 0, // À déduire de la rubrique si possible
+                        libelle: l.libelle,
+                        montantsMensuels: l.montantsMensuels || Array(12).fill(0)
+                    })))
+                } else {
+                    setLignesDepenses([{
+                        id: generateId(),
+                        rubrique: 'LOYERS',
+                        numeroLigne: 20,
+                        libelle: 'Loyer cabinet',
+                        montantsMensuels: Array(12).fill(1200),
+                    }])
+                }
+
+            } catch (err) {
+                console.error(err)
+            }
+        }
+        fetchData()
+    }, [previsionnelId])
+    {
+        id: generateId(),
             rubrique: 'LOYERS',
-            numeroLigne: 20,
-            libelle: 'Loyer cabinet',
-            montantsMensuels: Array(12).fill(1200),
+                numeroLigne: 20,
+                    libelle: 'Loyer cabinet',
+                        montantsMensuels: Array(12).fill(1200),
         },
-        {
-            id: generateId(),
+    {
+        id: generateId(),
             rubrique: 'COTISATIONS',
-            numeroLigne: 29,
-            libelle: 'Cotisations ordre et syndicat',
-            montantsMensuels: [500, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+                numeroLigne: 29,
+                    libelle: 'Cotisations ordre et syndicat',
+                        montantsMensuels: [500, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
         },
-        {
-            id: generateId(),
+    {
+        id: generateId(),
             rubrique: 'FOURNITURES_BUREAU',
-            numeroLigne: 27,
-            libelle: 'Fournitures et consommables',
-            montantsMensuels: Array(12).fill(100),
+                numeroLigne: 27,
+                    libelle: 'Fournitures et consommables',
+                        montantsMensuels: Array(12).fill(100),
         },
     ])
 
@@ -359,6 +418,34 @@ export default function Declaration2035Page({
         }
     }, [lignesRecettes, lignesDepenses, cotisationsSociales, csgDeductible])
 
+    const handleSave = async () => {
+        try {
+            const response = await fetch(`/api/previsionnels/${previsionnelId}`, {
+                method: 'PUT',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                    lignesCA: lignesRecettes.map(l => ({
+                        libelle: l.libelle,
+                        categorie: l.rubrique,
+                        comptePCG: '706000', // À affiner
+                        montantsMensuels: l.montantsMensuels
+                    })),
+                    lignesCharge: lignesDepenses.map(l => ({
+                        libelle: l.libelle,
+                        categorie: l.rubrique,
+                        comptePCG: '600000', // À affiner
+                        montantsMensuels: l.montantsMensuels
+                    }))
+                })
+            })
+            if (!response.ok) throw new Error('Erreur sauvegarde')
+            alert('Sauvegarde effectuée avec succès !')
+        } catch (error) {
+            console.error(error)
+            alert('Erreur lors de la sauvegarde.')
+        }
+    }
+
     return (
         <div className="flex min-h-screen bg-gray-50">
             <PrevisionnelSidebar previsionnelId={previsionnelId} />
@@ -377,7 +464,11 @@ export default function Declaration2035Page({
                         <h1 className="text-2xl font-bold text-gray-900">Prévisionnel 2035 - BNC</h1>
                         <p className="text-gray-600">Année 1 - Saisissez vos recettes et dépenses professionnelles</p>
                     </div>
-                    <Button variant="primary" className="bg-purple-600 hover:bg-purple-700">
+                    <Button
+                        variant="primary"
+                        className="bg-purple-600 hover:bg-purple-700"
+                        onClick={handleSave}
+                    >
                         <Save className="h-4 w-4 mr-2" />
                         Enregistrer
                     </Button>

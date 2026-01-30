@@ -1,6 +1,6 @@
 'use client'
 
-import { useState, useMemo } from 'react'
+import { useState, useMemo, useEffect } from 'react'
 import Link from 'next/link'
 import { useRouter } from 'next/navigation'
 import { createClient } from '@/lib/supabase/client'
@@ -231,7 +231,7 @@ export default function NouveauPrevisionnelPage() {
             }
         } catch (error) {
             console.error(error)
-            // Ici on pourrait afficher une erreur à l'utilisateur
+            alert(`Une erreur est survenue : ${error instanceof Error ? error.message : 'Erreur inconnue'}`)
         } finally {
             setIsLoading(false)
         }
@@ -243,8 +243,12 @@ export default function NouveauPrevisionnelPage() {
         { number: 3, title: 'Hypotheses', icon: Settings },
     ]
 
+
+
     return (
         <div className="min-h-screen bg-background">
+
+
             {/* Header */}
             <header className="border-b border-border bg-card">
                 <div className="max-w-3xl mx-auto px-6 py-4">
