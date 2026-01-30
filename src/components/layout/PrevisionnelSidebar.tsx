@@ -39,6 +39,14 @@ export function PrevisionnelSidebar({ previsionnelId }: { previsionnelId: string
                 <span className="font-semibold tracking-tight">Expert-Comptable</span>
             </Link>
 
+            {/* Lien retour Espace Client */}
+            <Link
+                href="/dashboard"
+                className="flex items-center gap-3 px-3 py-2.5 mb-4 rounded-xl text-sm font-medium text-accent hover:bg-secondary transition-colors border border-border"
+            >
+                ← Espace Client
+            </Link>
+
             <nav className="space-y-1">
                 {navItems.map((item) => (
                     <Link
