@@ -20,9 +20,9 @@ import {
     ArrowUpRight,
     ArrowDownRight
 } from 'lucide-react'
-import { Button, Input, Select, Card, CardContent, CardHeader, CardTitle } from '@/components/ui'
+import { Button, Input, Select, Card, CardContent, CardHeader, CardTitle, Modal } from '@/components/ui'
 import { formatCurrency } from '@/lib/utils'
-import { calculerEcheancier, type EcheanceEmprunt, type Emprunt } from '@/lib/calculations/emprunts'
+import { calculerEcheancier, calculerCoutTotalEmprunt, type EcheanceEmprunt, type Emprunt } from '@/lib/calculations/emprunts'
 
 // Helper pour créer un objet Emprunt et calculer l'échéancier
 function creerEcheancier(
@@ -119,6 +119,80 @@ function Sidebar({ previsionnelId }: { previsionnelId: string }) {
     )
 }
 
+// Composant tableau d'amortissement complet (pour la modal)
+function AmortizationTable({
+    echeancier,
+    emprunt
+}: {
+    echeancier: Array<{ numero: number; date: Date; capital: number; interets: number; mensualite: number; capitalRestantDu: number }>
+    emprunt: Financement
+}) {
+    const totalInterets = echeancier.reduce((sum, e) => sum + e.interets, 0)
+    const totalCapital = echeancier.reduce((sum, e) => sum + e.capital, 0)
+    const totalMensualites = echeancier.reduce((sum, e) => sum + e.mensualite, 0)
+
+    return (
+        <div>
+            {/* Résumé */}
+            <div className="grid grid-cols-4 gap-4 mb-6 p-4 bg-orange-50 rounded-lg">
+                <div>
+                    <div className="text-sm text-gray-500">Montant emprunté</div>
+                    <div className="text-lg font-bold">{formatCurrency(emprunt.montant)}</div>
+                </div>
+                <div>
+                    <div className="text-sm text-gray-500">Total intérêts</div>
+                    <div className="text-lg font-bold text-orange-600">{formatCurrency(totalInterets)}</div>
+                </div>
+                <div>
+                    <div className="text-sm text-gray-500">Coût total du crédit</div>
+                    <div className="text-lg font-bold">{formatCurrency(totalMensualites)}</div>
+                </div>
+                <div>
+                    <div className="text-sm text-gray-500">Taux / Durée</div>
+                    <div className="text-lg font-bold">{emprunt.tauxInteret}% / {emprunt.dureeEmprunt} mois</div>
+                </div>
+            </div>
+
+            {/* Tableau complet */}
+            <div className="max-h-96 overflow-auto border rounded-lg">
+                <table className="w-full text-sm">
+                    <thead className="bg-gray-100 sticky top-0">
+                        <tr>
+                            <th className="px-3 py-2 text-left font-medium text-gray-600">N°</th>
+                            <th className="px-3 py-2 text-left font-medium text-gray-600">Date</th>
+                            <th className="px-3 py-2 text-right font-medium text-gray-600">Capital</th>
+                            <th className="px-3 py-2 text-right font-medium text-gray-600">Intérêts</th>
+                            <th className="px-3 py-2 text-right font-medium text-gray-600">Mensualité</th>
+                            <th className="px-3 py-2 text-right font-medium text-gray-600">Capital restant dû</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {echeancier.map((e) => (
+                            <tr key={e.numero} className="border-b hover:bg-gray-50">
+                                <td className="px-3 py-2">{e.numero}</td>
+                                <td className="px-3 py-2">{e.date.toLocaleDateString('fr-FR')}</td>
+                                <td className="px-3 py-2 text-right">{formatCurrency(e.capital)}</td>
+                                <td className="px-3 py-2 text-right text-orange-600">{formatCurrency(e.interets)}</td>
+                                <td className="px-3 py-2 text-right font-medium">{formatCurrency(e.mensualite)}</td>
+                                <td className="px-3 py-2 text-right">{formatCurrency(e.capitalRestantDu)}</td>
+                            </tr>
+                        ))}
+                    </tbody>
+                    <tfoot className="bg-gray-100 font-bold">
+                        <tr>
+                            <td colSpan={2} className="px-3 py-2">TOTAL</td>
+                            <td className="px-3 py-2 text-right">{formatCurrency(totalCapital)}</td>
+                            <td className="px-3 py-2 text-right text-orange-600">{formatCurrency(totalInterets)}</td>
+                            <td className="px-3 py-2 text-right">{formatCurrency(totalMensualites)}</td>
+                            <td className="px-3 py-2 text-right">-</td>
+                        </tr>
+                    </tfoot>
+                </table>
+            </div>
+        </div>
+    )
+}
+
 // Ligne de financement
 function FinancementRow({
     financement,
@@ -130,6 +204,7 @@ function FinancementRow({
     onDelete: (id: string) => void
 }) {
     const [expanded, setExpanded] = useState(false)
+    const [showAmortizationModal, setShowAmortizationModal] = useState(false)
     const typeInfo = typesFinancement.find(t => t.value === financement.type)
     const IconComponent = typeInfo?.icon || Wallet
     const isEmprunt = financement.type === 'EMPRUNT'
@@ -261,7 +336,17 @@ function FinancementRow({
 
                             {/* Tableau d'amortissement (3 premières et 3 dernières) */}
                             <div className="mt-4">
-                                <h5 className="text-sm font-medium text-gray-700 mb-2">Échéancier (aperçu)</h5>
+                                <div className="flex items-center justify-between mb-2">
+                                    <h5 className="text-sm font-medium text-gray-700">Échéancier (aperçu)</h5>
+                                    <Button
+                                        variant="secondary"
+                                        onClick={() => setShowAmortizationModal(true)}
+                                        className="text-xs"
+                                    >
+                                        <Calculator className="h-3 w-3 mr-1" />
+                                        Voir tableau complet
+                                    </Button>
+                                </div>
                                 <table className="w-full text-xs">
                                     <thead className="bg-orange-100">
                                         <tr>
@@ -304,6 +389,19 @@ function FinancementRow({
                             </div>
                         </div>
                     )}
+
+                    {/* Modal du tableau d'amortissement complet */}
+                    <Modal
+                        isOpen={showAmortizationModal}
+                        onClose={() => setShowAmortizationModal(false)}
+                        title={`Tableau d'amortissement - ${financement.libelle}`}
+                        size="xl"
+                    >
+                        <AmortizationTable
+                            echeancier={echeancier}
+                            emprunt={financement}
+                        />
+                    </Modal>
                 </div>
             )}
         </div>

@@ -11,6 +11,7 @@ import {
   Zap,
   Users
 } from 'lucide-react'
+import { Footer } from '@/components/layout/Footer'
 
 function Header() {
   return (
@@ -36,7 +37,7 @@ function Header() {
           </nav>
           <div className="flex items-center gap-3">
             <Link
-              href="/connexion"
+              href="/login"
               className="text-sm font-medium text-muted-foreground hover:text-foreground transition-colors"
             >
               Connexion
@@ -67,7 +68,7 @@ function Hero() {
             Creez votre previsionnel comptable professionnel
           </h1>
           <p className="text-lg lg:text-xl text-muted-foreground leading-relaxed mb-10 text-pretty max-w-2xl mx-auto">
-            Compte de resultat, bilan, plan de financement et tresorerie. 
+            Compte de resultat, bilan, plan de financement et tresorerie.
             Pret pour vos banques et investisseurs en quelques minutes.
           </p>
           <div className="flex flex-col sm:flex-row items-center justify-center gap-4">
@@ -318,6 +319,7 @@ export default function HomePage() {
         <Testimonials />
         <CTA />
       </main>
+      <Footer />
     </div>
   )
 }
