@@ -1,7 +1,8 @@
 'use client'
 
-import { useState, useMemo } from 'react'
+import { useState, useMemo, useEffect } from 'react'
 import Link from 'next/link'
+import { useParams } from 'next/navigation'
 import {
     ArrowLeft,
     Plus,
@@ -267,13 +268,9 @@ function LigneChargeRow({
     )
 }
 
-export default function CompteResultatPage({
-    params
-}: {
-    params: Promise<{ id: string }>
-}) {
-    // Récupérer l'ID de manière synchrone pour le MVP
-    const previsionnelId = 'demo'
+export default function CompteResultatPage() {
+    const params = useParams()
+    const previsionnelId = params.id as string
     const [selectedYear, setSelectedYear] = useState(1)
     const yearOffset = (selectedYear - 1) * 12
 
@@ -281,44 +278,80 @@ export default function CompteResultatPage({
     const mois = ['Jan', 'Fév', 'Mar', 'Avr', 'Mai', 'Jun', 'Jul', 'Aoû', 'Sep', 'Oct', 'Nov', 'Déc']
 
     // État pour les lignes de CA
-    const [lignesCA, setLignesCA] = useState<LigneCA[]>([
-        {
-            id: generateId(),
-            libelle: 'Ventes de produits',
-            categorie: 'VENTE_MARCHANDISES',
-            montantsMensuels: Array(12).fill(5000),
-            tauxTVA: 20,
-        }
-    ])
+    const [lignesCA, setLignesCA] = useState<LigneCA[]>([])
 
     // État pour les lignes de charges
-    const [lignesCharges, setLignesCharges] = useState<LigneCharge[]>([
-        {
-            id: generateId(),
-            libelle: 'Achats de marchandises',
-            categorie: 'ACHATS_MARCHANDISES',
-            comptePCG: '607',
-            montantsMensuels: Array(12).fill(2000),
-            tauxTVA: 20,
-        },
-        {
-            id: generateId(),
-            libelle: 'Loyer',
-            categorie: 'LOCATIONS',
-            comptePCG: '613',
-            montantsMensuels: Array(12).fill(1000),
-            tauxTVA: 20,
-        }
-    ])
+    const [lignesCharges, setLignesCharges] = useState<LigneCharge[]>([])
 
     // État pour les salaires (salariés)
-    const [salairesBruts, setSalairesBruts] = useState(1500) // Salaire brut mensuel moyen
-    const [nombreSalaries, setNombreSalaries] = useState(1)
-    const [tauxChargesPatronales, setTauxChargesPatronales] = useState(45) // Taux par défaut
+    const [salairesBruts, setSalairesBruts] = useState(0)
+    const [nombreSalaries, setNombreSalaries] = useState(0)
+    const [tauxChargesPatronales, setTauxChargesPatronales] = useState(45)
 
     // État pour la rémunération des associés/gérants
-    const [remunerationAssocies, setRemunerationAssocies] = useState(2500) // Rémunération brute mensuelle
-    const [tauxChargesSocialesAssocies, setTauxChargesSocialesAssocies] = useState(45) // RSI/URSSAF
+    const [remunerationAssocies, setRemunerationAssocies] = useState(0)
+    const [tauxChargesSocialesAssocies, setTauxChargesSocialesAssocies] = useState(45)
+
+    // Chargement des données
+    useEffect(() => {
+        if (!previsionnelId || previsionnelId === 'demo') {
+            // Mock initialization if needed or empty
+            setLignesCA([{
+                id: generateId(),
+                libelle: 'Ventes de produits',
+                categorie: 'VENTE_MARCHANDISES',
+                montantsMensuels: Array(36).fill(0), // 36 mois
+                tauxTVA: 20,
+            }])
+            setLignesCharges([{
+                id: generateId(),
+                libelle: 'Loyer',
+                categorie: 'LOCATIONS',
+                comptePCG: '613',
+                montantsMensuels: Array(36).fill(0),
+                tauxTVA: 20,
+            }])
+            return
+        }
+
+        const fetchData = async () => {
+            try {
+                const res = await fetch(`/api/previsionnels/${previsionnelId}`)
+                if (!res.ok) throw new Error('Erreur chargement')
+                const data = await res.json()
+
+                if (data.lignesCA) {
+                    setLignesCA(data.lignesCA.map((l: any) => ({
+                        id: l.id,
+                        libelle: l.libelle,
+                        categorie: l.categorie,
+                        montantsMensuels: l.montantsMensuels || Array(36).fill(0),
+                        tauxTVA: l.tauxTVA || 20,
+                    })))
+                } else {
+                    setLignesCA([])
+                }
+
+                if (data.lignesCharge) {
+                    setLignesCharges(data.lignesCharge.map((l: any) => ({
+                        id: l.id,
+                        libelle: l.libelle,
+                        categorie: l.categorie,
+                        comptePCG: l.comptePCG || '',
+                        montantsMensuels: l.montantsMensuels || Array(36).fill(0),
+                        tauxTVA: l.tauxTVA || 20,
+                    })))
+                } else {
+                    setLignesCharges([])
+                }
+
+                // Load salaries/effectifs logic could be added here if API provides it easy summary
+            } catch (err) {
+                console.error(err)
+            }
+        }
+        fetchData()
+    }, [previsionnelId])
 
     // Ajouter une ligne de CA
     const addLigneCA = () => {
@@ -364,13 +397,14 @@ export default function CompteResultatPage({
 
     // Calculs
     const calculs = useMemo(() => {
-        const totalCA = lignesCA.reduce((sum, l) =>
-            sum + l.montantsMensuels.reduce((a, b) => a + b, 0), 0
-        )
+        // Fonction pour sommer les montants d'une ligne sur l'année sélectionnée seulement
+        const sumYear = (montants: number[]) => {
+            return montants.slice(yearOffset, yearOffset + 12).reduce((a, b) => a + b, 0)
+        }
 
-        const totalCharges = lignesCharges.reduce((sum, l) =>
-            sum + l.montantsMensuels.reduce((a, b) => a + b, 0), 0
-        )
+        const totalCA = lignesCA.reduce((sum, l) => sum + sumYear(l.montantsMensuels), 0)
+
+        const totalCharges = lignesCharges.reduce((sum, l) => sum + sumYear(l.montantsMensuels), 0)
 
         // Calcul détaillé des charges de personnel (salariés)
         const totalSalairesBruts = salairesBruts * nombreSalaries * 12
@@ -388,23 +422,23 @@ export default function CompteResultatPage({
         // Séparer les achats des autres charges
         const achats = lignesCharges
             .filter(l => l.categorie.includes('ACHATS'))
-            .reduce((sum, l) => sum + l.montantsMensuels.reduce((a, b) => a + b, 0), 0)
+            .reduce((sum, l) => sum + sumYear(l.montantsMensuels), 0)
 
         const servicesExterieurs = lignesCharges
             .filter(l => !l.categorie.includes('ACHATS'))
-            .reduce((sum, l) => sum + l.montantsMensuels.reduce((a, b) => a + b, 0), 0)
+            .reduce((sum, l) => sum + sumYear(l.montantsMensuels), 0)
 
         // Données pour le calcul des SIG
         const donnees: DonneesCompteResultat = {
             venteMarchandises: lignesCA
                 .filter(l => l.categorie === 'VENTE_MARCHANDISES')
-                .reduce((sum, l) => sum + l.montantsMensuels.reduce((a, b) => a + b, 0), 0),
+                .reduce((sum, l) => sum + sumYear(l.montantsMensuels), 0),
             productionVendueBiens: lignesCA
                 .filter(l => l.categorie === 'PRODUCTION_VENDUE_BIENS')
-                .reduce((sum, l) => sum + l.montantsMensuels.reduce((a, b) => a + b, 0), 0),
+                .reduce((sum, l) => sum + sumYear(l.montantsMensuels), 0),
             productionVendueServices: lignesCA
                 .filter(l => l.categorie === 'PRODUCTION_VENDUE_SERVICES')
-                .reduce((sum, l) => sum + l.montantsMensuels.reduce((a, b) => a + b, 0), 0),
+                .reduce((sum, l) => sum + sumYear(l.montantsMensuels), 0),
             subventionsExploitation: 0,
             autresProduits: 0,
             produitsFin: 0,
@@ -445,7 +479,7 @@ export default function CompteResultatPage({
             totalChargesPersonnel,
             sig,
         }
-    }, [lignesCA, lignesCharges, salairesBruts, nombreSalaries, tauxChargesPatronales, remunerationAssocies, tauxChargesSocialesAssocies])
+    }, [lignesCA, lignesCharges, salairesBruts, nombreSalaries, tauxChargesPatronales, remunerationAssocies, tauxChargesSocialesAssocies, yearOffset])
 
     return (
         <div className="flex min-h-screen bg-gray-50">

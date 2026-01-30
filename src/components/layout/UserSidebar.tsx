@@ -57,14 +57,14 @@ export function UserSidebar() { // Suppression de { user } car non utilisé pour
             </nav>
 
             <div className="border-t border-border pt-4 mt-auto">
-                <div className="flex items-center gap-3 px-3 py-3 mb-2">
+                <Link href="/profile" className="flex items-center gap-3 px-3 py-3 mb-2 hover:bg-secondary/50 rounded-lg transition-colors cursor-pointer">
                     <div className="w-8 h-8 rounded-full bg-secondary flex items-center justify-center">
                         <User className="h-4 w-4" />
                     </div>
                     <div className="flex-1 min-w-0">
                         <p className="text-sm font-medium truncate">Mon Compte</p>
                     </div>
-                </div>
+                </Link>
                 <Button variant="ghost" className="w-full justify-start text-red-600 hover:text-red-700 hover:bg-red-50" onClick={handleSignOut}>
                     <LogOut className="h-4 w-4 mr-2" />
                     Déconnexion
