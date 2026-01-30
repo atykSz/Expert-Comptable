@@ -30,7 +30,7 @@ export default async function DashboardPage() {
                         <h1 className="text-3xl font-bold tracking-tight">{greeting}, {userName} !</h1>
                         <p className="text-white/80 mt-2">
                             {previsionnels.length === 0
-                                ? "Bienvenue dans votre espace. Créez votre premier prévisionnel pour commencer."
+                                ? "Bienvenue dans votre espace. Créez votre premier Prévisionnel pour commencer."
                                 : `Vous avez ${previsionnels.length} prévisionnel${previsionnels.length > 1 ? 's' : ''} en cours.`
                             }
                         </p>
@@ -106,16 +106,16 @@ export default async function DashboardPage() {
                         <div className="w-20 h-20 bg-gradient-to-br from-[#1e3a5f]/20 to-[#2d5a87]/20 rounded-full flex items-center justify-center mb-6">
                             <FileSpreadsheet className="h-10 w-10 text-[#1e3a5f]" />
                         </div>
-                        <h3 className="text-2xl font-semibold mb-2">Créez votre premier prévisionnel</h3>
+                        <h3 className="text-2xl font-semibold mb-2">Créez votre premier Prévisionnel</h3>
                         <p className="text-muted-foreground max-w-md mb-8">
-                            Un prévisionnel financier vous permet de planifier et visualiser
+                            Un Prévisionnel financier vous permet de planifier et visualiser
                             la santé financière de votre projet sur 3 ans.
                         </p>
                         <div className="flex flex-col sm:flex-row gap-4">
                             <Link href="/previsionnel/nouveau">
                                 <Button className="bg-[#1e3a5f] hover:bg-[#1e3a5f]/90">
                                     <PlusCircle className="mr-2 h-4 w-4" />
-                                    Créer mon prévisionnel
+                                    Créer mon Prévisionnel
                                 </Button>
                             </Link>
                             <Link href="/ressources/comprendre-previsionnel">

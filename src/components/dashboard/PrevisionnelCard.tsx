@@ -85,7 +85,7 @@ export function PrevisionnelCard({
                             </div>
                         </div>
                         <div className="mt-4 pt-4 border-t flex items-center justify-between text-sm font-medium text-[#1e3a5f]">
-                            Accéder au tableau de bord
+                            Accéder au Tableau de Bord
                             <ArrowRight className="h-4 w-4 transform group-hover:translate-x-1 transition-transform" />
                         </div>
                     </CardContent>

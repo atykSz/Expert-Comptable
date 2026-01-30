@@ -764,7 +764,7 @@ export default function RapportPage() {
                 <div className="max-w-5xl mx-auto px-6 py-4 flex justify-between items-center">
                     <Link href={`/previsionnel/${id}/dashboard`} className="inline-flex items-center gap-2 text-gray-600 hover:text-gray-900 text-sm">
                         <ArrowLeft className="h-4 w-4" />
-                        Retour au tableau de bord
+                        Retour au Tableau de Bord
                     </Link>
                     <div className="flex gap-3">
                         <Button variant="outline" onClick={handlePrint}>

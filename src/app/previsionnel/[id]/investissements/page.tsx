@@ -339,7 +339,7 @@ export default function InvestissementsPage({
                             className="inline-flex items-center gap-2 text-gray-600 hover:text-gray-900 text-sm mb-2"
                         >
                             <ArrowLeft className="h-4 w-4" />
-                            Retour au compte de résultat
+                            Retour au Compte de Résultat
                         </Link>
                         <h1 className="text-2xl font-bold text-gray-900">Investissements & Amortissements</h1>
                         <p className="text-gray-600">Gérez vos immobilisations et leur amortissement</p>
@@ -468,7 +468,7 @@ export default function InvestissementsPage({
 
                         <div className="mt-4 p-3 bg-blue-50 rounded-lg text-sm text-blue-800">
                             <strong>Note :</strong> Les dotations aux amortissements sont automatiquement intégrées
-                            au compte de résultat (ligne &quot;Dotations aux amortissements&quot;) et impactent le bilan
+                            au Compte de Résultat (ligne &quot;Dotations aux amortissements&quot;) et impactent le Bilan
                             (diminution de la valeur nette comptable des immobilisations).
                         </div>
                     </CardContent>

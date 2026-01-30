@@ -34,9 +34,9 @@ export default function ComprendrePrevisionnelPage() {
                             </p>
                             <p>Il répond à 3 questions fondamentales :</p>
                             <ul className="list-disc pl-5 space-y-2 marker:text-blue-500">
-                                <li><strong>Mon activité sera-t-elle rentable ?</strong> (Compte de résultat)</li>
-                                <li><strong>Mon projet est-il finançable ?</strong> (Plan de financement)</li>
-                                <li><strong>Aurai-je assez d'argent pour payer mes factures ?</strong> (Plan de trésorerie)</li>
+                                <li><strong>Mon activité sera-t-elle rentable ?</strong> (Compte de Résultat)</li>
+                                <li><strong>Mon projet est-il finançable ?</strong> (Plan de Financement)</li>
+                                <li><strong>Aurai-je assez d'argent pour payer mes factures ?</strong> (Plan de Trésorerie)</li>
                             </ul>
                         </CardContent>
                     </Card>

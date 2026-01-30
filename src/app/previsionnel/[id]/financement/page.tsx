@@ -746,7 +746,7 @@ export default function FinancementPage({
 
                         <div className="mt-4 p-3 bg-blue-50 rounded-lg text-sm text-blue-800">
                             <strong>Note :</strong> La CAF (Capacité d'Autofinancement) est calculée automatiquement
-                            à partir du compte de résultat. Les remboursements d'emprunts sont déduits des échéanciers
+                            à partir du Compte de Résultat. Les remboursements d'emprunts sont déduits des échéanciers
                             saisis dans les financements.
                         </div>
                     </CardContent>

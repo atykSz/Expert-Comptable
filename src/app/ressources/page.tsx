@@ -117,12 +117,12 @@ export default function RessourcesPage() {
                         <div>
                             <h2 className="text-lg font-semibold mb-2">Besoin d'aide pour démarrer ?</h2>
                             <p className="text-muted-foreground mb-4 max-w-2xl">
-                                Notre assistant de création vous guide étape par étape pour construire votre premier prévisionnel
+                                Notre assistant de création vous guide étape par étape pour construire votre premier Prévisionnel
                                 adapté à votre statut juridique.
                             </p>
                             <Link href="/previsionnel/nouveau">
                                 <button className="bg-primary text-primary-foreground hover:bg-primary/90 px-4 py-2 rounded-lg font-medium text-sm transition-colors">
-                                    Créer mon prévisionnel
+                                    Créer mon Prévisionnel
                                 </button>
                             </Link>
                         </div>
