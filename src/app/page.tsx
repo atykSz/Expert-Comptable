@@ -11,7 +11,7 @@ import {
   Zap,
   Users
 } from 'lucide-react'
-import { Footer } from '@/components/layout/Footer'
+
 
 function Header() {
   return (
@@ -80,7 +80,7 @@ function Hero() {
               <ArrowRight className="h-4 w-4" />
             </Link>
             <Link
-              href="#features"
+              href="/previsionnel/demo/dashboard"
               className="inline-flex items-center gap-2 text-muted-foreground hover:text-foreground px-6 py-3.5 font-medium transition-colors"
             >
               Decouvrir les fonctionnalites
@@ -319,7 +319,6 @@ export default function HomePage() {
         <Testimonials />
         <CTA />
       </main>
-      <Footer />
     </div>
   )
 }

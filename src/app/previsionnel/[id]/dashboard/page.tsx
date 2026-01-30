@@ -9,85 +9,18 @@ import {
     Calculator,
     Building,
     FileText,
-    Table,
     BarChart3,
     CheckCircle,
     AlertTriangle,
     TrendingDown,
     ArrowRight,
-    ArrowLeft,
-    BookOpen
+    ArrowLeft
 } from 'lucide-react'
 import { Button, Card, CardContent, CardHeader, CardTitle } from '@/components/ui'
 import { formatCurrency } from '@/lib/utils'
+import { PrevisionnelSidebar } from '@/components/layout/PrevisionnelSidebar'
 
-// Navigation laterale avec dashboard
-function Sidebar({ previsionnelId }: { previsionnelId: string }) {
-    const navItems = [
-        { href: `/previsionnel/${previsionnelId}/dashboard`, label: 'Tableau de Bord', icon: BarChart3, active: true },
-        { href: `/previsionnel/${previsionnelId}/compte-resultat`, label: 'Compte de Resultat', icon: FileSpreadsheet },
-        { href: `/previsionnel/${previsionnelId}/investissements`, label: 'Investissements', icon: Building },
-        { href: `/previsionnel/${previsionnelId}/bilan`, label: 'Bilan Previsionnel', icon: Calculator },
-        { href: `/previsionnel/${previsionnelId}/financement`, label: 'Plan de Financement', icon: TrendingUp },
-        { href: `/previsionnel/${previsionnelId}/tresorerie`, label: 'Plan de Tresorerie', icon: PiggyBank },
-    ]
 
-    return (
-        <aside className="w-64 bg-card border-r border-border min-h-screen p-5">
-            <Link href="/" className="flex items-center gap-2.5 mb-8">
-                <div className="w-8 h-8 bg-foreground rounded-lg flex items-center justify-center">
-                    <BarChart3 className="h-5 w-5 text-background" />
-                </div>
-                <span className="font-semibold tracking-tight">Expert-Comptable</span>
-            </Link>
-
-            <nav className="space-y-1">
-                {navItems.map((item) => (
-                    <Link
-                        key={item.href}
-                        href={item.href}
-                        className={`flex items-center gap-3 px-3 py-2.5 rounded-xl transition-colors ${item.active
-                            ? 'bg-foreground text-background'
-                            : 'text-muted-foreground hover:bg-secondary hover:text-foreground'
-                            }`}
-                    >
-                        <item.icon className="h-5 w-5" />
-                        <span className="text-sm font-medium">{item.label}</span>
-                    </Link>
-                ))}
-            </nav>
-
-            {/* Actions export */}
-            <div className="mt-8 pt-8 border-t border-border">
-                <div className="text-xs font-medium text-muted-foreground uppercase tracking-wide mb-3">Documents</div>
-                <div className="space-y-2">
-                    <Link href={`/previsionnel/${previsionnelId}/rapport`}>
-                        <Button variant="default" size="sm" className="w-full justify-start">
-                            <FileText className="h-4 w-4 mr-2" />
-                            Rapport complet
-                        </Button>
-                    </Link>
-                    <a href={`/api/export/excel?id=${previsionnelId}`} download>
-                        <Button variant="outline" size="sm" className="w-full justify-start">
-                            <Table className="h-4 w-4 mr-2" />
-                            Export Excel
-                        </Button>
-                    </a>
-                </div>
-
-                <div className="mt-8">
-                    <div className="text-xs font-medium text-muted-foreground uppercase tracking-wide mb-3">Aide Expert</div>
-                    <Link href="/ressources" target="_blank">
-                        <Button variant="ghost" size="sm" className="w-full justify-start text-muted-foreground hover:text-foreground">
-                            <BookOpen className="h-4 w-4 mr-2" />
-                            Documentation
-                        </Button>
-                    </Link>
-                </div>
-            </div>
-        </aside>
-    )
-}
 
 // Indicateur avec statut
 function StatutIndicateur({
@@ -181,7 +114,7 @@ export default function DashboardPage({
 
     return (
         <div className="flex min-h-screen bg-background">
-            <Sidebar previsionnelId={previsionnelId} />
+            <PrevisionnelSidebar previsionnelId={previsionnelId} />
 
             <main className="flex-1 p-8">
                 {/* Header */}

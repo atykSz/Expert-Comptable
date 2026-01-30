@@ -22,6 +22,7 @@ import {
 } from 'lucide-react'
 import { Button, Input, Select, Card, CardContent, CardHeader, CardTitle, Modal } from '@/components/ui'
 import { formatCurrency } from '@/lib/utils'
+import { PrevisionnelSidebar } from '@/components/layout/PrevisionnelSidebar'
 import { calculerEcheancier, calculerCoutTotalEmprunt, type EcheanceEmprunt, type Emprunt } from '@/lib/calculations/emprunts'
 
 // Helper pour créer un objet Emprunt et calculer l'échéancier
@@ -83,41 +84,6 @@ function generateId() {
     return Math.random().toString(36).substring(2, 9)
 }
 
-// Navigation latérale
-function Sidebar({ previsionnelId }: { previsionnelId: string }) {
-    const navItems = [
-        { href: `/previsionnel/${previsionnelId}/compte-resultat`, label: 'Compte de Résultat', icon: FileSpreadsheet },
-        { href: `/previsionnel/${previsionnelId}/investissements`, label: 'Investissements', icon: Building },
-        { href: `/previsionnel/${previsionnelId}/bilan`, label: 'Bilan Prévisionnel', icon: Calculator },
-        { href: `/previsionnel/${previsionnelId}/financement`, label: 'Plan de Financement', icon: TrendingUp, active: true },
-        { href: `/previsionnel/${previsionnelId}/tresorerie`, label: 'Plan de Trésorerie', icon: PiggyBank },
-    ]
-
-    return (
-        <aside className="w-64 bg-white border-r border-gray-200 min-h-screen p-4">
-            <Link href="/" className="flex items-center gap-2 mb-8">
-                <FileSpreadsheet className="h-6 w-6 text-blue-600" />
-                <span className="font-bold text-gray-900">Expert-Comptable</span>
-            </Link>
-
-            <nav className="space-y-1">
-                {navItems.map((item) => (
-                    <Link
-                        key={item.href}
-                        href={item.href}
-                        className={`flex items-center gap-3 px-3 py-2 rounded-lg transition-colors ${item.active
-                            ? 'bg-blue-50 text-blue-700'
-                            : 'text-gray-600 hover:bg-gray-50'
-                            }`}
-                    >
-                        <item.icon className="h-5 w-5" />
-                        <span className="text-sm font-medium">{item.label}</span>
-                    </Link>
-                ))}
-            </nav>
-        </aside>
-    )
-}
 
 // Composant tableau d'amortissement complet (pour la modal)
 function AmortizationTable({
@@ -569,7 +535,7 @@ export default function FinancementPage({
 
     return (
         <div className="flex min-h-screen bg-gray-50">
-            <Sidebar previsionnelId={previsionnelId} />
+            <PrevisionnelSidebar previsionnelId={previsionnelId} />
 
             <main className="flex-1 p-8">
                 {/* Header */}

@@ -15,6 +15,7 @@ import {
 } from 'lucide-react'
 import { Button, Card, CardContent, CardHeader, CardTitle } from '@/components/ui'
 import { formatCurrency } from '@/lib/utils'
+import { PrevisionnelSidebar } from '@/components/layout/PrevisionnelSidebar'
 
 // Types pour le bilan
 interface PosteBilan {
@@ -27,40 +28,6 @@ interface PosteBilan {
 }
 
 // Navigation latérale
-function Sidebar({ previsionnelId }: { previsionnelId: string }) {
-    const navItems = [
-        { href: `/previsionnel/${previsionnelId}/compte-resultat`, label: 'Compte de Résultat', icon: FileSpreadsheet },
-        { href: `/previsionnel/${previsionnelId}/investissements`, label: 'Investissements', icon: Building },
-        { href: `/previsionnel/${previsionnelId}/bilan`, label: 'Bilan Prévisionnel', icon: Calculator, active: true },
-        { href: `/previsionnel/${previsionnelId}/financement`, label: 'Plan de Financement', icon: TrendingUp },
-        { href: `/previsionnel/${previsionnelId}/tresorerie`, label: 'Plan de Trésorerie', icon: PiggyBank },
-    ]
-
-    return (
-        <aside className="w-64 bg-white border-r border-gray-200 min-h-screen p-4">
-            <Link href="/" className="flex items-center gap-2 mb-8">
-                <FileSpreadsheet className="h-6 w-6 text-blue-600" />
-                <span className="font-bold text-gray-900">Expert-Comptable</span>
-            </Link>
-
-            <nav className="space-y-1">
-                {navItems.map((item) => (
-                    <Link
-                        key={item.href}
-                        href={item.href}
-                        className={`flex items-center gap-3 px-3 py-2 rounded-lg transition-colors ${item.active
-                                ? 'bg-blue-50 text-blue-700'
-                                : 'text-gray-600 hover:bg-gray-50'
-                            }`}
-                    >
-                        <item.icon className="h-5 w-5" />
-                        <span className="text-sm font-medium">{item.label}</span>
-                    </Link>
-                ))}
-            </nav>
-        </aside>
-    )
-}
 
 // Composant pour afficher une section du bilan
 function BilanSection({
@@ -97,7 +64,7 @@ function BilanSection({
                         <tr
                             key={idx}
                             className={`border-b ${poste.niveau === 0 ? 'bg-gray-100 font-semibold' :
-                                    poste.niveau === 1 ? 'bg-gray-50 font-medium' : ''
+                                poste.niveau === 1 ? 'bg-gray-50 font-medium' : ''
                                 }`}
                         >
                             <td className={`px-4 py-2 ${poste.niveau === 2 ? 'pl-8' : ''}`}>
@@ -268,7 +235,7 @@ export default function BilanPage({
 
     return (
         <div className="flex min-h-screen bg-gray-50">
-            <Sidebar previsionnelId={previsionnelId} />
+            <PrevisionnelSidebar previsionnelId={previsionnelId} />
 
             <main className="flex-1 p-8">
                 {/* Header */}
@@ -292,8 +259,8 @@ export default function BilanPage({
 
                 {/* Indicateur d'équilibre */}
                 <div className={`mb-6 p-4 rounded-lg flex items-center gap-3 ${tousEquilibres
-                        ? 'bg-green-50 border border-green-200'
-                        : 'bg-yellow-50 border border-yellow-200'
+                    ? 'bg-green-50 border border-green-200'
+                    : 'bg-yellow-50 border border-yellow-200'
                     }`}>
                     {tousEquilibres ? (
                         <>

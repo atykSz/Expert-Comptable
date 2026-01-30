@@ -19,6 +19,7 @@ import {
 } from 'lucide-react'
 import { Button, Input, Card, CardContent, CardHeader, CardTitle } from '@/components/ui'
 import { formatCurrency } from '@/lib/utils'
+import { PrevisionnelSidebar } from '@/components/layout/PrevisionnelSidebar'
 
 interface LigneRecette {
     id: string
@@ -68,43 +69,6 @@ function generateId() {
 }
 
 // Navigation latérale
-function Sidebar({ previsionnelId }: { previsionnelId: string }) {
-    const navItems = [
-        { href: `/previsionnel/${previsionnelId}/declaration-2035`, label: 'Déclaration 2035', icon: FileSpreadsheet, active: true },
-        { href: `/previsionnel/${previsionnelId}/bilan`, label: 'Bilan Simplifié', icon: Calculator },
-        { href: `/previsionnel/${previsionnelId}/financement`, label: 'Plan de Financement', icon: TrendingUp },
-        { href: `/previsionnel/${previsionnelId}/tresorerie`, label: 'Plan de Trésorerie', icon: PiggyBank },
-    ]
-
-    return (
-        <aside className="w-64 bg-white border-r border-gray-200 min-h-screen p-4">
-            <Link href="/" className="flex items-center gap-2 mb-8">
-                <FileSpreadsheet className="h-6 w-6 text-purple-600" />
-                <span className="font-bold text-gray-900">Expert-Comptable</span>
-            </Link>
-
-            <div className="mb-4 px-3 py-2 bg-purple-50 rounded-lg">
-                <span className="text-xs font-medium text-purple-700">Format 2035 - BNC</span>
-            </div>
-
-            <nav className="space-y-1">
-                {navItems.map((item) => (
-                    <Link
-                        key={item.href}
-                        href={item.href}
-                        className={`flex items-center gap-3 px-3 py-2 rounded-lg transition-colors ${item.active
-                            ? 'bg-purple-50 text-purple-700'
-                            : 'text-gray-600 hover:bg-gray-50'
-                            }`}
-                    >
-                        <item.icon className="h-5 w-5" />
-                        <span className="text-sm font-medium">{item.label}</span>
-                    </Link>
-                ))}
-            </nav>
-        </aside>
-    )
-}
 
 // Ligne de recette
 function LigneRecetteRow({
@@ -397,7 +361,7 @@ export default function Declaration2035Page({
 
     return (
         <div className="flex min-h-screen bg-gray-50">
-            <Sidebar previsionnelId={previsionnelId} />
+            <PrevisionnelSidebar previsionnelId={previsionnelId} />
 
             <main className="flex-1 p-8">
                 {/* Header */}
