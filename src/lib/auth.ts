@@ -44,8 +44,55 @@ export async function getAuthenticatedUser(): Promise<AuthenticatedUser | null> 
         prismaUser = created.user
     }
 
-    // Get default client for this user
-    const defaultClient = await getDefaultClient(prismaUser.id, prismaUser.cabinetId)
+    // Initialize defaultClient variable
+    let defaultClient: { id: string } | null = null
+
+    // If user has no cabinet (e.g. Admin seeded manually), create one
+    if (!prismaUser.cabinetId) {
+        const result = await prisma.$transaction(async (tx) => {
+            const userName = prismaUser.name || prismaUser.email.split('@')[0]
+
+            const cabinet = await tx.cabinet.create({
+                data: {
+                    name: `Cabinet de ${userName}`,
+                    email: prismaUser.email,
+                },
+            })
+
+            await tx.user.update({
+                where: { id: prismaUser.id },
+                data: { cabinetId: cabinet.id },
+            })
+
+            const client = await tx.client.create({
+                data: {
+                    cabinetId: cabinet.id,
+                    raisonSociale: `Entreprise de ${userName}`,
+                    formeJuridique: 'SARL',
+                },
+            })
+
+            return { cabinet, client }
+        })
+
+        // Update local variables after creation
+        prismaUser.cabinetId = result.cabinet.id
+        defaultClient = result.client
+    } else {
+        // If user has cabinet but no default client
+        let existingDefaultClient = await getDefaultClient(prismaUser.id, prismaUser.cabinetId)
+
+        if (!existingDefaultClient) {
+            existingDefaultClient = await prisma.client.create({
+                data: {
+                    cabinetId: prismaUser.cabinetId,
+                    raisonSociale: `Entreprise de ${prismaUser.name || prismaUser.email.split('@')[0]}`,
+                    formeJuridique: 'SARL',
+                },
+            })
+        }
+        defaultClient = existingDefaultClient
+    }
 
     return {
         supabaseUser: user,

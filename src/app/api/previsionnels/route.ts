@@ -60,7 +60,16 @@ export async function POST(request: Request) {
         // Validation
         if (!effectiveClientId || !titre || !dateDebut) {
             return NextResponse.json(
-                { error: 'titre et dateDebut sont requis' },
+                {
+                    error: 'Données manquantes',
+                    details: {
+                        effectiveClientId: effectiveClientId ? 'Present' : 'Missing',
+                        titre: titre || 'Missing',
+                        dateDebut: dateDebut || 'Missing',
+                        userId: authUser.prismaUser.id,
+                        cabinetId: authUser.prismaUser.cabinetId
+                    }
+                },
                 { status: 400 }
             )
         }

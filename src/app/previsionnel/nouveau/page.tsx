@@ -3,6 +3,7 @@
 import { useState, useMemo } from 'react'
 import Link from 'next/link'
 import { useRouter } from 'next/navigation'
+import { createClient } from '@/lib/supabase/client'
 import {
     ArrowLeft,
     ArrowRight,
@@ -172,20 +173,67 @@ export default function NouveauPrevisionnelPage() {
     const handleSubmit = async () => {
         setIsLoading(true)
 
-        // Simuler la creation (en attendant l'API)
-        await new Promise(resolve => setTimeout(resolve, 1000))
+        try {
+            const supabase = createClient()
+            const { data: { user } } = await supabase.auth.getUser()
 
-        // Generer un ID temporaire
-        const tempId = 'demo-' + Date.now()
+            if (user) {
+                // Mode connecté : Sauvegarde en BDD via API
+                const response = await fetch('/api/previsionnels', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        titre: formData.titrePrevisionnel,
+                        dateDebut: formData.dateDebut,
+                        nombreMois: formData.nombreMois,
+                        regimeFiscal: formData.regimeFiscal,
+                        formatDocument: formData.formatDocument,
+                        hypotheses: {
+                            tauxTVAVentes: formData.tauxTVAVentes,
+                            tauxTVAAchats: formData.tauxTVAAchats,
+                            delaiPaiementClients: formData.delaiPaiementClients,
+                            delaiPaiementFournisseurs: formData.delaiPaiementFournisseurs,
+                            tauxChargesSocialesPatronales: isBNC(formData.regimeFiscal) ? 0 : 45, // Simplification
+                            tauxChargesSocialesSalariales: isBNC(formData.regimeFiscal) ? 22 : 22, // Simplification
+                            tauxIS: formData.tauxIS,
+                        }
+                    })
+                })
 
-        // Sauvegarder dans localStorage pour la demo
-        localStorage.setItem(`previsionnel-${tempId}`, JSON.stringify(formData))
+                if (!response.ok) {
+                    const errorData = await response.json().catch(() => ({}))
+                    console.error('API Error:', response.status, errorData)
+                    throw new Error(errorData.error || `Erreur lors de la création (${response.status})`)
+                }
 
-        // Redirection vers la page adaptee au format
-        if (formData.formatDocument === 'LIASSE_2035') {
-            router.push(`/previsionnel/${tempId}/declaration-2035`)
-        } else {
-            router.push(`/previsionnel/${tempId}/compte-resultat`)
+                const newPrevisionnel = await response.json()
+
+                // Redirection
+                if (formData.formatDocument === 'LIASSE_2035') {
+                    router.push(`/previsionnel/${newPrevisionnel.id}/declaration-2035`)
+                } else {
+                    router.push(`/previsionnel/${newPrevisionnel.id}/compte-resultat`)
+                }
+
+            } else {
+                // Mode non connecté : LocalStorage (Demo)
+                // Simuler la creation
+                await new Promise(resolve => setTimeout(resolve, 500))
+
+                const tempId = 'demo-' + Date.now()
+                localStorage.setItem(`previsionnel-${tempId}`, JSON.stringify(formData))
+
+                if (formData.formatDocument === 'LIASSE_2035') {
+                    router.push(`/previsionnel/${tempId}/declaration-2035`)
+                } else {
+                    router.push(`/previsionnel/${tempId}/compte-resultat`)
+                }
+            }
+        } catch (error) {
+            console.error(error)
+            // Ici on pourrait afficher une erreur à l'utilisateur
+        } finally {
+            setIsLoading(false)
         }
     }
 
