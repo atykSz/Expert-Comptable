@@ -231,7 +231,8 @@ export default function NouveauPrevisionnelPage() {
             }
         } catch (error) {
             console.error(error)
-            alert(`Une erreur est survenue : ${error instanceof Error ? error.message : 'Erreur inconnue'}`)
+            const errorMsg = error instanceof Error ? error.message : 'Erreur inconnue'
+            alert(`Une erreur est survenue :\n${errorMsg}`)
         } finally {
             setIsLoading(false)
         }

@@ -135,7 +135,11 @@ export async function POST(request: Request) {
     } catch (error) {
         console.error('Erreur lors de la création du prévisionnel:', error)
         return NextResponse.json(
-            { error: 'Erreur lors de la création du prévisionnel' },
+            {
+                error: 'Erreur technique lors de la création',
+                details: error instanceof Error ? error.message : 'Erreur inconnue',
+                stack: process.env.NODE_ENV === 'development' ? (error instanceof Error ? error.stack : undefined) : undefined
+            },
             { status: 500 }
         )
     }
