@@ -10,7 +10,7 @@ import { Button, Input, Card, CardContent, CardHeader, CardTitle } from '@/compo
 function LoginForm() {
     const router = useRouter()
     const searchParams = useSearchParams()
-    const callbackUrl = searchParams.get('callbackUrl') || '/previsionnel'
+    const callbackUrl = searchParams.get('callbackUrl') || '/dashboard'
     const errorParam = searchParams.get('error')
 
     const [email, setEmail] = useState('')
