@@ -46,8 +46,8 @@ function YearTabs({ selectedYear, onYearChange }: { selectedYear: number, onYear
                     key={year}
                     onClick={() => onYearChange(year)}
                     className={`px-4 py-2 rounded-lg font-medium transition-colors flex items-center gap-2 ${selectedYear === year
-                            ? 'bg-blue-600 text-white'
-                            : 'bg-white text-gray-600 border border-gray-200 hover:bg-gray-50'
+                        ? 'bg-blue-600 text-white'
+                        : 'bg-white text-gray-600 border border-gray-200 hover:bg-gray-50'
                         }`}
                 >
                     <Calendar className="h-4 w-4" />
@@ -541,6 +541,7 @@ export default function CompteResultatPage({
                                 onUpdate={updateLigneCA}
                                 onDelete={deleteLigneCA}
                                 mois={mois}
+                                yearOffset={0}
                             />
                         ))}
 
