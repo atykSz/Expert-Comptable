@@ -134,11 +134,37 @@ export async function POST(request: Request) {
         return NextResponse.json(previsionnel, { status: 201 })
     } catch (error) {
         console.error('Erreur lors de la création du prévisionnel:', error)
+
+        // Robust error serialization
+        let errorMessage = 'Erreur inconnue'
+        let errorStack = undefined
+        let fullDebug = ''
+
+        if (error instanceof Error) {
+            errorMessage = error.message
+            errorStack = error.stack
+            fullDebug = JSON.stringify(error, Object.getOwnPropertyNames(error))
+        } else if (typeof error === 'string') {
+            errorMessage = error
+        } else {
+            errorMessage = String(error)
+            try {
+                fullDebug = JSON.stringify(error)
+            } catch (e) {
+                fullDebug = 'Circular or non-serializable error'
+            }
+        }
+
+        // Si message vide, on force quelque chose
+        if (!errorMessage) {
+            errorMessage = `Erreur vide (Type: ${typeof error})`
+        }
+
         return NextResponse.json(
             {
                 error: 'Erreur technique lors de la création',
-                details: error instanceof Error ? error.message : 'Erreur inconnue',
-                stack: process.env.NODE_ENV === 'development' ? (error instanceof Error ? error.stack : undefined) : undefined
+                details: `[${errorMessage}] DBG:${fullDebug.substring(0, 200)}`, // On met tout dans details pour être sûr
+                stack: process.env.NODE_ENV === 'development' ? errorStack : undefined
             },
             { status: 500 }
         )
