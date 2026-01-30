@@ -15,7 +15,8 @@ import {
     AlertTriangle,
     TrendingDown,
     ArrowRight,
-    ArrowLeft
+    ArrowLeft,
+    BookOpen
 } from 'lucide-react'
 import { Button, Card, CardContent, CardHeader, CardTitle } from '@/components/ui'
 import { formatCurrency } from '@/lib/utils'
@@ -72,6 +73,16 @@ function Sidebar({ previsionnelId }: { previsionnelId: string }) {
                             Export Excel
                         </Button>
                     </a>
+                </div>
+
+                <div className="mt-8">
+                    <div className="text-xs font-medium text-muted-foreground uppercase tracking-wide mb-3">Aide Expert</div>
+                    <Link href="/ressources" target="_blank">
+                        <Button variant="ghost" size="sm" className="w-full justify-start text-muted-foreground hover:text-foreground">
+                            <BookOpen className="h-4 w-4 mr-2" />
+                            Documentation
+                        </Button>
+                    </Link>
                 </div>
             </div>
         </aside>
