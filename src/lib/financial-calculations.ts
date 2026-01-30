@@ -1,4 +1,4 @@
-import { Previsionnel, LigneCA, LigneCharge, Hypotheses, Emprunt, Financement, Investissement } from '@prisma/client'
+import { Previsionnel, LigneCA, LigneCharge, Hypotheses, Financement, Investissement } from '../generated/prisma/client'
 
 // Types étendus avec les relations incluses
 export type PrevisionnelWithRelations = Previsionnel & {
@@ -203,7 +203,7 @@ export function calculateBilan(
 
         // 1. Immo (Simplifié: Somme des investissements)
         // TODO: Gérer dates d'investissements et amortissements réels
-        const immoBrut = previsionnel.investissements.reduce((sum, inv) => sum + inv.montant, 0)
+        const immoBrut = previsionnel.investissements.reduce((sum, inv) => sum + inv.montantHT, 0)
         const amortCumul = immoBrut * 0.1 * year // Simplification 10% par an lineaire
         const immoNet = Math.max(0, immoBrut - amortCumul)
 
@@ -229,7 +229,7 @@ export function calculateBilan(
 
         // 1. Capitaux Propres
         const capital = previsionnel.financements
-            .filter(f => f.type === 'APPORT_CAPITAL' || f.type === 'COMPTE_COURANT') // Simplification
+            .filter(f => f.type === 'CAPITAL_SOCIAL' || f.type === 'COMPTE_COURANT_ASSOCIE') // Simplification
             .reduce((sum, f) => sum + f.montant, 0)
 
         const resultatNet = resultatsAnnuels[year - 1] || 0

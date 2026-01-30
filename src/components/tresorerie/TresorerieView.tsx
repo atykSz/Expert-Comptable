@@ -46,17 +46,21 @@ export function TresorerieView({ previsionnel }: { previsionnel: PrevisionnelWit
     const bfr = useMemo(() => {
         // On somme tout le CA et Achats du prévisionnel
         let caAnnuel = 0
-        previsionnel.lignesCA.forEach(l => {
+        previsionnel.lignesCA.forEach((l) => {
             // Cast explicite car Json
             const m = l.montantsMensuels as unknown as number[]
-            caAnnuel += m.reduce((a, b) => a + b, 0)
+            if (Array.isArray(m)) {
+                caAnnuel += m.reduce((a, b) => a + b, 0)
+            }
         })
 
         let achatsAnnuels = 0
-        previsionnel.lignesCharge.forEach(l => {
+        previsionnel.lignesCharge.forEach((l) => {
             // TODO: Filipter sur les charges d'achats uniquement (classe 60)
             const m = l.montantsMensuels as unknown as number[]
-            achatsAnnuels += m.reduce((a, b) => a + b, 0)
+            if (Array.isArray(m)) {
+                achatsAnnuels += m.reduce((a, b) => a + b, 0)
+            }
         })
 
         // Créances clients = CA TTC * délai / 360

@@ -25,7 +25,8 @@ export default async function TresoreriePage({
             lignesCA: true,
             lignesCharge: true,
             hypotheses: true,
-            financements: true
+            financements: true,
+            investissements: true
         }
     })
 
