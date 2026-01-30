@@ -307,28 +307,7 @@ export default function Declaration2035Page() {
         }
         fetchData()
     }, [previsionnelId])
-    {
-        id: generateId(),
-            rubrique: 'LOYERS',
-                numeroLigne: 20,
-                    libelle: 'Loyer cabinet',
-                        montantsMensuels: Array(12).fill(1200),
-        },
-    {
-        id: generateId(),
-            rubrique: 'COTISATIONS',
-                numeroLigne: 29,
-                    libelle: 'Cotisations ordre et syndicat',
-                        montantsMensuels: [500, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
-        },
-    {
-        id: generateId(),
-            rubrique: 'FOURNITURES_BUREAU',
-                numeroLigne: 27,
-                    libelle: 'Fournitures et consommables',
-                        montantsMensuels: Array(12).fill(100),
-        },
-    ])
+
 
     // Cotisations sociales
     const [cotisationsSociales, setCotisationsSociales] = useState(1800)
