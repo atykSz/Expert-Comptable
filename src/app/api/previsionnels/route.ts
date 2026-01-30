@@ -55,19 +55,30 @@ export async function POST(request: Request) {
         } = body
 
         // Utiliser le client par défaut si non fourni
-        const effectiveClientId = clientId || authUser.defaultClientId
+        let effectiveClientId = clientId || authUser.defaultClientId
+
+        // Si aucun client n'existe, on en crée un par défaut (Fallback robustesse)
+        if (!effectiveClientId && authUser.prismaUser.cabinetId) {
+            const userName = authUser.prismaUser.name || authUser.prismaUser.email.split('@')[0]
+            const newClient = await prisma.client.create({
+                data: {
+                    cabinetId: authUser.prismaUser.cabinetId,
+                    raisonSociale: `Entreprise de ${userName}`,
+                    formeJuridique: 'SARL',
+                }
+            })
+            effectiveClientId = newClient.id
+        }
 
         // Validation
         if (!effectiveClientId || !titre || !dateDebut) {
             return NextResponse.json(
                 {
-                    error: 'Données manquantes',
+                    error: 'Données manquantes (Titre ou Date)',
                     details: {
                         effectiveClientId: effectiveClientId ? 'Present' : 'Missing',
                         titre: titre || 'Missing',
-                        dateDebut: dateDebut || 'Missing',
-                        userId: authUser.prismaUser.id,
-                        cabinetId: authUser.prismaUser.cabinetId
+                        dateDebut: dateDebut || 'Missing'
                     }
                 },
                 { status: 400 }
