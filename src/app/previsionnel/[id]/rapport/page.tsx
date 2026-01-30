@@ -25,7 +25,8 @@ import {
     TableOfContents,
     ProjectPresentation,
     InvestissementsSection,
-    SIGSection
+    SIGSection,
+    GraphicsSection
 } from '@/components/rapport'
 import type { DonneesRapport } from './types'
 
@@ -92,6 +93,7 @@ function transformPrevisionnelToRapport(data: any): DonneesRapport {
             resultatExploitation: Math.round(resultatExploitation),
             resultatNet: Math.round(resultatNet),
             caf: Math.round(resultatNet + dotations),
+            tresorerieFin: Math.round((resultatNet + dotations) * (annee)) // Estimation simple : cumul de la CAF
         }
     })
 
@@ -791,6 +793,7 @@ export default function RapportPage() {
                     <ProjectPresentation entreprise={donnees.entreprise} projet={donnees.projet} />
                     <InvestissementsSection investissements={donnees.investissements} amortissementsCumules={donnees.amortissementsCumules} />
                     <SyntheseExecutive donnees={donnees} />
+                    <GraphicsSection data={donnees.compteResultat} />
                     <CompteResultatSection donnees={donnees} />
                     <SIGSection sig={donnees.sig} />
                     <BilanSection donnees={donnees} />

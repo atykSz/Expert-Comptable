@@ -144,10 +144,10 @@ function LigneCARow({
                                 <label className="text-xs text-gray-500 block mb-1">{m}</label>
                                 <Input
                                     type="number"
-                                    value={ligne.montantsMensuels[index] || 0}
+                                    value={ligne.montantsMensuels[index + yearOffset] || 0}
                                     onChange={(e) => {
                                         const newMontants = [...ligne.montantsMensuels]
-                                        newMontants[index] = parseFloat(e.target.value) || 0
+                                        newMontants[index + yearOffset] = parseFloat(e.target.value) || 0
                                         onUpdate(ligne.id, 'montantsMensuels', newMontants)
                                     }}
                                     className="text-sm"
@@ -181,12 +181,14 @@ function LigneChargeRow({
     ligne,
     onUpdate,
     onDelete,
-    mois
+    mois,
+    yearOffset
 }: {
     ligne: LigneCharge
     onUpdate: (id: string, field: keyof LigneCharge, value: unknown) => void
     onDelete: (id: string) => void
     mois: string[]
+    yearOffset: number
 }) {
     const [expanded, setExpanded] = useState(false)
     const totalAnnuel = ligne.montantsMensuels.reduce((a, b) => a + b, 0)
@@ -236,10 +238,10 @@ function LigneChargeRow({
                                 <label className="text-xs text-gray-500 block mb-1">{m}</label>
                                 <Input
                                     type="number"
-                                    value={ligne.montantsMensuels[index] || 0}
+                                    value={ligne.montantsMensuels[index + yearOffset] || 0}
                                     onChange={(e) => {
                                         const newMontants = [...ligne.montantsMensuels]
-                                        newMontants[index] = parseFloat(e.target.value) || 0
+                                        newMontants[index + yearOffset] = parseFloat(e.target.value) || 0
                                         onUpdate(ligne.id, 'montantsMensuels', newMontants)
                                     }}
                                     className="text-sm"
@@ -272,6 +274,8 @@ export default function CompteResultatPage({
 }) {
     // Récupérer l'ID de manière synchrone pour le MVP
     const previsionnelId = 'demo'
+    const [selectedYear, setSelectedYear] = useState(1)
+    const yearOffset = (selectedYear - 1) * 12
 
     // Mois pour la première année
     const mois = ['Jan', 'Fév', 'Mar', 'Avr', 'Mai', 'Jun', 'Jul', 'Aoû', 'Sep', 'Oct', 'Nov', 'Déc']
@@ -459,13 +463,16 @@ export default function CompteResultatPage({
                             Modifier les paramètres
                         </Link>
                         <h1 className="text-2xl font-bold text-gray-900">Compte de Résultat Prévisionnel</h1>
-                        <p className="text-gray-600">Année 1 - Saisissez vos produits et charges</p>
+                        <p className="text-gray-600">Saisissez vos produits et charges pour les 3 années</p>
                     </div>
                     <Button variant="primary">
                         <Save className="h-4 w-4 mr-2" />
                         Enregistrer
                     </Button>
                 </div>
+
+
+                <YearTabs selectedYear={selectedYear} onYearChange={setSelectedYear} />
 
                 {/* Résumé SIG */}
                 <div className="grid grid-cols-4 gap-4 mb-8">
@@ -508,7 +515,7 @@ export default function CompteResultatPage({
                                 onUpdate={updateLigneCA}
                                 onDelete={deleteLigneCA}
                                 mois={mois}
-                                yearOffset={0}
+                                yearOffset={yearOffset}
                                 defaultExpanded={index === 0}
                             />
                         ))}
@@ -538,6 +545,7 @@ export default function CompteResultatPage({
                                 onUpdate={updateLigneCharge}
                                 onDelete={deleteLigneCharge}
                                 mois={mois}
+                                yearOffset={yearOffset}
                             />
                         ))}
 

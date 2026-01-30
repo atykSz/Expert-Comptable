@@ -43,6 +43,7 @@ export interface DonneesRapport {
         resultatExploitation: number
         resultatNet: number
         caf: number
+        tresorerieFin: number
     }[]
     sig: {
         annee: number
