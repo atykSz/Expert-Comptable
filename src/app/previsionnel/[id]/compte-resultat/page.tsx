@@ -124,15 +124,17 @@ function LigneCARow({
     onUpdate,
     onDelete,
     mois,
-    yearOffset
+    yearOffset,
+    defaultExpanded
 }: {
     ligne: LigneCA
     onUpdate: (id: string, field: keyof LigneCA, value: unknown) => void
     onDelete: (id: string) => void
     mois: string[]
     yearOffset: number // 0, 12, ou 24 selon l'année
+    defaultExpanded?: boolean
 }) {
-    const [expanded, setExpanded] = useState(false)
+    const [expanded, setExpanded] = useState(defaultExpanded || false)
     const yearMontants = ligne.montantsMensuels.slice(yearOffset, yearOffset + 12)
     const totalYear = yearMontants.reduce((a, b) => a + b, 0)
     const totalAnnuel = ligne.montantsMensuels.reduce((a, b) => a + b, 0)
@@ -534,7 +536,7 @@ export default function CompteResultatPage({
                         </Button>
                     </CardHeader>
                     <CardContent>
-                        {lignesCA.map(ligne => (
+                        {lignesCA.map((ligne, index) => (
                             <LigneCARow
                                 key={ligne.id}
                                 ligne={ligne}
@@ -542,6 +544,7 @@ export default function CompteResultatPage({
                                 onDelete={deleteLigneCA}
                                 mois={mois}
                                 yearOffset={0}
+                                defaultExpanded={index === 0}
                             />
                         ))}
 
