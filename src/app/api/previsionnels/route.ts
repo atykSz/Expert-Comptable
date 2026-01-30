@@ -1,32 +1,22 @@
 import { NextResponse } from 'next/server'
 import prisma from '@/lib/prisma'
+import { getAuthenticatedUser, getUserPrevisionnels } from '@/lib/auth'
 
-// GET /api/previsionnels - Liste tous les prévisionnels
+// GET /api/previsionnels - Liste les prévisionnels de l'utilisateur connecté
 export async function GET() {
     try {
-        const previsionnels = await prisma.previsionnel.findMany({
-            include: {
-                client: {
-                    select: {
-                        id: true,
-                        raisonSociale: true,
-                        formeJuridique: true,
-                    },
-                },
-                hypotheses: true,
-                _count: {
-                    select: {
-                        lignesCA: true,
-                        lignesCharge: true,
-                        investissements: true,
-                        financements: true,
-                    },
-                },
-            },
-            orderBy: {
-                updatedAt: 'desc',
-            },
-        })
+        // Vérifier l'authentification
+        const authUser = await getAuthenticatedUser()
+
+        if (!authUser) {
+            return NextResponse.json(
+                { error: 'Non authentifié' },
+                { status: 401 }
+            )
+        }
+
+        // Récupérer uniquement les prévisionnels du cabinet de l'utilisateur
+        const previsionnels = await getUserPrevisionnels(authUser.prismaUser.cabinetId)
 
         return NextResponse.json(previsionnels)
     } catch (error) {
@@ -41,6 +31,16 @@ export async function GET() {
 // POST /api/previsionnels - Créer un nouveau prévisionnel
 export async function POST(request: Request) {
     try {
+        // Vérifier l'authentification
+        const authUser = await getAuthenticatedUser()
+
+        if (!authUser) {
+            return NextResponse.json(
+                { error: 'Non authentifié' },
+                { status: 401 }
+            )
+        }
+
         const body = await request.json()
 
         const {
@@ -54,18 +54,36 @@ export async function POST(request: Request) {
             hypotheses,
         } = body
 
+        // Utiliser le client par défaut si non fourni
+        const effectiveClientId = clientId || authUser.defaultClientId
+
         // Validation
-        if (!clientId || !titre || !dateDebut) {
+        if (!effectiveClientId || !titre || !dateDebut) {
             return NextResponse.json(
-                { error: 'clientId, titre et dateDebut sont requis' },
+                { error: 'titre et dateDebut sont requis' },
                 { status: 400 }
+            )
+        }
+
+        // Vérifier que le client appartient au cabinet de l'utilisateur
+        const client = await prisma.client.findFirst({
+            where: {
+                id: effectiveClientId,
+                cabinetId: authUser.prismaUser.cabinetId!,
+            },
+        })
+
+        if (!client) {
+            return NextResponse.json(
+                { error: 'Client non trouvé ou accès non autorisé' },
+                { status: 403 }
             )
         }
 
         // Créer le prévisionnel avec les hypothèses par défaut
         const previsionnel = await prisma.previsionnel.create({
             data: {
-                clientId,
+                clientId: effectiveClientId,
                 titre,
                 description,
                 dateDebut: new Date(dateDebut),

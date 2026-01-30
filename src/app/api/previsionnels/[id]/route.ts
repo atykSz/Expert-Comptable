@@ -1,5 +1,6 @@
 import { NextResponse } from 'next/server'
 import prisma from '@/lib/prisma'
+import { getAuthenticatedUser, userOwnsPrevisionnel } from '@/lib/auth'
 
 // GET /api/previsionnels/[id] - Récupérer un prévisionnel complet
 export async function GET(
@@ -8,6 +9,30 @@ export async function GET(
 ) {
     try {
         const { id } = await params
+
+        // Vérifier l'authentification
+        const authUser = await getAuthenticatedUser()
+
+        if (!authUser) {
+            return NextResponse.json(
+                { error: 'Non authentifié' },
+                { status: 401 }
+            )
+        }
+
+        // Vérifier que le prévisionnel appartient à l'utilisateur
+        const hasAccess = await userOwnsPrevisionnel(
+            authUser.prismaUser.id,
+            authUser.prismaUser.cabinetId,
+            id
+        )
+
+        if (!hasAccess) {
+            return NextResponse.json(
+                { error: 'Accès non autorisé' },
+                { status: 403 }
+            )
+        }
 
         const previsionnel = await prisma.previsionnel.findUnique({
             where: { id },
@@ -59,6 +84,31 @@ export async function PUT(
 ) {
     try {
         const { id } = await params
+
+        // Vérifier l'authentification
+        const authUser = await getAuthenticatedUser()
+
+        if (!authUser) {
+            return NextResponse.json(
+                { error: 'Non authentifié' },
+                { status: 401 }
+            )
+        }
+
+        // Vérifier que le prévisionnel appartient à l'utilisateur
+        const hasAccess = await userOwnsPrevisionnel(
+            authUser.prismaUser.id,
+            authUser.prismaUser.cabinetId,
+            id
+        )
+
+        if (!hasAccess) {
+            return NextResponse.json(
+                { error: 'Accès non autorisé' },
+                { status: 403 }
+            )
+        }
+
         const body = await request.json()
 
         const {
@@ -256,6 +306,30 @@ export async function DELETE(
 ) {
     try {
         const { id } = await params
+
+        // Vérifier l'authentification
+        const authUser = await getAuthenticatedUser()
+
+        if (!authUser) {
+            return NextResponse.json(
+                { error: 'Non authentifié' },
+                { status: 401 }
+            )
+        }
+
+        // Vérifier que le prévisionnel appartient à l'utilisateur
+        const hasAccess = await userOwnsPrevisionnel(
+            authUser.prismaUser.id,
+            authUser.prismaUser.cabinetId,
+            id
+        )
+
+        if (!hasAccess) {
+            return NextResponse.json(
+                { error: 'Accès non autorisé' },
+                { status: 403 }
+            )
+        }
 
         // Vérifier que le prévisionnel existe
         const previsionnel = await prisma.previsionnel.findUnique({

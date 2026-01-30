@@ -13,7 +13,8 @@ import {
     Calculator,
     ChevronDown,
     ChevronRight,
-    Copy
+    Copy,
+    Calendar
 } from 'lucide-react'
 import { Button, Input, Select, Card, CardContent, CardHeader, CardTitle } from '@/components/ui'
 import { formatCurrency } from '@/lib/utils'
@@ -23,7 +24,7 @@ interface LigneCA {
     id: string
     libelle: string
     categorie: string
-    montantsMensuels: number[]
+    montantsMensuels: number[] // 36 mois (3 années)
     tauxTVA: number
 }
 
@@ -32,8 +33,29 @@ interface LigneCharge {
     libelle: string
     categorie: string
     comptePCG: string
-    montantsMensuels: number[]
+    montantsMensuels: number[] // 36 mois (3 années)
     tauxTVA: number
+}
+
+// Onglets d'année
+function YearTabs({ selectedYear, onYearChange }: { selectedYear: number, onYearChange: (year: number) => void }) {
+    return (
+        <div className="flex gap-2 mb-6">
+            {[1, 2, 3].map(year => (
+                <button
+                    key={year}
+                    onClick={() => onYearChange(year)}
+                    className={`px-4 py-2 rounded-lg font-medium transition-colors flex items-center gap-2 ${selectedYear === year
+                            ? 'bg-blue-600 text-white'
+                            : 'bg-white text-gray-600 border border-gray-200 hover:bg-gray-50'
+                        }`}
+                >
+                    <Calendar className="h-4 w-4" />
+                    Année {year}
+                </button>
+            ))}
+        </div>
+    )
 }
 
 const categoriesCA = [
@@ -101,14 +123,18 @@ function LigneCARow({
     ligne,
     onUpdate,
     onDelete,
-    mois
+    mois,
+    yearOffset
 }: {
     ligne: LigneCA
     onUpdate: (id: string, field: keyof LigneCA, value: unknown) => void
     onDelete: (id: string) => void
     mois: string[]
+    yearOffset: number // 0, 12, ou 24 selon l'année
 }) {
     const [expanded, setExpanded] = useState(false)
+    const yearMontants = ligne.montantsMensuels.slice(yearOffset, yearOffset + 12)
+    const totalYear = yearMontants.reduce((a, b) => a + b, 0)
     const totalAnnuel = ligne.montantsMensuels.reduce((a, b) => a + b, 0)
 
     return (
@@ -133,7 +159,7 @@ function LigneCARow({
                     />
                 </div>
                 <div className="w-32 text-right font-semibold text-gray-900">
-                    {formatCurrency(totalAnnuel)}
+                    {formatCurrency(totalYear)}
                 </div>
                 <button
                     onClick={() => onDelete(ligne.id)}
@@ -164,12 +190,15 @@ function LigneCARow({
                     </div>
                     <button
                         onClick={() => {
-                            const janValue = ligne.montantsMensuels[0] || 0
-                            const newMontants = Array(12).fill(janValue)
+                            const janValue = ligne.montantsMensuels[yearOffset] || 0
+                            const newMontants = [...ligne.montantsMensuels]
+                            for (let i = 0; i < 12; i++) {
+                                newMontants[yearOffset + i] = janValue
+                            }
                             onUpdate(ligne.id, 'montantsMensuels', newMontants)
                         }}
                         className="mt-3 inline-flex items-center gap-2 px-3 py-1.5 text-sm text-blue-600 hover:text-blue-800 hover:bg-blue-50 rounded-md transition-colors"
-                        title="Copier le montant de Janvier sur tous les mois"
+                        title="Copier le montant de Janvier sur tous les mois de cette année"
                     >
                         <Copy className="h-4 w-4" />
                         Répéter Janvier sur l'année
