@@ -6,7 +6,7 @@ import { revalidatePath } from 'next/cache'
 
 export async function updateCabinet(cabinetName: string) {
     const user = await getAuthenticatedUser()
-    if (!user) throw new Error('Not authenticated')
+    if (!user || !user.prismaUser.cabinetId) throw new Error('Not authenticated or no cabinet')
 
     await prisma.cabinet.update({
         where: { id: user.prismaUser.cabinetId },
