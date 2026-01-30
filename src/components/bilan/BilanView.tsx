@@ -78,8 +78,8 @@ export function BilanView({ previsionnel, bilans }: BilanViewProps) {
                             key={year}
                             onClick={() => setSelectedYear(year)}
                             className={`px-4 py-2 rounded-lg font-medium transition-colors border ${selectedYear === year
-                                    ? 'bg-blue-600 text-white border-blue-600'
-                                    : 'bg-white text-gray-600 border-gray-200 hover:bg-gray-50'
+                                ? 'bg-blue-600 text-white border-blue-600'
+                                : 'bg-white text-gray-600 border-gray-200 hover:bg-gray-50'
                                 }`}
                         >
                             Année {year}
@@ -87,12 +87,38 @@ export function BilanView({ previsionnel, bilans }: BilanViewProps) {
                     ))}
                 </div>
 
-                {!currentBilan.equilibre && (
-                    <div className="mb-6 p-4 bg-red-50 border border-red-200 rounded-lg flex items-center gap-3 text-red-800">
-                        <Scale className="h-5 w-5" />
-                        <span className="font-medium">Attention : Le bilan n'est pas équilibré (Ecart: {formatCurrency(currentBilan.actif.total - currentBilan.passif.total)})</span>
+                {/* Graphique Actif vs Passif (Barres simples) */}
+                <div className="mb-8 bg-white p-6 rounded-xl border border-gray-200 shadow-sm">
+                    <div className="flex items-center justify-between mb-4">
+                        <h3 className="font-semibold text-gray-700">Équilibre Financier</h3>
+                        <div className="text-sm text-gray-500">
+                            Actif: <span className="font-bold text-blue-600">{formatCurrency(currentBilan.actif.total)}</span>
+                            {' vs '}
+                            Passif: <span className="font-bold text-orange-600">{formatCurrency(currentBilan.passif.total)}</span>
+                        </div>
                     </div>
-                )}
+
+                    <div className="flex h-12 w-full gap-1 rounded-full overflow-hidden bg-gray-100">
+                        <div
+                            className="h-full bg-blue-500 flex items-center justify-center text-white font-bold text-xs transition-all duration-500"
+                            style={{ width: '50%' }}
+                        >
+                            ACTIF
+                        </div>
+                        <div
+                            className="h-full bg-orange-500 flex items-center justify-center text-white font-bold text-xs transition-all duration-500"
+                            style={{ width: '50%' }}
+                        >
+                            PASSIF
+                        </div>
+                    </div>
+                    {!currentBilan.equilibre && (
+                        <div className="mt-3 flex items-center gap-2 text-red-600 text-sm font-medium">
+                            <Scale className="h-4 w-4" />
+                            Déséquilibre de {formatCurrency(Math.abs(currentBilan.actif.total - currentBilan.passif.total))}
+                        </div>
+                    )}
+                </div>
 
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
                     {/* ACTIF */}

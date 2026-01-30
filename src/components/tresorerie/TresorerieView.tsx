@@ -204,16 +204,16 @@ export function TresorerieView({ previsionnel }: { previsionnel: PrevisionnelWit
                                     <tr className="border-b bg-gray-50">
                                         <th className="py-2 px-3 text-left font-medium text-gray-600 sticky left-0 bg-gray-50">Poste</th>
                                         {mois.map(m => (
-                                            <th key={m} className="py-2 px-2 text-right font-medium text-gray-600 min-w-[80px]">{m}</th>
+                                            <th key={m} className={`py-3 px-2 text-right font-semibold text-gray-700 min-w-[90px] ${m === mois[new Date().getMonth()] ? 'bg-blue-50 text-blue-700' : ''}`}>{m}</th>
                                         ))}
                                     </tr>
                                 </thead>
                                 <tbody>
                                     {/* Trésorerie début */}
-                                    <tr className="border-b bg-blue-50">
-                                        <td className="py-2 px-3 font-medium sticky left-0 bg-blue-50">Trésorerie début (Solde)</td>
+                                    <tr className="border-b bg-blue-50/50 hover:bg-blue-50 transition-colors">
+                                        <td className="py-3 px-3 font-medium text-blue-900 sticky left-0 bg-blue-50 z-10 border-r border-blue-100 shadow-[2px_0_5px_-2px_rgba(0,0,0,0.1)]">Trésorerie début</td>
                                         {planTresorerie.map((p, idx) => (
-                                            <td key={idx} className="py-2 px-2 text-right text-gray-600">{formatCurrency(p.tresorerieFin - p.soldeFlux)}</td>
+                                            <td key={idx} className="py-3 px-2 text-right text-gray-700 font-mono text-sm">{formatCurrency(p.tresorerieFin - p.soldeFlux)}</td>
                                         ))}
                                     </tr>
 
