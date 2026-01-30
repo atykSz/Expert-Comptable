@@ -1,4 +1,4 @@
-import { Previsionnel, LigneCA, LigneCharge, Hypotheses, Financement, Investissement } from '@prisma/client'
+import { Previsionnel, LigneCA, LigneCharge, Hypotheses, Financement, Investissement } from '../generated/prisma/client'
 
 // Types étendus avec les relations incluses
 export type PrevisionnelWithRelations = Previsionnel & {

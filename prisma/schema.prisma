@@ -2,9 +2,8 @@
 // Conforme au Plan Comptable Général (PCG) français
 
 generator client {
-  provider      = "prisma-client"
-  // Explicitly point to node_modules to ensure Vercel finds it
-  output        = "../node_modules/@prisma/client"
+  provider      = "prisma-client-js"
+  output        = "../src/generated/prisma"
   binaryTargets = ["native", "rhel-openssl-3.0.x"]
 }
 
