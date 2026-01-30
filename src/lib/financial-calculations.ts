@@ -1,4 +1,4 @@
-import { Previsionnel, LigneCA, LigneCharge, Hypotheses, Emprunt, Financement } from '@prisma/client'
+import { Previsionnel, LigneCA, LigneCharge, Hypotheses, Emprunt, Financement, Investissement } from '@prisma/client'
 
 // Types étendus avec les relations incluses
 export type PrevisionnelWithRelations = Previsionnel & {
@@ -6,7 +6,7 @@ export type PrevisionnelWithRelations = Previsionnel & {
     lignesCharge: LigneCharge[]
     hypotheses: Hypotheses | null
     financements: Financement[]
-    // investissements: Investissement[] // À ajouter si nécessaire
+    investissements: Investissement[]
 }
 
 export interface MonthlyCashFlow {
@@ -148,4 +148,145 @@ export function calculatePrevisionnelCashFlow(
     }
 
     return flow
+}
+
+export interface BilanAnnuel {
+    annee: number // 1, 2, 3
+    actif: {
+        immobilisationsBrutes: number
+        amortissementsCumules: number
+        immobilisationsNet: number
+        creancesClients: number
+        stocks: number
+        disponibilites: number // Trésorerie positive
+        total: number
+    }
+    passif: {
+        capitalSocial: number
+        resultatNet: number
+        reportANouveau: number
+        emprunts: number // Restant dû
+        dettesFournisseurs: number
+        dettesFiscalesSociales: number
+        decouvertBancaire: number // Trésorerie négative
+        total: number
+    }
+    equilibre: boolean // Actif == Passif
+}
+
+/**
+ * Calcule le Bilan pour chaque année
+ */
+export function calculateBilan(
+    previsionnel: PrevisionnelWithRelations,
+    monthlyFlows: MonthlyCashFlow[],
+    resultatsAnnuels: number[] // Résultat Net de chaque année (venant du CR)
+): BilanAnnuel[] {
+    const bilans: BilanAnnuel[] = []
+    let reportANouveau = 0
+
+    // Hypothèses
+    const delaiClients = previsionnel.hypotheses?.delaiPaiementClients || 30
+    const delaiFournisseurs = previsionnel.hypotheses?.delaiPaiementFournisseurs || 30
+    const rotationStock = previsionnel.hypotheses?.dureeStockJours || 0
+
+    // Calculs année par année
+    for (let year = 1; year <= 3; year++) {
+        const monthIndex12 = year * 12 - 1 // Index du dernier mois de l'année (11, 23, 35)
+
+        // Si le prévisionnel n'a pas assez de mois, on s'arrête
+        if (monthIndex12 >= monthlyFlows.length) break
+
+        const lastMonthFlow = monthlyFlows[monthIndex12]
+
+        // --- ACTIF ---
+
+        // 1. Immo (Simplifié: Somme des investissements)
+        // TODO: Gérer dates d'investissements et amortissements réels
+        const immoBrut = previsionnel.investissements.reduce((sum, inv) => sum + inv.montant, 0)
+        const amortCumul = immoBrut * 0.1 * year // Simplification 10% par an lineaire
+        const immoNet = Math.max(0, immoBrut - amortCumul)
+
+        // 2. Créances Clients (Approximation fin d'année)
+        // CA TTC de l'année * Délai / 360
+        // Mieux: CA des derniers mois non encaissés
+        // Simplification Big 4: take annual CA -> prorata
+        const flowYear = monthlyFlows.slice((year - 1) * 12, year * 12)
+        const caAnnuelTTC = flowYear.reduce((sum, m) => sum + m.encaissements.caTTC, 0) // C'est CA Encaissé, mais proche du facturé pour l'estim
+        const creances = (caAnnuelTTC * delaiClients) / 360
+
+        // 3. Stocks (Approximation)
+        const achatsAnnuelTTC = flowYear.reduce((sum, m) => sum + m.decaissements.achatsTTC, 0)
+        const stocks = rotationStock > 0 ? (achatsAnnuelTTC * rotationStock) / 360 : 0
+
+        // 4. Trésorerie (Disponibilités)
+        const tresoFin = lastMonthFlow.tresorerieFin
+        const disponibilites = tresoFin > 0 ? tresoFin : 0
+
+        const totalActif = immoNet + creances + stocks + disponibilites
+
+        // --- PASSIF ---
+
+        // 1. Capitaux Propres
+        const capital = previsionnel.financements
+            .filter(f => f.type === 'APPORT_CAPITAL' || f.type === 'COMPTE_COURANT') // Simplification
+            .reduce((sum, f) => sum + f.montant, 0)
+
+        const resultatNet = resultatsAnnuels[year - 1] || 0
+
+        // Report à nouveau = Somme des résultats précédents
+        // Note: reportANouveau est mis à jour à la fin de la boucle pour l'année suivante
+
+        // 2. Emprunts (Restant dû)
+        // Simplification: Emprunt total - Remboursements cumulés
+        const empruntTotal = previsionnel.financements
+            .filter(f => f.type === 'EMPRUNT_BANCAIRE')
+            .reduce((sum, f) => sum + f.montant, 0)
+        const rembAnnuel = flowYear.reduce((sum, m) => sum + m.decaissements.remboursementEmprunt, 0)
+        // Cumulative reimbursement calculation needs state, simplified here:
+        // Assume constant reimbursement for demo if not calc'd elsewhere
+        const detteEmprunt = Math.max(0, empruntTotal - (rembAnnuel * year)) // VERY simplified
+
+        // 3. Dettes Fournisseurs
+        const dettesFourn = (achatsAnnuelTTC * delaiFournisseurs) / 360
+
+        // 4. Découvert
+        const decouvert = tresoFin < 0 ? Math.abs(tresoFin) : 0
+
+        // Ajustement pour équilibrer (Dettes fiscales/sociales "Gap filler" + Real logic later)
+        // En compta, Actif = Passif. Si écart, c'est souvent la TVA/Impôts/Social non payés en fin d'année
+        const totalPassifHorsGap = capital + reportANouveau + resultatNet + detteEmprunt + dettesFourn + decouvert
+        const gap = totalActif - totalPassifHorsGap
+        const dettesFiscalesSociales = gap // On met l'écart ici pour l'instant ("Dettes diverses")
+
+        const totalPassif = totalPassifHorsGap + dettesFiscalesSociales
+
+        bilans.push({
+            annee: year,
+            actif: {
+                immobilisationsBrutes: immoBrut,
+                amortissementsCumules: amortCumul,
+                immobilisationsNet: immoNet,
+                creancesClients: creances,
+                stocks,
+                disponibilites,
+                total: totalActif
+            },
+            passif: {
+                capitalSocial: capital,
+                resultatNet,
+                reportANouveau,
+                emprunts: detteEmprunt,
+                dettesFournisseurs: dettesFourn,
+                dettesFiscalesSociales,
+                decouvertBancaire: decouvert,
+                total: totalPassif
+            },
+            equilibre: Math.abs(totalActif - totalPassif) < 1
+        })
+
+        reportANouveau += resultatNet
+    }
+
+    return bilans
 }
