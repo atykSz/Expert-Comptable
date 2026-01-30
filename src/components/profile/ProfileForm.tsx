@@ -12,12 +12,12 @@ interface ProfileFormProps {
         name?: string | null
     }
     cabinet: {
-        nom: string
+        name: string
     }
 }
 
 export function ProfileForm({ user, cabinet }: ProfileFormProps) {
-    const [cabinetName, setCabinetName] = useState(cabinet.nom)
+    const [cabinetName, setCabinetName] = useState(cabinet.name)
     const [password, setPassword] = useState('')
     const [isLoading, setIsLoading] = useState(false)
 
@@ -27,7 +27,7 @@ export function ProfileForm({ user, cabinet }: ProfileFormProps) {
 
         try {
             // Update Cabinet
-            if (cabinetName !== cabinet.nom) {
+            if (cabinetName !== cabinet.name) {
                 await updateCabinet(cabinetName)
             }
 

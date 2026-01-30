@@ -6,11 +6,13 @@ import { revalidatePath } from 'next/cache'
 
 export async function updateCabinet(cabinetName: string) {
     const user = await getAuthenticatedUser()
-    if (!user || !user.prismaUser.cabinetId) throw new Error('Not authenticated or no cabinet')
+    const cabinetId = user?.prismaUser.cabinetId
+
+    if (!user || !cabinetId) throw new Error('Not authenticated or no cabinet')
 
     await prisma.cabinet.update({
-        where: { id: user.prismaUser.cabinetId },
-        data: { nom: cabinetName }
+        where: { id: cabinetId },
+        data: { name: cabinetName }
     })
 
     revalidatePath('/profile')

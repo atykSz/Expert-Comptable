@@ -1,12 +1,21 @@
 import { getAuthenticatedUser } from '@/lib/auth'
+import { prisma } from '@/lib/prisma'
 import { redirect } from 'next/navigation'
 import { ProfileForm } from '@/components/profile/ProfileForm'
 
 export default async function ProfilePage() {
     const authUser = await getAuthenticatedUser()
 
-    if (!authUser) {
+    if (!authUser || !authUser.prismaUser.cabinetId) {
         redirect('/login')
+    }
+
+    const cabinet = await prisma.cabinet.findUnique({
+        where: { id: authUser.prismaUser.cabinetId }
+    })
+
+    if (!cabinet) {
+        return <div>Erreur : Cabinet introuvable</div>
     }
 
     return (
@@ -20,7 +29,7 @@ export default async function ProfilePage() {
 
             <ProfileForm
                 user={authUser.prismaUser}
-                cabinet={authUser.prismaUser.cabinet}
+                cabinet={cabinet}
             />
         </div>
     )
