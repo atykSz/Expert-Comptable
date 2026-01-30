@@ -65,7 +65,7 @@ export function PrevisionnelSidebar({ previsionnelId }: { previsionnelId: string
                             Rapport complet
                         </Button>
                     </Link>
-                    <a href={`/api/export/excel?id=${previsionnelId}`} download>
+                    <a href={`/api/exports/excel/${previsionnelId}`} download>
                         <Button variant="outline" size="sm" className="w-full justify-start">
                             <Table className="h-4 w-4 mr-2" />
                             Export Excel
