@@ -112,14 +112,14 @@ export async function POST(request: Request) {
                 formatDocument,
                 hypotheses: hypotheses ? {
                     create: {
-                        tauxTVAVentes: hypotheses.tauxTVAVentes || 20.0,
-                        tauxTVAAchats: hypotheses.tauxTVAAchats || 20.0,
-                        delaiPaiementClients: hypotheses.delaiPaiementClients || 30,
-                        delaiPaiementFournisseurs: hypotheses.delaiPaiementFournisseurs || 30,
-                        tauxChargesSocialesPatronales: hypotheses.tauxChargesSocialesPatronales || 45.0,
-                        tauxChargesSocialesSalariales: hypotheses.tauxChargesSocialesSalariales || 22.0,
-                        tauxIS: hypotheses.tauxIS || 25.0,
-                        dureeStockJours: hypotheses.dureeStockJours || 30,
+                        tauxTVAVentes: hypotheses.tauxTVAVentes ?? 20.0,
+                        tauxTVAAchats: hypotheses.tauxTVAAchats ?? 20.0,
+                        delaiPaiementClients: hypotheses.delaiPaiementClients ?? 30,
+                        delaiPaiementFournisseurs: hypotheses.delaiPaiementFournisseurs ?? 30,
+                        tauxChargesSocialesPatronales: hypotheses.tauxChargesSocialesPatronales ?? 45.0,
+                        tauxChargesSocialesSalariales: hypotheses.tauxChargesSocialesSalariales ?? 22.0,
+                        tauxIS: hypotheses.tauxIS ?? 25.0,
+                        dureeStockJours: hypotheses.dureeStockJours ?? 30,
                     },
                 } : {
                     create: {},

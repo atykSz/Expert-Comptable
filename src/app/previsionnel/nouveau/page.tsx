@@ -193,8 +193,8 @@ export default function NouveauPrevisionnelPage() {
                             tauxTVAAchats: formData.tauxTVAAchats,
                             delaiPaiementClients: formData.delaiPaiementClients,
                             delaiPaiementFournisseurs: formData.delaiPaiementFournisseurs,
-                            tauxChargesSocialesPatronales: isBNC(formData.regimeFiscal) ? 0 : 45, // Simplification
-                            tauxChargesSocialesSalariales: isBNC(formData.regimeFiscal) ? 22 : 22, // Simplification
+                            tauxChargesSocialesPatronales: isBNC(formData.regimeFiscal) ? 0 : 45, // TODO: Rendre editable
+                            tauxChargesSocialesSalariales: formData.tauxChargesSociales, // Utiliser la valeur du formulaire (simplifié en une seule valeur pour l'instant)
                             tauxIS: formData.tauxIS,
                         }
                     })
