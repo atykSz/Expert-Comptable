@@ -100,6 +100,7 @@ export async function fetchPrevisionnelData(id: string): Promise<DonneesRapport 
                 resultatExploitation: cr.resultatExploitation,
                 resultatNet: cr.resultatNet,
                 caf: cr.CAF,
+                tresorerieFin: cr.CAF * (index + 1), // Proxy pour l'affichage graphique
             })),
             sig: rapport.comptesResultat.map((cr, index) => ({
                 annee: anneeDebut + index,
