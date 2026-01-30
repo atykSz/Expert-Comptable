@@ -203,7 +203,8 @@ export default function NouveauPrevisionnelPage() {
                 if (!response.ok) {
                     const errorData = await response.json().catch(() => ({}))
                     console.error('API Error:', response.status, errorData)
-                    throw new Error(errorData.error || `Erreur lors de la création (${response.status})`)
+                    // Display specific details if available, otherwise generic error
+                    throw new Error(errorData.details || errorData.error || `Erreur lors de la création (${response.status})`)
                 }
 
                 const newPrevisionnel = await response.json()
