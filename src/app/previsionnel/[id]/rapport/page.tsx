@@ -679,7 +679,8 @@ export default function RapportPage() {
         // Charger les vraies données depuis l'API
         async function fetchData() {
             try {
-                const response = await fetch(`/api/previsionnels/${id}`)
+                // Utiliser la nouvelle API qui retourne les données calculées
+                const response = await fetch(`/api/previsionnels/${id}/rapport`)
 
                 if (!response.ok) {
                     if (response.status === 401) {
@@ -695,13 +696,9 @@ export default function RapportPage() {
                     return
                 }
 
-                const previsionnel = await response.json()
-
-                // Transformer les données pour le format rapport
-                // Pour l'instant, utiliser les données démo en attendant l'intégration complète
-                // TODO: Utiliser les vraies données transformées
-                const transformedData = transformPrevisionnelToRapport(previsionnel)
-                setDonnees(transformedData)
+                // Les données sont déjà au format DonneesRapport
+                const rapportData = await response.json()
+                setDonnees(rapportData)
             } catch (err) {
                 console.error('Erreur fetch:', err)
                 setError('Erreur de connexion au serveur.')

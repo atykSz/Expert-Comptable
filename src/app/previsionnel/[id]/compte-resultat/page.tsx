@@ -273,6 +273,8 @@ export default function CompteResultatPage() {
     const previsionnelId = params.id as string
     const [selectedYear, setSelectedYear] = useState(1)
     const yearOffset = (selectedYear - 1) * 12
+    const [isSaving, setIsSaving] = useState(false)
+    const [saveMessage, setSaveMessage] = useState<string | null>(null)
 
     // Mois pour la première année
     const mois = ['Jan', 'Fév', 'Mar', 'Avr', 'Mai', 'Jun', 'Jul', 'Aoû', 'Sep', 'Oct', 'Nov', 'Déc']
@@ -352,6 +354,80 @@ export default function CompteResultatPage() {
         }
         fetchData()
     }, [previsionnelId])
+
+    // Fonction de sauvegarde
+    const handleSave = async () => {
+        if (!previsionnelId || previsionnelId === 'demo') {
+            setSaveMessage('Mode démo - sauvegarde désactivée')
+            setTimeout(() => setSaveMessage(null), 3000)
+            return
+        }
+
+        setIsSaving(true)
+        setSaveMessage(null)
+
+        try {
+            const response = await fetch(`/api/previsionnels/${previsionnelId}`, {
+                method: 'PUT',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                    lignesCA: lignesCA.map(l => ({
+                        id: l.id.startsWith('temp-') ? undefined : l.id, // Nouvelles lignes n'ont pas d'ID DB
+                        libelle: l.libelle,
+                        categorie: l.categorie,
+                        montantsMensuels: l.montantsMensuels,
+                        tauxTVA: l.tauxTVA,
+                    })),
+                    lignesCharge: lignesCharges.map(l => ({
+                        id: l.id.startsWith('temp-') ? undefined : l.id,
+                        libelle: l.libelle,
+                        categorie: l.categorie,
+                        comptePCG: l.comptePCG,
+                        montantsMensuels: l.montantsMensuels,
+                        tauxTVA: l.tauxTVA,
+                    })),
+                }),
+            })
+
+            if (!response.ok) {
+                const errorData = await response.json().catch(() => ({}))
+                throw new Error(errorData.error || 'Erreur lors de la sauvegarde')
+            }
+
+            setSaveMessage('Données enregistrées avec succès !')
+            setTimeout(() => setSaveMessage(null), 3000)
+
+            // Recharger les données pour obtenir les IDs des nouvelles lignes
+            const res = await fetch(`/api/previsionnels/${previsionnelId}`)
+            if (res.ok) {
+                const data = await res.json()
+                if (data.lignesCA) {
+                    setLignesCA(data.lignesCA.map((l: { id: string; libelle: string; categorie: string; montantsMensuels: number[]; tauxTVA: number }) => ({
+                        id: l.id,
+                        libelle: l.libelle,
+                        categorie: l.categorie,
+                        montantsMensuels: l.montantsMensuels || Array(36).fill(0),
+                        tauxTVA: l.tauxTVA || 20,
+                    })))
+                }
+                if (data.lignesCharge) {
+                    setLignesCharges(data.lignesCharge.map((l: { id: string; libelle: string; categorie: string; comptePCG: string; montantsMensuels: number[]; tauxTVA: number }) => ({
+                        id: l.id,
+                        libelle: l.libelle,
+                        categorie: l.categorie,
+                        comptePCG: l.comptePCG || '',
+                        montantsMensuels: l.montantsMensuels || Array(36).fill(0),
+                        tauxTVA: l.tauxTVA || 20,
+                    })))
+                }
+            }
+        } catch (error) {
+            console.error('Erreur sauvegarde:', error)
+            setSaveMessage(error instanceof Error ? error.message : 'Erreur lors de la sauvegarde')
+        } finally {
+            setIsSaving(false)
+        }
+    }
 
     // Ajouter une ligne de CA
     const addLigneCA = () => {
@@ -499,10 +575,17 @@ export default function CompteResultatPage() {
                         <h1 className="text-2xl font-bold text-gray-900">Compte de Résultat Prévisionnel</h1>
                         <p className="text-gray-600">Saisissez vos produits et charges pour les 3 années</p>
                     </div>
-                    <Button variant="primary">
-                        <Save className="h-4 w-4 mr-2" />
-                        Enregistrer
-                    </Button>
+                    <div className="flex items-center gap-4">
+                        {saveMessage && (
+                            <span className={`text-sm ${saveMessage.includes('succès') ? 'text-green-600' : 'text-red-600'}`}>
+                                {saveMessage}
+                            </span>
+                        )}
+                        <Button variant="primary" onClick={handleSave} disabled={isSaving}>
+                            <Save className="h-4 w-4 mr-2" />
+                            {isSaving ? 'Enregistrement...' : 'Enregistrer'}
+                        </Button>
+                    </div>
                 </div>
 
 
