@@ -241,9 +241,9 @@ function getDonneesDemo(): DonneesRapport {
             { annee: 2028, dotation: 8567, cumul: 25701 },
         ],
         compteResultat: [
-            { annee: 2026, ca: 120000, achats: 12000, servicesExterieurs: 24000, chargesPersonnel: 48000, impotsTaxes: 3600, dotationsAmortissements: 8000, chargesFinancieres: 2400, autresCharges: 2000, totalCharges: 100000, ebe: 32400, resultatExploitation: 24400, resultatNet: 16500, caf: 24500 },
-            { annee: 2027, ca: 150000, achats: 15000, servicesExterieurs: 28000, chargesPersonnel: 54000, impotsTaxes: 4500, dotationsAmortissements: 8000, chargesFinancieres: 1800, autresCharges: 2200, totalCharges: 113500, ebe: 48500, resultatExploitation: 40500, resultatNet: 29000, caf: 37000 },
-            { annee: 2028, ca: 180000, achats: 18000, servicesExterieurs: 32000, chargesPersonnel: 62000, impotsTaxes: 5400, dotationsAmortissements: 7000, chargesFinancieres: 1200, autresCharges: 2400, totalCharges: 128000, ebe: 62600, resultatExploitation: 55600, resultatNet: 41000, caf: 48000 },
+            { annee: 2026, ca: 120000, achats: 12000, servicesExterieurs: 24000, chargesPersonnel: 48000, impotsTaxes: 3600, dotationsAmortissements: 8000, chargesFinancieres: 2400, autresCharges: 2000, totalCharges: 100000, ebe: 32400, resultatExploitation: 24400, resultatNet: 16500, caf: 24500, tresorerieFin: 10000 },
+            { annee: 2027, ca: 150000, achats: 15000, servicesExterieurs: 28000, chargesPersonnel: 54000, impotsTaxes: 4500, dotationsAmortissements: 8000, chargesFinancieres: 1800, autresCharges: 2200, totalCharges: 113500, ebe: 48500, resultatExploitation: 40500, resultatNet: 29000, caf: 37000, tresorerieFin: 23000 },
+            { annee: 2028, ca: 180000, achats: 18000, servicesExterieurs: 32000, chargesPersonnel: 62000, impotsTaxes: 5400, dotationsAmortissements: 7000, chargesFinancieres: 1200, autresCharges: 2400, totalCharges: 128000, ebe: 62600, resultatExploitation: 55600, resultatNet: 41000, caf: 48000, tresorerieFin: 45000 },
         ],
         sig: [
             { annee: 2026, margeCommerciale: 108000, productionExercice: 120000, valeurAjoutee: 84000, ebe: 32400, resultatExploitation: 24400, resultatCourant: 22000, resultatNet: 16500, caf: 24500 },
