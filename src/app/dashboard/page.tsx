@@ -20,7 +20,7 @@ export default async function DashboardPage() {
         <div className="p-8 max-w-7xl mx-auto space-y-8">
             <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
                 <div>
-                    <h1 className="text-3xl font-bold tracking-tight text-gray-900">Mon Espace</h1>
+                    <h1 className="text-3xl font-bold tracking-tight text-gray-900">Espace Client</h1>
                     <p className="text-muted-foreground mt-1">
                         Bienvenue, {authUser.prismaUser.name || authUser.prismaUser.email}
                     </p>

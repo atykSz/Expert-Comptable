@@ -25,7 +25,7 @@ export function UserSidebar() { // Suppression de { user } car non utilisé pour
     }
 
     const navItems = [
-        { href: '/dashboard', label: 'Mes Prévisionnels', icon: LayoutDashboard },
+        { href: '/dashboard', label: 'Espace Client', icon: LayoutDashboard },
         { href: '/previsionnel/nouveau', label: 'Nouveau Projet', icon: PlusCircle },
     ]
 
