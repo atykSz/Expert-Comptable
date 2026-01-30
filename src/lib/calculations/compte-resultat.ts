@@ -33,24 +33,25 @@ export interface DonneesCompteResultat {
     impotSurBenefices: number
 }
 
-export interface SoldesIntermediairesGestion {
-    // Marges
+export interface ResultatSIG {
+    // SIG détaillés
     margeCommerciale: number
     productionExercice: number
-
-    // Valeur ajoutée
     consommationsExterieures: number
     valeurAjoutee: number
-
-    // Résultats
     excedentBrutExploitation: number
     resultatExploitation: number
     resultatCourantAvantImpots: number
     resultatExceptionnel: number
     resultatNet: number
-
-    // Capacité d'autofinancement
     capaciteAutofinancement: number
+
+    // Alias simplifiés
+    ca: number
+    margeBrute: number
+    ebe: number
+    rcai: number
+    caf: number
 }
 
 /**
@@ -233,7 +234,7 @@ export function calculerIS(
 /**
  * Calculer tous les Soldes Intermédiaires de Gestion (SIG)
  */
-export function calculerSIG(donnees: DonneesCompteResultat): SoldesIntermediairesGestion {
+export function calculerSIG(donnees: DonneesCompteResultat): ResultatSIG {
     const margeCommerciale = calculerMargeCommerciale(
         donnees.venteMarchandises,
         donnees.achatsMarchandises,
@@ -309,5 +310,12 @@ export function calculerSIG(donnees: DonneesCompteResultat): SoldesIntermediaire
         resultatExceptionnel,
         resultatNet,
         capaciteAutofinancement,
+
+        // Alias pour compatibilité
+        ca: donnees.venteMarchandises + donnees.productionVendueBiens + donnees.productionVendueServices,
+        margeBrute: margeCommerciale,
+        ebe: excedentBrutExploitation,
+        rcai: resultatCourantAvantImpots,
+        caf: capaciteAutofinancement
     }
 }
