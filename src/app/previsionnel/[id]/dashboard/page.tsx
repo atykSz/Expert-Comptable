@@ -172,7 +172,17 @@ export default async function DashboardPage({
     const lastFlow = monthlyFlows[monthlyFlows.length - 1]
     const bfr = lastFlow ? (lastFlow.encaissements?.total || 0) - (lastFlow.decaissements?.total || 0) : 0
 
-    // 9. Construire les données du dashboard
+    // 9. Préparer les données mensuelles de trésorerie pour le graphique
+    const tresorerieMensuelle = monthlyFlows.slice(0, 36).map((flow, index) => {
+        const date = new Date(previsionnel.dateDebut)
+        date.setMonth(date.getMonth() + index)
+        return {
+            mois: date.toLocaleDateString('fr-FR', { month: 'short', year: '2-digit' }),
+            solde: flow.tresorerieFin
+        }
+    })
+
+    // 10. Construire les données du dashboard
     const dashboardData: DashboardData = {
         previsionnelId: id,
         titre: previsionnel.titre || 'Prévisionnel',
@@ -186,7 +196,8 @@ export default async function DashboardPage({
         tresorerieFin,
         bfr: Math.abs(bfr),
         tauxMarge,
-        ratioEndettement
+        ratioEndettement,
+        tresorerieMensuelle
     }
 
     return <DashboardView donnees={dashboardData} />

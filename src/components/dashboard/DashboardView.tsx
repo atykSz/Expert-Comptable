@@ -12,11 +12,21 @@ import {
     AlertTriangle,
     TrendingDown,
     ArrowRight,
-    ArrowLeft
+    ArrowLeft,
+    DollarSign,
+    Wallet,
+    PieChart
 } from 'lucide-react'
 import { Button, Card, CardContent, CardHeader, CardTitle } from '@/components/ui'
 import { formatCurrency } from '@/lib/utils'
 import { PrevisionnelSidebar } from '@/components/layout/PrevisionnelSidebar'
+import { KPICard } from './KPICard'
+import { CircularGauge, ProgressGauge } from './ProgressGauge'
+import {
+    BarChartComponent,
+    LineChartComponent,
+    PieChartComponent
+} from '@/components/charts'
 
 // Types pour les données du dashboard
 export interface DashboardData {
@@ -33,6 +43,9 @@ export interface DashboardData {
     bfr: number
     tauxMarge: number[]
     ratioEndettement: number[]
+    // Nouvelles données pour les graphiques
+    tresorerieMensuelle?: { mois: string; solde: number }[]
+    repartitionCharges?: { name: string; value: number }[]
 }
 
 // Indicateur avec statut
@@ -86,6 +99,31 @@ export function DashboardView({ donnees }: { donnees: DashboardData }) {
         alertes.push({ type: 'info', message: 'Capitaux propres doublés sur la période' })
     }
 
+    // Préparer les données pour les graphiques
+    const chartDataAnnuel = annees.map((annee, i) => ({
+        name: `${annee}`,
+        ca: donnees.ca[i] || 0,
+        ebe: donnees.ebe[i] || 0,
+        resultat: donnees.resultatNet[i] || 0,
+        value: donnees.ca[i] || 0
+    }))
+
+    const tresorerieChartData = donnees.tresorerieMensuelle
+        ? donnees.tresorerieMensuelle.map(d => ({ name: d.mois, value: d.solde, solde: d.solde }))
+        : annees.map((annee, i) => ({
+            name: `Fin ${annee}`,
+            value: donnees.tresorerieFin[i] || 0,
+            solde: donnees.tresorerieFin[i] || 0
+        }))
+
+    // Rentabilité EBE/CA en %
+    const rentabilite = donnees.ca[donnees.ca.length - 1] > 0
+        ? (donnees.ebe[donnees.ebe.length - 1] / donnees.ca[donnees.ca.length - 1]) * 100
+        : 0
+
+    // Ratio endettement inversé (plus c'est bas, mieux c'est)
+    const endettementScore = Math.max(0, 100 - donnees.ratioEndettement[donnees.ratioEndettement.length - 1] * 33)
+
     return (
         <div className="flex min-h-screen bg-background">
             <PrevisionnelSidebar previsionnelId={previsionnelId} />
@@ -135,35 +173,125 @@ export function DashboardView({ donnees }: { donnees: DashboardData }) {
                     </div>
                 )}
 
-                {/* Indicateurs clés */}
+                {/* KPI Cards avec Sparklines */}
                 <div className="grid grid-cols-4 gap-4 mb-8">
-                    <Card variant="bordered" className="p-5">
-                        <div className="text-sm text-muted-foreground mb-1">CA Année {annees.length}</div>
-                        <div className="text-2xl font-semibold tracking-tight">{formatCurrency(donnees.ca[donnees.ca.length - 1])}</div>
-                        {donnees.ca[0] > 0 && (
-                            <div className="text-xs text-success mt-1">+{((donnees.ca[donnees.ca.length - 1] / donnees.ca[0] - 1) * 100).toFixed(0)}% vs A1</div>
-                        )}
+                    <KPICard
+                        label={`CA Année ${annees.length}`}
+                        value={donnees.ca[donnees.ca.length - 1]}
+                        previousValue={donnees.ca[0]}
+                        sparklineData={donnees.ca}
+                        icon={<DollarSign className="h-4 w-4" />}
+                        color="accent"
+                        subtitle={`+${((donnees.ca[donnees.ca.length - 1] / donnees.ca[0] - 1) * 100 || 0).toFixed(0)}% vs A1`}
+                    />
+                    <KPICard
+                        label="Résultat Cumulé"
+                        value={donnees.resultatNet.reduce((a, b) => a + b, 0)}
+                        sparklineData={donnees.resultatNet}
+                        icon={<TrendingUp className="h-4 w-4" />}
+                        color={donnees.resultatNet.reduce((a, b) => a + b, 0) >= 0 ? 'success' : 'danger'}
+                        subtitle={`sur ${annees.length} ans`}
+                    />
+                    <KPICard
+                        label={`Trésorerie Fin A${annees.length}`}
+                        value={donnees.tresorerieFin[donnees.tresorerieFin.length - 1]}
+                        sparklineData={donnees.tresorerieFin}
+                        icon={<Wallet className="h-4 w-4" />}
+                        color={donnees.tresorerieFin[donnees.tresorerieFin.length - 1] >= 0 ? 'accent' : 'danger'}
+                        subtitle="solde disponible"
+                    />
+                    <KPICard
+                        label={`Capitaux Propres A${annees.length}`}
+                        value={donnees.capitauxPropres[donnees.capitauxPropres.length - 1]}
+                        previousValue={donnees.capitauxPropres[0]}
+                        sparklineData={donnees.capitauxPropres}
+                        icon={<Building className="h-4 w-4" />}
+                        color="success"
+                    />
+                </div>
+
+                {/* Graphique Principal : CA / EBE / Résultat */}
+                <Card variant="bordered" className="mb-8">
+                    <CardHeader>
+                        <CardTitle className="text-lg flex items-center gap-2">
+                            <PieChart className="h-5 w-5" />
+                            Évolution Financière par Année
+                        </CardTitle>
+                    </CardHeader>
+                    <CardContent>
+                        <BarChartComponent
+                            data={chartDataAnnuel}
+                            dataKeys={[
+                                { key: 'ca', color: '#3B82F6', name: "Chiffre d'affaires" },
+                                { key: 'ebe', color: '#10B981', name: 'EBE' },
+                                { key: 'resultat', color: '#8B5CF6', name: 'Résultat Net' }
+                            ]}
+                        />
+                    </CardContent>
+                </Card>
+
+                {/* Graphiques secondaires */}
+                <div className="grid grid-cols-2 gap-6 mb-8">
+                    {/* Trésorerie */}
+                    <Card variant="bordered">
+                        <CardHeader className="flex flex-row items-center justify-between">
+                            <CardTitle className="text-lg">Évolution Trésorerie</CardTitle>
+                            <Link
+                                href={`/previsionnel/${previsionnelId}/tresorerie`}
+                                className="text-sm text-accent hover:underline flex items-center gap-1"
+                            >
+                                Détails <ArrowRight className="h-3 w-3" />
+                            </Link>
+                        </CardHeader>
+                        <CardContent>
+                            <LineChartComponent
+                                data={tresorerieChartData}
+                                dataKeys={[
+                                    { key: 'solde', color: '#3B82F6', name: 'Solde' }
+                                ]}
+                            />
+                        </CardContent>
                     </Card>
-                    <Card variant="bordered" className="p-5">
-                        <div className="text-sm text-muted-foreground mb-1">Résultat cumulé</div>
-                        <div className={`text-2xl font-semibold tracking-tight ${donnees.resultatNet.reduce((a, b) => a + b, 0) >= 0 ? 'text-success' : 'text-danger'}`}>
-                            {formatCurrency(donnees.resultatNet.reduce((a, b) => a + b, 0))}
-                        </div>
-                        <div className="text-xs text-muted-foreground mt-1">sur {annees.length} ans</div>
-                    </Card>
-                    <Card variant="bordered" className="p-5">
-                        <div className="text-sm text-muted-foreground mb-1">Trésorerie fin A{annees.length}</div>
-                        <div className={`text-2xl font-semibold tracking-tight ${donnees.tresorerieFin[donnees.tresorerieFin.length - 1] >= 0 ? 'text-accent' : 'text-danger'}`}>
-                            {formatCurrency(donnees.tresorerieFin[donnees.tresorerieFin.length - 1])}
-                        </div>
-                        <div className="text-xs text-muted-foreground mt-1">solde disponible</div>
-                    </Card>
-                    <Card variant="bordered" className="p-5">
-                        <div className="text-sm text-muted-foreground mb-1">Capitaux propres A{annees.length}</div>
-                        <div className="text-2xl font-semibold tracking-tight text-success">{formatCurrency(donnees.capitauxPropres[donnees.capitauxPropres.length - 1])}</div>
-                        {donnees.capitauxPropres[0] > 0 && (
-                            <div className="text-xs text-success mt-1">+{((donnees.capitauxPropres[donnees.capitauxPropres.length - 1] / donnees.capitauxPropres[0] - 1) * 100).toFixed(0)}% vs A1</div>
-                        )}
+
+                    {/* Jauges de Santé */}
+                    <Card variant="bordered">
+                        <CardHeader>
+                            <CardTitle className="text-lg">Indicateurs de Santé</CardTitle>
+                        </CardHeader>
+                        <CardContent>
+                            <div className="flex justify-around items-center py-4">
+                                <CircularGauge
+                                    value={Math.max(0, rentabilite)}
+                                    max={40}
+                                    label="Rentabilité (EBE/CA)"
+                                    formatValue={(v) => `${v.toFixed(0)}%`}
+                                    thresholds={{ warning: 30, danger: 10 }}
+                                    variant={rentabilite >= 15 ? 'success' : rentabilite >= 5 ? 'warning' : 'danger'}
+                                />
+                                <CircularGauge
+                                    value={endettementScore}
+                                    max={100}
+                                    label="Score Solvabilité"
+                                    formatValue={(v) => `${v.toFixed(0)}`}
+                                    thresholds={{ warning: 40, danger: 20 }}
+                                    variant={endettementScore >= 66 ? 'success' : endettementScore >= 33 ? 'warning' : 'danger'}
+                                />
+                            </div>
+                            <div className="mt-6 space-y-4">
+                                <ProgressGauge
+                                    value={donnees.tauxMarge[donnees.tauxMarge.length - 1]}
+                                    max={50}
+                                    label="Taux de Marge (EBE/CA)"
+                                    variant={donnees.tauxMarge[donnees.tauxMarge.length - 1] >= 15 ? 'success' : 'warning'}
+                                />
+                                <ProgressGauge
+                                    value={Math.min(donnees.ratioEndettement[donnees.ratioEndettement.length - 1] * 33, 100)}
+                                    max={100}
+                                    label="Ratio Endettement"
+                                    thresholds={{ warning: 33, danger: 66 }}
+                                />
+                            </div>
+                        </CardContent>
                     </Card>
                 </div>
 
@@ -264,7 +392,7 @@ export function DashboardView({ donnees }: { donnees: DashboardData }) {
                     </Card>
                 </div>
 
-                {/* Trésorerie et ratios */}
+                {/* Trésorerie détaillée et indicateurs */}
                 <div className="grid grid-cols-2 gap-6 mb-8">
                     {/* Trésorerie */}
                     <Card variant="bordered">
@@ -313,10 +441,10 @@ export function DashboardView({ donnees }: { donnees: DashboardData }) {
                         </CardContent>
                     </Card>
 
-                    {/* Indicateurs de santé */}
+                    {/* Indicateurs de santé détaillés */}
                     <Card variant="bordered">
                         <CardHeader>
-                            <CardTitle className="text-lg">Indicateurs de Santé</CardTitle>
+                            <CardTitle className="text-lg">Récapitulatif</CardTitle>
                         </CardHeader>
                         <CardContent>
                             <StatutIndicateur
