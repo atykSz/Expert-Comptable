@@ -1,0 +1,234 @@
+[
+    {
+        "value": "56.10A",
+        "label": "Restauration traditionnelle"
+    },
+    {
+        "value": "56.10C",
+        "label": "Restauration de type rapide"
+    },
+    {
+        "value": "56.30Z",
+        "label": "Débits de boissons"
+    },
+    {
+        "value": "10.71C",
+        "label": "Boulangerie et boulangerie-pâtisserie"
+    },
+    {
+        "value": "10.71D",
+        "label": "Pâtisserie"
+    },
+    {
+        "value": "47.11B",
+        "label": "Commerce d'alimentation générale"
+    },
+    {
+        "value": "47.21Z",
+        "label": "Commerce de détail de fruits et légumes"
+    },
+    {
+        "value": "47.22Z",
+        "label": "Commerce de détail de viandes et de produits à base de viande"
+    },
+    {
+        "value": "47.71Z",
+        "label": "Commerce de détail d'habillement"
+    },
+    {
+        "value": "47.73Z",
+        "label": "Commerce de détail de produits pharmaceutiques (Pharmacie)"
+    },
+    {
+        "value": "47.78C",
+        "label": "Autres commerces de détail spécialisés divers"
+    },
+    {
+        "value": "96.02A",
+        "label": "Coiffure"
+    },
+    {
+        "value": "96.02B",
+        "label": "Soins de beauté"
+    },
+    {
+        "value": "86.21Z",
+        "label": "Activité des médecins généralistes"
+    },
+    {
+        "value": "86.22A",
+        "label": "Activités de radiodiagnostic et de radiothérapie"
+    },
+    {
+        "value": "86.22B",
+        "label": "Activités chirurgicales"
+    },
+    {
+        "value": "86.22C",
+        "label": "Autres activités des médecins spécialistes"
+    },
+    {
+        "value": "86.23Z",
+        "label": "Pratique dentaire"
+    },
+    {
+        "value": "86.90A",
+        "label": "Ambulances"
+    },
+    {
+        "value": "86.90D",
+        "label": "Activités des infirmiers et des sages-femmes"
+    },
+    {
+        "value": "86.90E",
+        "label": "Activités des professionnels de la rééducation, de l'appareillage et des pédicures-podologues"
+    },
+    {
+        "value": "43.21A",
+        "label": "Installation électrique"
+    },
+    {
+        "value": "43.22A",
+        "label": "Travaux d'installation d'eau et de gaz en tous locaux"
+    },
+    {
+        "value": "43.22B",
+        "label": "Travaux d'installation d'équipements thermiques et de climatisation"
+    },
+    {
+        "value": "43.32A",
+        "label": "Travaux de menuiserie bois et PVC"
+    },
+    {
+        "value": "43.32B",
+        "label": "Travaux de menuiserie métallique et serrurerie"
+    },
+    {
+        "value": "43.34Z",
+        "label": "Travaux de peinture et vitrerie"
+    },
+    {
+        "value": "45.20A",
+        "label": "Entretien et réparation de véhicules automobiles légers"
+    },
+    {
+        "value": "45.20B",
+        "label": "Entretien et réparation d'autres véhicules automobiles"
+    },
+    {
+        "value": "49.32Z",
+        "label": "Transports de voyageurs par taxis"
+    },
+    {
+        "value": "49.41A",
+        "label": "Transports routiers de fret interurbains"
+    },
+    {
+        "value": "49.41B",
+        "label": "Transports routiers de fret de proximité"
+    },
+    {
+        "value": "55.10Z",
+        "label": "Hôtels et hébergement similaire"
+    },
+    {
+        "value": "55.20Z",
+        "label": "Hébergement touristique et autre hébergement de courte durée"
+    },
+    {
+        "value": "62.01Z",
+        "label": "Programmation informatique"
+    },
+    {
+        "value": "62.02A",
+        "label": "Conseil en systèmes et logiciels informatiques"
+    },
+    {
+        "value": "69.10Z",
+        "label": "Activités juridiques (Avocats, Notaires...)"
+    },
+    {
+        "value": "69.20Z",
+        "label": "Activités comptables"
+    },
+    {
+        "value": "70.21Z",
+        "label": "Conseil en relations publiques et communication"
+    },
+    {
+        "value": "70.22Z",
+        "label": "Conseil pour les affaires et autres conseils de gestion"
+    },
+    {
+        "value": "71.11Z",
+        "label": "Activités d'architecture"
+    },
+    {
+        "value": "71.12B",
+        "label": "Ingénierie, études techniques"
+    },
+    {
+        "value": "73.11Z",
+        "label": "Activités des agences de publicité"
+    },
+    {
+        "value": "74.10Z",
+        "label": "Activités spécialisées de design"
+    },
+    {
+        "value": "74.20Z",
+        "label": "Activités photographiques"
+    },
+    {
+        "value": "81.21Z",
+        "label": "Nettoyage courant des bâtiments"
+    },
+    {
+        "value": "82.11Z",
+        "label": "Services administratifs combinés de bureau"
+    },
+    {
+        "value": "85.53Z",
+        "label": "Enseignement de la conduite (Auto-école)"
+    },
+    {
+        "value": "85.59B",
+        "label": "Autres enseignements"
+    },
+    {
+        "value": "88.10A",
+        "label": "Aide à domicile"
+    },
+    {
+        "value": "90.01Z",
+        "label": "Arts du spectacle vivant"
+    },
+    {
+        "value": "90.03B",
+        "label": "Autre création artistique"
+    },
+    {
+        "value": "93.12Z",
+        "label": "Activités de clubs de sports"
+    },
+    {
+        "value": "93.13Z",
+        "label": "Activités des centres de culture physique"
+    },
+    {
+        "value": "95.11Z",
+        "label": "Réparation d'ordinateurs et d'équipements périphériques"
+    },
+    {
+        "value": "96.01B",
+        "label": "Blanchisserie-teinturerie de détail"
+    },
+    {
+        "value": "96.04Z",
+        "label": "Entretien corporel"
+    },
+    {
+        "value": "96.09Z",
+        "label": "Autres services personnels n.c.a."
+    }
+]

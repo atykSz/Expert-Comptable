@@ -1,15 +1,15 @@
 import Link from 'next/link'
-import { ArrowLeft } from 'lucide-react'
+import { ArrowLeft, Shield, Lock, EyeOff, Server } from 'lucide-react'
 
 export const metadata = {
-    title: 'Politique de Confidentialité | Expert-Comptable',
-    description: 'Notre politique de protection des données personnelles conforme au RGPD.',
+    title: 'Politique de Confidentialité | Expert-Financement',
+    description: 'Engagement de confidentialité et protection des données personnelles.',
 }
 
 export default function PolitiqueConfidentialite() {
     return (
         <div className="min-h-screen bg-gray-50 py-12 px-4 sm:px-6 lg:px-8">
-            <div className="max-w-4xl mx-auto">
+            <div className="max-w-5xl mx-auto">
                 <div className="mb-8">
                     <Link
                         href="/"
@@ -20,110 +20,82 @@ export default function PolitiqueConfidentialite() {
                     </Link>
                 </div>
 
-                <div className="bg-white shadow-sm rounded-lg p-8 sm:p-12">
-                    <h1 className="text-3xl font-bold text-gray-900 mb-8">
-                        Politique de Confidentialité
-                    </h1>
+                <div className="bg-white shadow-xl rounded-2xl overflow-hidden">
+                    {/* Header */}
+                    <div className="bg-[#1e3a5f] p-8 sm:p-12 text-white">
+                        <div className="flex items-center gap-4 mb-6">
+                            <div className="p-3 bg-white/10 rounded-xl backdrop-blur-sm">
+                                <Shield className="h-8 w-8" />
+                            </div>
+                            <h1 className="text-3xl font-bold">Politique de Confidentialité</h1>
+                        </div>
+                        <p className="text-blue-100 text-lg max-w-2xl leading-relaxed">
+                            La protection de vos données financières et stratégiques est notre priorité absolue.
+                            Nous garantissons une confidentialité totale : vos données ne sont ni partagées, ni vendues.
+                        </p>
+                    </div>
 
-                    <div className="prose max-w-none text-gray-600 space-y-8">
-                        <section>
-                            <h2 className="text-xl font-semibold text-gray-900 mb-4">1. Préambule</h2>
-                            <p>
-                                La présente politique de confidentialité a pour but d'informer les utilisateurs du site
-                                Expert-Comptable sur la manière dont leurs données personnelles sont collectées et traitées.
-                                Nous accordons une importance capitale au respect de la vie privée et nous nous engageons à
-                                respecter les dispositions du Règlement Général sur la Protection des Données (RGPD).
+                    <div className="p-8 sm:p-12 space-y-12">
+                        {/* Engagement Fort */}
+                        <section className="bg-blue-50/50 border border-blue-100 rounded-xl p-8">
+                            <h2 className="text-xl font-bold text-[#1e3a5f] flex items-center gap-3 mb-4">
+                                <EyeOff className="h-5 w-5" />
+                                Notre Engagement Fondamental
+                            </h2>
+                            <p className="text-gray-700 leading-relaxed font-medium">
+                                Expert-Financement s'engage formellement à ce que **vos données ne soient jamais communiquées, échangées ou vendues à des tiers**.
+                                Aucune entreprise partenaire, banque ou démarcheur commercial n'a accès à vos informations financières.
+                                Vous restez le seul propriétaire et maître de vos données.
                             </p>
                         </section>
 
-                        <section>
-                            <h2 className="text-xl font-semibold text-gray-900 mb-4">2. Responsable du traitement</h2>
+                        <div className="prose prose-slate max-w-none text-gray-600">
+                            <h3>1. Collecte et Minimisation</h3>
                             <p>
-                                Le responsable du traitement des données est l'éditeur du site Expert-Comptable.
-                                <br />
-                                Email de contact : contact@expert-comptable.app (exemple)
+                                Nous ne collectons que les données strictement nécessaires au fonctionnement de l'outil de création de dossiers financiers :
                             </p>
-                        </section>
-
-                        <section>
-                            <h2 className="text-xl font-semibold text-gray-900 mb-4">3. Données collectées</h2>
-                            <p>
-                                Dans le cadre de l'utilisation de notre application, nous sommes amenés à collecter les données suivantes :
-                            </p>
-                            <ul className="list-disc pl-5 mt-2 space-y-1">
-                                <li>Données d'identité : Nom, Prénom, Email (pour la création de compte).</li>
-                                <li>Données financières : Informations saisies dans les prévisionnels (Chiffre d'affaires, charges, etc.).</li>
-                                <li>Données de connexion : Logs, adresses IP, type de navigateur (à des fins de sécurité et de statistiques anonymes).</li>
+                            <ul>
+                                <li><strong>Identité</strong> : Email et nom (gestion de compte).</li>
+                                <li><strong>Données Métier</strong> : Chiffres clés, hypothèses et textes saisis dans vos dossiers.</li>
                             </ul>
-                        </section>
+                            <p>Nous ne collectons aucune donnée sensible (santé, opinions, etc.) ni aucune donnée bancaire directe (pas de connexion aux comptes bancaires).</p>
 
-                        <section>
-                            <h2 className="text-xl font-semibold text-gray-900 mb-4">4. Finalités du traitement</h2>
-                            <p>
-                                Vos données sont collectées pour les finalités suivantes :
-                            </p>
-                            <ul className="list-disc pl-5 mt-2 space-y-1">
-                                <li>Gestion de votre compte utilisateur et authentification.</li>
-                                <li>Fourniture du service de génération de prévisionnels comptables.</li>
-                                <li>Sauvegarde et synchronisation de vos données entre appareils.</li>
-                                <li>Amélioration de nos services et support technique.</li>
+                            <h3>2. Finalités du Traitement</h3>
+                            <p>Vos données sont traitées uniquement pour :</p>
+                            <ul>
+                                <li>Générer vos documents (Business Plan, Prévisionnels) au format PDF/Excel.</li>
+                                <li>Vous permettre de retrouver vos dossiers lors de vos prochaines connexions.</li>
+                                <li>Assurer la sécurité de votre compte.</li>
                             </ul>
-                        </section>
 
-                        <section>
-                            <h2 className="text-xl font-semibold text-gray-900 mb-4">5. Base légale</h2>
+                            <h3>3. Hébergement et Sécurité</h3>
                             <p>
-                                Le traitement de vos données est justifié par :
+                                Vos données sont hébergées sur des serveurs sécurisés situés en Europe (ou bénéficiant de clauses de protection équivalentes).
+                                Nous appliquons des protocoles de sécurité stricts :
                             </p>
-                            <ul className="list-disc pl-5 mt-2 space-y-1">
-                                <li>L'exécution du contrat (CGU) lorsque vous utilisez nos services.</li>
-                                <li>Votre consentement (pour les cookies optionnels).</li>
-                                <li>Notre intérêt légitime (sécurité du site, amélioration du produit).</li>
+                            <ul className="not-prose grid sm:grid-cols-2 gap-4 my-6">
+                                <li className="flex items-center gap-3 bg-gray-50 p-3 rounded-lg border">
+                                    <Lock className="h-4 w-4 text-green-600" />
+                                    <span className="text-sm font-medium">Chiffrement SSL (HTTPS)</span>
+                                </li>
+                                <li className="flex items-center gap-3 bg-gray-50 p-3 rounded-lg border">
+                                    <Server className="h-4 w-4 text-blue-600" />
+                                    <span className="text-sm font-medium">Base de données isolée</span>
+                                </li>
                             </ul>
-                        </section>
 
-                        <section>
-                            <h2 className="text-xl font-semibold text-gray-900 mb-4">6. Durée de conservation</h2>
+                            <h3>4. Vos Droits (RGPD)</h3>
                             <p>
-                                Vos données personnelles sont conservées le temps de l'existence de votre compte.
-                                En cas de suppression de compte, vos données sont effacées de nos bases actives sous 30 jours,
-                                sauf obligation légale de conservation (ex: facturation).
+                                Conformément au Règlement Général sur la Protection des Données, vous disposez d'un droit d'accès, de rectification et d'effacement total de vos données.
+                                Vous pouvez exercer ce droit à tout moment via votre espace client ou en contactant notre DPO :
+                                <a href="mailto:dpo@expert-financement.app" className="text-[#1e3a5f] font-medium ml-1">dpo@expert-financement.app</a>.
                             </p>
-                        </section>
 
-                        <section>
-                            <h2 className="text-xl font-semibold text-gray-900 mb-4">7. Partage des données</h2>
+                            <h3>5. Cookies et Traceurs</h3>
                             <p>
-                                Vos données sont strictement confidentielles et ne sont jamais vendues à des tiers.
-                                Elles peuvent être transmises à nos sous-traitants techniques (hébergement Vercel, base de données Supabase)
-                                qui sont tenus aux mêmes obligations de sécurité et de confidentialité.
+                                Nous n'utilisons aucun cookie publicitaire. Seuls des cookies techniques essentiels au maintien de votre session de connexion sont déposés.
                             </p>
-                        </section>
-
-                        <section>
-                            <h2 className="text-xl font-semibold text-gray-900 mb-4">8. Vos droits</h2>
-                            <p>
-                                Conformément au RGPD, vous disposez des droits suivants :
-                            </p>
-                            <ul className="list-disc pl-5 mt-2 space-y-1">
-                                <li>Droit d'accès, de rectification et d'effacement de vos données.</li>
-                                <li>Droit à la limitation du traitement et à la portabilité des données.</li>
-                                <li>Droit d'opposition pour motif légitime.</li>
-                            </ul>
-                            <p className="mt-2">
-                                Pour exercer ces droits, vous pouvez nous contacter à l'adresse support du site.
-                                Vous avez également le droit d'introduire une réclamation auprès de la CNIL.
-                            </p>
-                        </section>
-
-                        <section>
-                            <h2 className="text-xl font-semibold text-gray-900 mb-4">9. Sécurité</h2>
-                            <p>
-                                Nous mettons en œuvre toutes les mesures techniques et organisationnelles appropriées pour garantir
-                                un niveau de sécurité adapté au risque, notamment le chiffrement des communications (HTTPS) et
-                                des mots de passe (bcrypt).
-                            </p>
-                        </section>
+                        </div>
                     </div>
                 </div>
             </div>

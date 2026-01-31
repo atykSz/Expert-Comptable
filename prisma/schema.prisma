@@ -175,8 +175,11 @@ model Previsionnel {
   financements    Financement[]
   effectifs       Effectif[]
   
-  // Lignes spécifiques 2035 (BNC)
+  // Ligne 2035 (BNC)
   lignes2035      Ligne2035[]
+
+  // Étude de marché
+  etudes          EtudeMarche[]
   
   // Scénarios de simulation
   scenarios       Scenario[]
@@ -587,4 +590,57 @@ enum Rubrique2035 {
   
   // === RÉSULTAT FISCAL ===
   RESULTAT_FISCAL               // Résultat fiscal définitif
+}
+
+// ========================
+// ÉTUDE DE MARCHÉ
+// ========================
+
+model EtudeMarche {
+  id              String   @id @default(cuid())
+  previsionnelId  String?
+  previsionnel    Previsionnel? @relation(fields: [previsionnelId], references: [id])
+  
+  // Entrées utilisateur
+  codeNAF         String
+  libelleNAF      String
+  adresse         String
+  codePostal      String
+  commune         String
+  latitude        Float?
+  longitude       Float?
+  rayonKm         Int      @default(10)
+  typeClientele   TypeClientele @default(MIXTE)
+  
+  // Résultats concurrence
+  nbConcurrents           Int?
+  repartitionEffectifs    Json?  // { "0": 45, "1-5": 30, "6-19": 15, "20+": 10 }
+  ancienneteMediane       Float?
+  tauxCreation3ans        Float?
+  tauxCessation3ans       Float?
+  
+  // Résultats démographie
+  populationZone          Int?
+  repartitionAges         Json?  // { "0-14": 18, "15-29": 20, ... }
+  repartitionCSP          Json?
+  revenuMedian            Float?
+  evolutionPopulation5ans Float?
+  
+  // Scores calculés
+  scoreAttraction         Float?
+  ratioHabConcurrent      Float?
+  potentielMarche         String? // "FORT", "MOYEN", "FAIBLE"
+  
+  // Métadonnées
+  dateAnalyse     DateTime @default(now())
+  sourceVersion   String?  // Version des données INSEE
+  
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
+}
+
+enum TypeClientele {
+  B2B
+  B2C
+  MIXTE
 }

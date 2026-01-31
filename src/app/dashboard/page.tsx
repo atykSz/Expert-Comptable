@@ -30,15 +30,15 @@ export default async function DashboardPage() {
                         <h1 className="text-3xl font-bold tracking-tight">{greeting}, {userName} !</h1>
                         <p className="text-white/80 mt-2">
                             {previsionnels.length === 0
-                                ? "Bienvenue dans votre espace. Créez votre premier Prévisionnel pour commencer."
-                                : `Vous avez ${previsionnels.length} prévisionnel${previsionnels.length > 1 ? 's' : ''} en cours.`
+                                ? "Bienvenue. Initiez votre premier dossier de financement pour la banque."
+                                : `Vous avez ${previsionnels.length} dossier${previsionnels.length > 1 ? 's' : ''} de financement en cours.`
                             }
                         </p>
                     </div>
                     <Link href="/previsionnel/nouveau">
                         <Button className="bg-white text-[#1e3a5f] hover:bg-white/90 shadow-lg">
                             <PlusCircle className="mr-2 h-4 w-4" />
-                            Nouveau Prévisionnel
+                            Nouveau Dossier
                         </Button>
                     </Link>
                 </div>
@@ -54,7 +54,7 @@ export default async function DashboardPage() {
                             </div>
                             <div>
                                 <p className="text-2xl font-bold">{previsionnels.length}</p>
-                                <p className="text-sm text-muted-foreground">Prévisionnel{previsionnels.length > 1 ? 's' : ''}</p>
+                                <p className="text-sm text-muted-foreground">Dossiers</p>
                             </div>
                         </div>
                     </Card>
@@ -90,7 +90,7 @@ export default async function DashboardPage() {
 
             {/* Section titre */}
             <div className="flex items-center justify-between">
-                <h2 className="text-xl font-semibold text-gray-900">Mes Prévisionnels</h2>
+                <h2 className="text-xl font-semibold text-gray-900">Mes Dossiers de Financement</h2>
                 {previsionnels.length > 0 && (
                     <Link href="/ressources" className="text-sm text-[#1e3a5f] hover:underline flex items-center gap-1">
                         <BookOpen className="h-4 w-4" />
@@ -106,16 +106,15 @@ export default async function DashboardPage() {
                         <div className="w-20 h-20 bg-gradient-to-br from-[#1e3a5f]/20 to-[#2d5a87]/20 rounded-full flex items-center justify-center mb-6">
                             <FileSpreadsheet className="h-10 w-10 text-[#1e3a5f]" />
                         </div>
-                        <h3 className="text-2xl font-semibold mb-2">Créez votre premier Prévisionnel</h3>
+                        <h3 className="text-2xl font-semibold mb-2">Commencer un nouveau dossier</h3>
                         <p className="text-muted-foreground max-w-md mb-8">
-                            Un Prévisionnel financier vous permet de planifier et visualiser
-                            la santé financière de votre projet sur 3 ans.
+                            Créez un dossier complet (Business Plan + Prévisionnel) pour présenter votre projet aux banques.
                         </p>
                         <div className="flex flex-col sm:flex-row gap-4">
                             <Link href="/previsionnel/nouveau">
                                 <Button className="bg-[#1e3a5f] hover:bg-[#1e3a5f]/90">
                                     <PlusCircle className="mr-2 h-4 w-4" />
-                                    Créer mon Prévisionnel
+                                    Créer mon Dossier
                                 </Button>
                             </Link>
                             <Link href="/ressources/comprendre-previsionnel">

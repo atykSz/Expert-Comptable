@@ -27,7 +27,7 @@ export function PrevisionnelCard({
         try {
             const res = await fetch(`/api/previsionnels/${id}`, { method: 'DELETE' })
             if (!res.ok) throw new Error('Erreur suppression')
-            addToast('Prévisionnel supprimé avec succès', 'success')
+            addToast('Dossier supprimé avec succès', 'success')
             router.refresh()
             setShowDelete(false)
         } catch (error) {
@@ -87,7 +87,7 @@ export function PrevisionnelCard({
                             </div>
                         </div>
                         <div className="mt-4 pt-4 border-t flex items-center justify-between text-sm font-medium text-[#1e3a5f]">
-                            Accéder au Tableau de Bord
+                            Ouvrir le dossier
                             <ArrowRight className="h-4 w-4 transform group-hover:translate-x-1 transition-transform" />
                         </div>
                     </CardContent>
@@ -97,11 +97,11 @@ export function PrevisionnelCard({
             <Modal
                 isOpen={showDelete}
                 onClose={() => setShowDelete(false)}
-                title="Supprimer le prévisionnel ?"
+                title="Supprimer le dossier ?"
             >
                 <div className="space-y-4">
                     <p className="text-gray-600">
-                        Êtes-vous sûr de vouloir supprimer définitivement le prévisionnel <strong>{titre}</strong> ?
+                        Êtes-vous sûr de vouloir supprimer définitivement le dossier <strong>{titre}</strong> ?
                         Cette action est irréversible.
                     </p>
                     <div className="flex justify-end gap-3">

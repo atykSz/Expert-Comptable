@@ -22,7 +22,7 @@ function Header() {
             <div className="w-8 h-8 bg-foreground rounded-lg flex items-center justify-center">
               <BarChart3 className="h-5 w-5 text-background" />
             </div>
-            <span className="text-lg font-semibold tracking-tight">Expert-Comptable</span>
+            <span className="text-lg font-semibold tracking-tight">Expert-Financement</span>
           </Link>
           <nav className="hidden md:flex items-center gap-8">
             <Link href="#features" className="text-sm text-muted-foreground hover:text-foreground transition-colors">
@@ -62,14 +62,14 @@ function Hero() {
         <div className="max-w-3xl mx-auto text-center">
           <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-accent/10 text-accent text-sm font-medium mb-8">
             <span className="w-2 h-2 rounded-full bg-accent animate-pulse" />
-            Conforme au Plan Comptable General
+            Optimisé pour Banques & Investisseurs
           </div>
           <h1 className="text-4xl sm:text-5xl lg:text-6xl font-semibold tracking-tight text-balance leading-[1.1] mb-6">
-            Creez votre previsionnel comptable professionnel
+            Votre dossier de financement bancaire complété en 30 min
           </h1>
           <p className="text-lg lg:text-xl text-muted-foreground leading-relaxed mb-10 text-pretty max-w-2xl mx-auto">
-            Compte de resultat, bilan, plan de financement et tresorerie.
-            Pret pour vos banques et investisseurs en quelques minutes.
+            Business plan, prévisionnel financier et analyse de marché.
+            Tout ce qu'il vous faut pour convaincre vos banquiers et investisseurs.
           </p>
           <div className="flex flex-col sm:flex-row items-center justify-center gap-4">
             <Link
@@ -94,10 +94,10 @@ function Hero() {
 
 function Stats() {
   const stats = [
-    { value: '100%', label: 'Conforme PCG' },
+    { value: '100%', label: 'Conforme Banques' },
     { value: '36', label: 'Mois de projection' },
-    { value: 'PDF', label: 'Export professionnel' },
-    { value: 'Excel', label: 'Tableaux editables' },
+    { value: 'PDF', label: 'Dossier Bancaire' },
+    { value: 'Excel', label: 'Tableaux éditables' },
   ]
 
   return (
@@ -125,21 +125,21 @@ function Features() {
       number: '01',
     },
     {
-      icon: Calculator,
-      title: 'Bilan Previsionnel',
-      description: 'Visualisez votre patrimoine previsionnel avec actif et passif equilibres automatiquement.',
+      icon: TrendingUp,
+      title: 'Plan de Financement',
+      description: 'Anticipez vos besoins et validez la faisabilité de votre projet auprès des banques.',
       number: '02',
     },
     {
-      icon: TrendingUp,
-      title: 'Plan de Financement',
-      description: 'Anticipez vos besoins en financement et identifiez vos sources de ressources sur 3 ans.',
+      icon: BarChart3,
+      title: 'Étude de Marché',
+      description: 'Intégrez facilement les données de votre marché pour crédibiliser votre demande (Bientôt).',
       number: '03',
     },
     {
-      icon: PiggyBank,
-      title: 'Plan de Tresorerie',
-      description: 'Suivez vos flux de tresorerie mois par mois sur 36 mois pour eviter tout decouvert.',
+      icon: FileSpreadsheet,
+      title: 'Dossier Complet',
+      description: 'Un export PDF unique regroupant business plan, prévisionnel et annexes pour votre banquier.',
       number: '04',
     },
   ]
@@ -149,10 +149,10 @@ function Features() {
       <div className="max-w-7xl mx-auto px-6 lg:px-8">
         <div className="max-w-2xl mb-16">
           <h2 className="text-3xl lg:text-4xl font-semibold tracking-tight mb-4">
-            Tous les tableaux financiers de votre business plan
+            Votre dossier complet pour obtenir votre financement
           </h2>
           <p className="text-lg text-muted-foreground leading-relaxed">
-            Generez automatiquement l&apos;ensemble des documents financiers necessaires pour convaincre vos partenaires.
+            Un outil guidé pour construire un dossier bancaire inattaquable, du prévisionnel à l'étude de marché.
           </p>
         </div>
 
@@ -191,18 +191,18 @@ function Benefits() {
   const benefits = [
     {
       icon: Shield,
-      title: 'Conforme aux normes',
-      description: 'PCG, liasse fiscale 2035, 2031 - tous les formats officiels francais.',
+      title: 'Format Bancaire',
+      description: 'Exports PDF structurés selon les attentes exactes des comités de crédit.',
     },
     {
       icon: Zap,
-      title: 'Rapide et intuitif',
-      description: 'Creez votre previsionnel complet en moins de 30 minutes.',
+      title: 'Complet & Rapide',
+      description: 'Votre dossier prêt à être envoyé en moins de 30 minutes.',
     },
     {
       icon: Users,
-      title: 'Multi-profils',
-      description: 'Adapte aux professions liberales, commercants et societes.',
+      title: 'Tous Projets',
+      description: 'Idéal pour création, reprise d\'entreprise ou investissement immobilier.',
     },
   ]
 
@@ -230,19 +230,19 @@ function Benefits() {
 function Testimonials() {
   const items = [
     {
-      quote: "Un outil indispensable pour mes clients entrepreneurs. Le format 2035 est parfaitement conforme.",
+      quote: "Grâce au dossier généré, ma banque a validé mon prêt immobilier pro en moins d'une semaine.",
       author: "Marie L.",
-      role: "Expert-Comptable, Paris"
+      role: "Investisseur Immobilier"
     },
     {
-      quote: "J'ai pu presenter mon business plan a ma banque en 2 jours au lieu de 2 semaines.",
+      quote: "L'outil structure parfaitement la démarche. Le banquier a apprécié la clarté du plan de financement.",
       author: "Thomas D.",
-      role: "Fondateur, Startup Tech"
+      role: "Créateur Entreprise BTP"
     },
     {
-      quote: "Interface claire et calculs automatiques. Exactement ce qu'il me fallait pour mon cabinet.",
+      quote: "Je pensais devoir payer un consultant 2000€, j'ai tout fait moi-même avec un résultat pro.",
       author: "Sophie M.",
-      role: "Medecin liberale"
+      role: "Freelance Marketing"
     }
   ]
 
@@ -278,10 +278,10 @@ function CTA() {
     <section className="py-24 lg:py-32 bg-foreground text-background">
       <div className="max-w-7xl mx-auto px-6 lg:px-8 text-center">
         <h2 className="text-3xl lg:text-4xl font-semibold tracking-tight mb-4">
-          Pret a creer votre previsionnel ?
+          Prêt à financer votre projet ?
         </h2>
         <p className="text-background/70 mb-10 max-w-xl mx-auto">
-          Commencez gratuitement et creez un previsionnel professionnel en quelques minutes.
+          Commencez gratuitement la construction de votre dossier bancaire dès maintenant.
         </p>
         <div className="flex flex-col sm:flex-row items-center justify-center gap-4">
           <Link

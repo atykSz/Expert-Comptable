@@ -34,11 +34,11 @@ export function Footer() {
                                 <BarChart3 className="h-5 w-5 text-white" />
                             </div>
                             <span className="text-xl font-bold bg-gradient-to-r from-blue-400 to-purple-400 bg-clip-text text-transparent">
-                                Expert-Comptable
+                                Expert-Financement
                             </span>
                         </Link>
                         <p className="text-slate-400 text-sm leading-relaxed">
-                            Solution SaaS complète pour les experts-comptables. Créez des prévisionnels financiers professionnels conformes aux normes françaises (PCG, 2035).
+                            Solution complète pour vos demandes de financement. Créez des dossiers bancaires professionnels (Business Plan, Prévisionnel) et persuadez vos investisseurs.
                         </p>
                     </div>
 
@@ -97,7 +97,7 @@ export function Footer() {
                 {/* Bottom */}
                 <div className="pt-8 border-t border-slate-800 flex flex-col md:flex-row items-center justify-between gap-4">
                     <p className="text-slate-500 text-sm">
-                        © {new Date().getFullYear()} Expert-Comptable. Tous droits réservés.
+                        © {new Date().getFullYear()} Expert-Financement. Tous droits réservés.
                     </p>
                     <div className="flex flex-col sm:flex-row items-center gap-4 sm:gap-8">
                         <p className="text-slate-500 text-sm">

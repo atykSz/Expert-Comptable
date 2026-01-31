@@ -1,15 +1,15 @@
 import Link from 'next/link'
-import { ArrowLeft } from 'lucide-react'
+import { ArrowLeft, Scale, FileText, AlertTriangle } from 'lucide-react'
 
 export const metadata = {
-    title: 'Conditions Générales d\'Utilisation | Expert-Comptable',
-    description: 'Conditions régissant l\'utilisation de notre service.',
+    title: 'Conditions Générales d\'Utilisation | Expert-Financement',
+    description: 'Conditions régissant l\'utilisation de notre service de création de dossiers de financement.',
 }
 
 export default function CGU() {
     return (
         <div className="min-h-screen bg-gray-50 py-12 px-4 sm:px-6 lg:px-8">
-            <div className="max-w-4xl mx-auto">
+            <div className="max-w-5xl mx-auto">
                 <div className="mb-8">
                     <Link
                         href="/"
@@ -20,68 +20,73 @@ export default function CGU() {
                     </Link>
                 </div>
 
-                <div className="bg-white shadow-sm rounded-lg p-8 sm:p-12">
-                    <h1 className="text-3xl font-bold text-gray-900 mb-8">
-                        Conditions Générales d'Utilisation
-                    </h1>
+                <div className="bg-white shadow-xl rounded-2xl overflow-hidden">
+                    <div className="bg-slate-900 p-8 sm:p-12 text-white">
+                        <div className="flex items-center gap-4 mb-6">
+                            <div className="p-3 bg-white/10 rounded-xl backdrop-blur-sm">
+                                <Scale className="h-8 w-8" />
+                            </div>
+                            <h1 className="text-3xl font-bold">Conditions Générales d'Utilisation</h1>
+                        </div>
+                        <p className="text-slate-300 text-lg max-w-2xl">
+                            Dernière mise à jour : {new Date().toLocaleDateString('fr-FR', { year: 'numeric', month: 'long', day: 'numeric' })}
+                        </p>
+                    </div>
 
-                    <div className="prose max-w-none text-gray-600 space-y-8">
-                        <section>
-                            <h2 className="text-xl font-semibold text-gray-900 mb-4">1. Objet</h2>
-                            <p>
-                                Les présentes Conditions Générales d'Utilisation (CGU) encadrent juridiquement l'accès et l'utilisation
-                                du site Expert-Comptable. L'accès à ce site signifie l'acceptation sans réserve des présentes CGU.
+                    <div className="p-8 sm:p-12 space-y-12">
+                        <section className="bg-amber-50 border border-amber-200 rounded-xl p-6">
+                            <h2 className="text-lg font-bold text-amber-800 flex items-center gap-2 mb-3">
+                                <AlertTriangle className="h-5 w-5" />
+                                Avertissement Important
+                            </h2>
+                            <p className="text-amber-900 text-sm leading-relaxed">
+                                Expert-Financement est un <strong>outil d'aide à la décision</strong> et de modélisation financière.
+                                Bien que conforme aux normes comptables, il ne remplace en aucun cas l'expertise, le conseil et la certification d'un Expert-Comptable diplômé.
+                                Les documents générés doivent être validés par un professionnel avant toute démarche officielle.
                             </p>
                         </section>
 
-                        <section>
-                            <h2 className="text-xl font-semibold text-gray-900 mb-4">2. Accès au service</h2>
+                        <div className="prose prose-slate max-w-none text-gray-600">
+                            <h3>1. Objet du Service</h3>
                             <p>
-                                Le site est accessible gratuitement en tout lieu à tout utilisateur ayant un accès à Internet.
-                                Tous les frais supportés par l'utilisateur pour accéder au service (matériel informatique, logiciels, connexion Internet, etc.) sont à sa charge.
+                                Expert-Financement fournit une solution logicielle en mode SaaS (Software as a Service) permettant aux utilisateurs de créer,
+                                éditer et exporter des dossiers financiers (Business Plans, Prévisionnels, Études de marché) destinés à la recherche de financements.
                             </p>
-                            <p className="mt-2">
-                                L'éditeur met en œuvre tous les moyens pour assurer un accès de qualité au service 24h/24, 7j/7,
-                                mais n'est tenu à aucune obligation d'y parvenir.
-                            </p>
-                        </section>
 
-                        <section>
-                            <h2 className="text-xl font-semibold text-gray-900 mb-4">3. Propriété intellectuelle</h2>
+                            <h3>2. Accès et Compte Utilisateur</h3>
                             <p>
-                                L'ensemble du contenu du site (textes, logos, images, code source) est protégé par le droit de la propriété intellectuelle.
-                                Toute reproduction, copie ou publication du contenu sans l'autorisation de l'éditeur est strictement interdite.
+                                L'accès aux fonctionnalités de sauvegarde nécessite la création d'un compte utilisateur.
+                                L'utilisateur est responsable de la confidentialité de ses identifiants.
+                                Toute action effectuée depuis son compte est réputée être de son fait.
                             </p>
-                        </section>
 
-                        <section>
-                            <h2 className="text-xl font-semibold text-gray-900 mb-4">4. Responsabilité</h2>
-                            <p>
-                                Bien que les informations publiées sur le site soient réputées fiables, le site se réserve la faculté
-                                d'une non-garantie de la fiabilité des sources.
-                            </p>
-                            <p className="mt-2">
-                                Les prévisionnels comptables générés par cet outil sont fournis à titre indicatif.
-                                L'éditeur ne saurait être tenu responsable des conséquences de décisions prises sur la base de ces résultats.
-                                Cet outil ne remplace pas les conseils d'un expert-comptable diplômé.
-                            </p>
-                        </section>
+                            <h3>3. Propriété Intellectuelle</h3>
+                            <ul>
+                                <li><strong>Sur l'outil</strong> : Expert-Financement détient l'intégralité des droits de propriété intellectuelle sur la structure, le design, et le code du site.</li>
+                                <li><strong>Sur vos données</strong> : Vous conservez la propriété pleine et entière des données que vous saisissez et des dossiers que vous générez. Nous ne revendiquons aucun droit sur vos créations.</li>
+                            </ul>
 
-                        <section>
-                            <h2 className="text-xl font-semibold text-gray-900 mb-4">5. Liens hypertextes</h2>
+                            <h3>4. Responsabilité</h3>
                             <p>
-                                Des liens hypertextes peuvent être présents sur le site. L'utilisateur est informé qu'en cliquant sur ces liens,
-                                il sortira du site Expert-Comptable. Ce dernier n'a pas de contrôle sur les pages web sur lesquelles
-                                aboutissent ces liens et ne saurait, en aucun cas, être responsable de leur contenu.
+                                L'éditeur s'efforce de fournir un service disponible 24/7 et des calculs précis. Toutefois :
                             </p>
-                        </section>
+                            <ul>
+                                <li>Nous ne garantissons pas l'obtention d'un financement bancaire (décision souveraine des banques).</li>
+                                <li>Nous ne sommes pas responsables des erreurs de saisie de l'utilisateur ou d'une mauvaise interprétation des résultats.</li>
+                                <li>En cas d'interruption de service pour maintenance, notre responsabilité ne saurait être engagée.</li>
+                            </ul>
 
-                        <section>
-                            <h2 className="text-xl font-semibold text-gray-900 mb-4">6. Modification des conditions</h2>
+                            <h3>5. Tarification et Abonnement</h3>
                             <p>
-                                L'éditeur se réserve le droit de modifier unilatéralement et à tout moment le contenu des présentes CGU.
+                                Certaines fonctionnalités peuvent être soumises à un abonnement ou un paiement ponctuel.
+                                Les conditions tarifaires sont indiquées clairement avant tout achat. Le droit de rétractation ne s'applique pas aux contenus numériques fournis immédiatement (art. L221-28 du Code de la consommation).
                             </p>
-                        </section>
+
+                            <h3>6. Droit Applicable</h3>
+                            <p>
+                                Les présentes CGU sont soumises au droit français. En cas de litige, les tribunaux français seront seuls compétents.
+                            </p>
+                        </div>
                     </div>
                 </div>
             </div>

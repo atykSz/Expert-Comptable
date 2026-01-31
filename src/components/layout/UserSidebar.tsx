@@ -6,6 +6,7 @@ import {
     BarChart3,
     LayoutDashboard,
     PlusCircle,
+    TrendingUp,
     User,
     LogOut
 } from 'lucide-react'
@@ -26,7 +27,8 @@ export function UserSidebar() { // Suppression de { user } car non utilisé pour
 
     const navItems = [
         { href: '/dashboard', label: 'Espace Client', icon: LayoutDashboard },
-        { href: '/previsionnel/nouveau', label: 'Nouveau Projet', icon: PlusCircle },
+        { href: '/previsionnel/nouveau', label: 'Nouveau Dossier', icon: PlusCircle },
+        { href: '/etude-marche', label: 'Étude de Marché', icon: TrendingUp },
     ]
 
     const isActive = (href: string) => pathname === href
@@ -37,7 +39,7 @@ export function UserSidebar() { // Suppression de { user } car non utilisé pour
                 <div className="w-8 h-8 bg-foreground rounded-lg flex items-center justify-center">
                     <BarChart3 className="h-5 w-5 text-background" />
                 </div>
-                <span className="font-semibold tracking-tight">Expert-Comptable</span>
+                <span className="font-semibold tracking-tight">Expert-Financement</span>
             </Link>
 
             <nav className="space-y-1 flex-1">

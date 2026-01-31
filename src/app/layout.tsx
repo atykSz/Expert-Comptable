@@ -10,9 +10,9 @@ const inter = Inter({
 });
 
 export const metadata: Metadata = {
-  title: "Expert-Comptable | SAAS Prévisionnel Comptable",
-  description: "Solution d'expertise comptable aux normes françaises - Prévisionnels, comptes de résultat, bilans et plans de trésorerie",
-  keywords: ["expert-comptable", "prévisionnel", "business plan", "comptabilité", "PCG", "France"],
+  title: "Expert-Financement | Outil de dossiers bancaires pour professionnels",
+  description: "Créez votre dossier de financement complet pour banques et investisseurs. Business plan, prévisionnel financier et aide à la création d'entreprise.",
+  keywords: ["financement", "crédit pro", "business plan", "banque", "prévisionnel", "investisseurs", "création entreprise"],
 };
 
 export default function RootLayout({
