@@ -384,6 +384,9 @@ export default function FinancementPage({
     // État pour les financements - initialisé vide, rempli par useEffect
     const [financements, setFinancements] = useState<Financement[]>([])
 
+    // État pour les investissements (pour calculer les besoins)
+    const [totalInvestissements, setTotalInvestissements] = useState(0)
+
     // Mapping des types locaux vers les types API
     const typeMapping: Record<TypeFinancement, string> = {
         'CAPITAL_SOCIAL': 'CAPITAL_SOCIAL',
@@ -411,6 +414,7 @@ export default function FinancementPage({
                 if (!res.ok) throw new Error('Erreur chargement')
                 const data = await res.json()
 
+                // Charger les financements
                 if (data.financements && data.financements.length > 0) {
                     setFinancements(data.financements.map((fin: any) => ({
                         id: fin.id,
@@ -422,6 +426,14 @@ export default function FinancementPage({
                         dureeEmprunt: fin.duree,
                         differe: fin.differe,
                     })))
+                }
+
+                // Charger les investissements pour calculer les besoins
+                if (data.investissements && data.investissements.length > 0) {
+                    const total = data.investissements.reduce((sum: number, inv: { montantHT: number }) => sum + (inv.montantHT || 0), 0)
+                    setTotalInvestissements(total)
+                } else {
+                    setTotalInvestissements(0)
                 }
             } catch (err) {
                 console.error('Erreur chargement financements:', err)
@@ -467,12 +479,12 @@ export default function FinancementPage({
         }
     }
 
-    // Besoins de financement (liés aux investissements)
-    const besoins: BesoinFinancement[] = [
-        { id: '1', libelle: 'Investissements', montant: 38000, annee: 2026 },
-        { id: '2', libelle: 'BFR initial', montant: 5000, annee: 2026 },
+    // Besoins de financement (calculés dynamiquement à partir des investissements)
+    const besoins: BesoinFinancement[] = useMemo(() => [
+        { id: '1', libelle: 'Investissements', montant: totalInvestissements, annee: 2026 },
+        { id: '2', libelle: 'BFR initial', montant: 0, annee: 2026 },
         { id: '3', libelle: 'Remboursement emprunts', montant: 0, annee: 2026 },
-    ]
+    ], [totalInvestissements])
 
     // Ajouter un financement
     const addFinancement = (type: TypeFinancement) => {

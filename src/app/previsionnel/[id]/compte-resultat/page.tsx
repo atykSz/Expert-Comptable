@@ -300,13 +300,13 @@ export default function CompteResultatPage() {
 
     // Chargement des données
     useEffect(() => {
-        if (!previsionnelId || previsionnelId === 'demo') {
-            // Mock initialization if needed or empty
+        // Mode demo uniquement - sinon on charge depuis l'API
+        if (previsionnelId === 'demo') {
             setLignesCA([{
                 id: generateId(),
                 libelle: 'Ventes de produits',
                 categorie: 'VENTE_MARCHANDISES',
-                montantsMensuels: Array(36).fill(0), // 36 mois
+                montantsMensuels: Array(36).fill(0),
                 tauxTVA: 20,
             }])
             setLignesCharges([{
@@ -319,6 +319,8 @@ export default function CompteResultatPage() {
             }])
             return
         }
+
+        if (!previsionnelId) return
 
         const fetchData = async () => {
             try {
