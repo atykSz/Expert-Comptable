@@ -1,6 +1,6 @@
 'use client'
 
-import { useState, useMemo } from 'react'
+import { useState, useMemo, use } from 'react'
 import Link from 'next/link'
 import {
     ArrowLeft,
@@ -379,7 +379,7 @@ export default function FinancementPage({
 }: {
     params: Promise<{ id: string }>
 }) {
-    const previsionnelId = 'demo'
+    const { id: previsionnelId } = use(params)
     const annees = [2026, 2027, 2028]
 
     // État pour les financements
