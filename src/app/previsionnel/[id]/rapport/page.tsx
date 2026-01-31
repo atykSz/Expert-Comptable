@@ -26,7 +26,8 @@ import {
     ProjectPresentation,
     InvestissementsSection,
     SIGSection,
-    GraphicsSection
+    GraphicsSection,
+    ScenarioSection
 } from '@/components/rapport'
 import type { DonneesRapport } from './types'
 
@@ -719,6 +720,7 @@ export default function RapportPage() {
         { number: '6', title: 'Plan de Financement' },
         { number: '7', title: 'Plan de Trésorerie' },
         { number: '8', title: 'Indicateurs Clés' },
+        { number: '9', title: 'Analyse des Scénarios' },
     ]
 
     const handlePrint = () => window.print()
@@ -797,6 +799,7 @@ export default function RapportPage() {
                     <PlanFinancementSection donnees={donnees} />
                     <TresorerieMensuelleSection donnees={donnees} />
                     <IndicateursSection donnees={donnees} />
+                    <ScenarioSection scenarios={donnees.scenarios || []} />
                     <RapportFooter />
                 </div>
             </main>

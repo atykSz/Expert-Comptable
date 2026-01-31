@@ -1,6 +1,7 @@
 import { prisma } from '@/lib/prisma'
 import { calculatePrevisionnelCashFlow, calculateBilan } from '@/lib/financial-calculations'
 import { calculerSIG, DonneesCompteResultat } from '@/lib/calculations/compte-resultat'
+import { calculerScenario } from '@/lib/calculations/scenarios'
 import type { DonneesRapport } from '@/app/previsionnel/[id]/rapport/types'
 
 /**
@@ -17,7 +18,10 @@ export async function aggregateRapportData(previsionnelId: string): Promise<Donn
             hypotheses: true,
             financements: true,
             investissements: true,
-            client: true
+            client: true,
+            scenarios: {
+                orderBy: { createdAt: 'asc' }
+            }
         }
     })
 
@@ -296,6 +300,25 @@ export async function aggregateRapportData(previsionnelId: string): Promise<Donn
             tauxChargesSociales: (hypotheses as Record<string, number>).tauxChargesSocialesPatronales || 45,
             tauxIS: (hypotheses as Record<string, number>).tauxIS || 25,
             evolutionCA: [0, 10, 10]
-        }
+        },
+        // 10. Scénarios avec résultats calculés
+        scenarios: previsionnel.scenarios.map(scenario => {
+            const resultats = calculerScenario(previsionnel, {
+                modifCA: scenario.modifCA,
+                modifCharges: scenario.modifCharges,
+                modifDelaiPaiement: scenario.modifDelaiPaiement
+            })
+            return {
+                nom: scenario.nom,
+                type: scenario.type,
+                couleur: scenario.couleur,
+                modifCA: scenario.modifCA,
+                modifCharges: scenario.modifCharges,
+                resultatNetAn1: scenario.resultatNetAn1,
+                resultatNetAn3: scenario.resultatNetAn3,
+                tresorerieFinAn3: scenario.tresorerieFinAn3,
+                resultats
+            }
+        })
     }
 }

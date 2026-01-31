@@ -112,4 +112,20 @@ export interface DonneesRapport {
         tauxIS: number
         evolutionCA: number[]
     }
+    scenarios?: {
+        nom: string
+        type: string
+        couleur: string
+        modifCA: number
+        modifCharges: number
+        resultatNetAn1?: number | null
+        resultatNetAn3?: number | null
+        tresorerieFinAn3?: number | null
+        resultats?: {
+            annees: number[]
+            ca: number[]
+            resultatNet: number[]
+            tresorerieFin: number[]
+        }
+    }[]
 }
