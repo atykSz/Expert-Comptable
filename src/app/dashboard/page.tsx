@@ -24,7 +24,7 @@ export default async function DashboardPage() {
     return (
         <div className="p-8 max-w-7xl mx-auto space-y-8">
             {/* En-tête avec salutation personnalisée */}
-            <div className="bg-gradient-to-r from-[#1e3a5f] to-[#2d5a87] rounded-2xl p-8 text-white">
+            <div className="bg-gradient-to-r from-[#1e3a5f] to-[#2d5a87] rounded-2xl p-8 text-white animate-fade-in">
                 <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
                     <div>
                         <h1 className="text-3xl font-bold tracking-tight">{greeting}, {userName} !</h1>
@@ -46,8 +46,8 @@ export default async function DashboardPage() {
 
             {/* Statistiques rapides si l'utilisateur a des prévisionnels */}
             {previsionnels.length > 0 && (
-                <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-                    <Card className="p-5 border-l-4 border-l-[#1e3a5f]">
+                <div className="grid grid-cols-1 md:grid-cols-3 gap-4 animate-stagger">
+                    <Card className="p-5 border-l-4 border-l-[#1e3a5f] animate-fade-in-up card-hover">
                         <div className="flex items-center gap-4">
                             <div className="p-3 bg-[#1e3a5f]/10 rounded-xl">
                                 <FileSpreadsheet className="h-6 w-6 text-[#1e3a5f]" />
@@ -58,7 +58,7 @@ export default async function DashboardPage() {
                             </div>
                         </div>
                     </Card>
-                    <Card className="p-5 border-l-4 border-l-green-500">
+                    <Card className="p-5 border-l-4 border-l-green-500 animate-fade-in-up card-hover">
                         <div className="flex items-center gap-4">
                             <div className="p-3 bg-green-50 rounded-xl">
                                 <TrendingUp className="h-6 w-6 text-green-600" />
@@ -69,7 +69,7 @@ export default async function DashboardPage() {
                             </div>
                         </div>
                     </Card>
-                    <Card className="p-5 border-l-4 border-l-amber-500">
+                    <Card className="p-5 border-l-4 border-l-amber-500 animate-fade-in-up card-hover">
                         <div className="flex items-center gap-4">
                             <div className="p-3 bg-amber-50 rounded-xl">
                                 <Clock className="h-6 w-6 text-amber-600" />

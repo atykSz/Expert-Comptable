@@ -3,7 +3,7 @@
 import { useState } from 'react'
 import { useRouter } from 'next/navigation'
 import { FileSpreadsheet, Calendar, Clock, ArrowRight, Trash2 } from 'lucide-react'
-import { Button, Card, CardHeader, CardTitle, CardDescription, CardContent, Modal } from '@/components/ui'
+import { Button, Card, CardHeader, CardTitle, CardDescription, CardContent, Modal, useToast } from '@/components/ui'
 
 interface PrevisionnelCardProps {
     id: string
@@ -20,17 +20,19 @@ export function PrevisionnelCard({
     const router = useRouter()
     const [showDelete, setShowDelete] = useState(false)
     const [isDeleting, setIsDeleting] = useState(false)
+    const { addToast } = useToast()
 
     const handleDelete = async () => {
         setIsDeleting(true)
         try {
             const res = await fetch(`/api/previsionnels/${id}`, { method: 'DELETE' })
             if (!res.ok) throw new Error('Erreur suppression')
+            addToast('Prévisionnel supprimé avec succès', 'success')
             router.refresh()
             setShowDelete(false)
         } catch (error) {
             console.error(error)
-            alert('Erreur lors de la suppression')
+            addToast('Erreur lors de la suppression', 'error')
         } finally {
             setIsDeleting(false)
         }
@@ -42,7 +44,7 @@ export function PrevisionnelCard({
                 onClick={() => router.push(`/previsionnel/${id}/dashboard`)}
                 className="group cursor-pointer h-full"
             >
-                <Card className="h-full transition-all hover:shadow-md border-gray-200 group-hover:border-[#1e3a5f]/50 relative">
+                <Card className="h-full transition-all duration-200 hover:shadow-lg hover:-translate-y-1 border-gray-200 group-hover:border-[#1e3a5f]/50 relative">
                     <CardHeader className="pb-3">
                         <div className="flex justify-between items-start">
                             <div className="p-2 bg-blue-50 rounded-lg text-[#1e3a5f] group-hover:bg-[#1e3a5f] group-hover:text-white transition-colors">

@@ -14,7 +14,7 @@ import {
     Copy,
     Calendar
 } from 'lucide-react'
-import { Button, Input, Select, Card, CardContent, CardHeader, CardTitle } from '@/components/ui'
+import { Button, Input, Select, Card, CardContent, CardHeader, CardTitle, useToast } from '@/components/ui'
 import { formatCurrency } from '@/lib/utils'
 import { calculerSIG, type DonneesCompteResultat } from '@/lib/calculations/compte-resultat'
 import { PrevisionnelSidebar } from '@/components/layout/PrevisionnelSidebar'
@@ -274,7 +274,7 @@ export default function CompteResultatPage() {
     const [selectedYear, setSelectedYear] = useState(1)
     const yearOffset = (selectedYear - 1) * 12
     const [isSaving, setIsSaving] = useState(false)
-    const [saveMessage, setSaveMessage] = useState<string | null>(null)
+    const { addToast } = useToast()
 
     // Mois pour la première année
     const mois = ['Jan', 'Fév', 'Mar', 'Avr', 'Mai', 'Jun', 'Jul', 'Aoû', 'Sep', 'Oct', 'Nov', 'Déc']
@@ -358,13 +358,11 @@ export default function CompteResultatPage() {
     // Fonction de sauvegarde
     const handleSave = async () => {
         if (!previsionnelId || previsionnelId === 'demo') {
-            setSaveMessage('Mode démo - sauvegarde désactivée')
-            setTimeout(() => setSaveMessage(null), 3000)
+            addToast('Mode démo - sauvegarde désactivée', 'warning')
             return
         }
 
         setIsSaving(true)
-        setSaveMessage(null)
 
         try {
             const response = await fetch(`/api/previsionnels/${previsionnelId}`, {
@@ -394,8 +392,7 @@ export default function CompteResultatPage() {
                 throw new Error(errorData.error || 'Erreur lors de la sauvegarde')
             }
 
-            setSaveMessage('Données enregistrées avec succès !')
-            setTimeout(() => setSaveMessage(null), 3000)
+            addToast('Données enregistrées avec succès !', 'success')
 
             // Recharger les données pour obtenir les IDs des nouvelles lignes
             const res = await fetch(`/api/previsionnels/${previsionnelId}`)
@@ -423,7 +420,7 @@ export default function CompteResultatPage() {
             }
         } catch (error) {
             console.error('Erreur sauvegarde:', error)
-            setSaveMessage(error instanceof Error ? error.message : 'Erreur lors de la sauvegarde')
+            addToast(error instanceof Error ? error.message : 'Erreur lors de la sauvegarde', 'error')
         } finally {
             setIsSaving(false)
         }
@@ -575,17 +572,10 @@ export default function CompteResultatPage() {
                         <h1 className="text-2xl font-bold text-gray-900">Compte de Résultat Prévisionnel</h1>
                         <p className="text-gray-600">Saisissez vos produits et charges pour les 3 années</p>
                     </div>
-                    <div className="flex items-center gap-4">
-                        {saveMessage && (
-                            <span className={`text-sm ${saveMessage.includes('succès') ? 'text-green-600' : 'text-red-600'}`}>
-                                {saveMessage}
-                            </span>
-                        )}
-                        <Button variant="primary" onClick={handleSave} disabled={isSaving}>
-                            <Save className="h-4 w-4 mr-2" />
-                            {isSaving ? 'Enregistrement...' : 'Enregistrer'}
-                        </Button>
-                    </div>
+                    <Button variant="primary" onClick={handleSave} disabled={isSaving} className="btn-press">
+                        <Save className="h-4 w-4 mr-2" />
+                        {isSaving ? 'Enregistrement...' : 'Enregistrer'}
+                    </Button>
                 </div>
 
 
