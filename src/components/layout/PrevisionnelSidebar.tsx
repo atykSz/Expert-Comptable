@@ -11,7 +11,8 @@ import {
     PiggyBank,
     FileText,
     Table,
-    BookOpen
+    BookOpen,
+    Sparkles
 } from 'lucide-react'
 import { Button } from '@/components/ui'
 
@@ -25,6 +26,7 @@ export function PrevisionnelSidebar({ previsionnelId }: { previsionnelId: string
         { href: `/previsionnel/${previsionnelId}/bilan`, label: 'Bilan Prévisionnel', icon: Calculator },
         { href: `/previsionnel/${previsionnelId}/financement`, label: 'Plan de Financement', icon: TrendingUp },
         { href: `/previsionnel/${previsionnelId}/tresorerie`, label: 'Plan de Trésorerie', icon: PiggyBank },
+        { href: `/previsionnel/${previsionnelId}/scenarios`, label: 'Scénarios', icon: Sparkles },
     ]
 
     // Determine active item

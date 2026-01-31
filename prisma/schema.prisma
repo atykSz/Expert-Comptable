@@ -178,6 +178,9 @@ model Previsionnel {
   // Lignes spécifiques 2035 (BNC)
   lignes2035      Ligne2035[]
   
+  // Scénarios de simulation
+  scenarios       Scenario[]
+  
   createdAt       DateTime          @default(now())
   updatedAt       DateTime          @updatedAt
 }
@@ -193,6 +196,42 @@ enum StatutPrevisionnel {
   EN_REVISION
   VALIDE
   ARCHIVE
+}
+
+// ========================
+// SCÉNARIOS DE SIMULATION
+// ========================
+
+model Scenario {
+  id              String       @id @default(cuid())
+  previsionnelId  String
+  previsionnel    Previsionnel @relation(fields: [previsionnelId], references: [id], onDelete: Cascade)
+  
+  nom             String       // "Optimiste", "Pessimiste", "Prudent"
+  type            TypeScenario @default(PERSONNALISE)
+  couleur         String       @default("#3B82F6")
+  
+  // Modificateurs globaux (en %)
+  modifCA         Float        @default(0)  // +20 = +20% sur le CA
+  modifCharges    Float        @default(0)  // +10 = +10% sur les charges
+  modifDelaiPaiement Int       @default(0)  // +15 = +15 jours délai
+  
+  // Résultats calculés (cache pour affichage rapide)
+  resultatNetAn1  Float?
+  resultatNetAn3  Float?
+  tresorerieFinAn3 Float?
+  
+  isDefault       Boolean      @default(false) // Scénario de base
+  
+  createdAt       DateTime     @default(now())
+  updatedAt       DateTime     @updatedAt
+}
+
+enum TypeScenario {
+  OPTIMISTE
+  REALISTE
+  PESSIMISTE
+  PERSONNALISE
 }
 
 // ========================
