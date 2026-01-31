@@ -112,9 +112,22 @@ export default async function BilanPage({
             chargesPersonnel: previsionnel.lignesCharge
                 .filter(l => ['REMUNERATION_DIRIGEANT', 'SALAIRES_BRUTS', 'CHARGES_SOCIALES'].includes(l.categorie))
                 .reduce((sum, l) => sum + sumYear(l.montantsMensuels), 0),
-            dotationsAmortissements: 0, // TODO: From Investissements
+
+            // Calcul des dotations aux amortissements
+            dotationsAmortissements: previsionnel.investissements.reduce((sum, inv) => {
+                const dureeAnnees = (inv.dureeAmortissement || 60) / 12
+                return sum + (inv.montantHT / dureeAnnees)
+            }, 0),
+
             dotationsProvisions: 0,
-            chargesFinancieres: 0, // TODO: From Emprunts
+
+            // Calcul des charges financières (intérêts)
+            chargesFinancieres: previsionnel.financements
+                .filter(f => f.type === 'EMPRUNT_BANCAIRE')
+                .reduce((sum, f) => {
+                    const tauxAnnuel = (f.tauxInteret || 0) / 100
+                    return sum + (f.montant * tauxAnnuel / 2)
+                }, 0),
             chargesExceptionnelles: 0,
             participationSalaries: 0,
             impotSurBenefices: 0 // Calculated internally by calculerSIG if needed, or 0

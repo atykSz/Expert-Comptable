@@ -98,9 +98,26 @@ export default async function DashboardPage({
             chargesPersonnel: previsionnel.lignesCharge
                 .filter(l => ['REMUNERATION_DIRIGEANT', 'SALAIRES_BRUTS', 'CHARGES_SOCIALES'].includes(l.categorie))
                 .reduce((sum, l) => sum + sumYear(l.montantsMensuels), 0),
-            dotationsAmortissements: 0, // Calculé par le bilan
+
+            // Calcul des dotations aux amortissements
+            dotationsAmortissements: previsionnel.investissements.reduce((sum, inv) => {
+                const dureeAnnees = (inv.dureeAmortissement || 60) / 12
+                // Si l'investissement est acquis après ou pendant l'année en cours
+                // Simplification : année pleine pour l'instant, ou pro-rata si on veut être précis (TODO)
+                return sum + (inv.montantHT / dureeAnnees)
+            }, 0),
+
             dotationsProvisions: 0,
-            chargesFinancieres: 0,
+
+            // Calcul des charges financières (intérêts)
+            chargesFinancieres: previsionnel.financements
+                .filter(f => f.type === 'EMPRUNT_BANCAIRE')
+                .reduce((sum, f) => {
+                    const tauxAnnuel = (f.tauxInteret || 0) / 100
+                    // Simplification: Intérêts sur capital restant dû moyen (estimé ici à 50% sur la durée)
+                    return sum + (f.montant * tauxAnnuel / 2) // Approximation pour le dashboard
+                }, 0),
+
             chargesExceptionnelles: 0,
             participationSalaries: 0,
             impotSurBenefices: 0
