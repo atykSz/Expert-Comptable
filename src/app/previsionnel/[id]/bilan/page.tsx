@@ -1,6 +1,6 @@
 import { getAuthenticatedUser } from '@/lib/auth'
 import { prisma } from '@/lib/prisma'
-import { redirect } from 'next/navigation'
+import { redirect, notFound } from 'next/navigation'
 import { BilanView } from '@/components/bilan/BilanView'
 import { calculatePrevisionnelCashFlow, calculateBilan } from '@/lib/financial-calculations'
 import { calculerSIG, DonneesCompteResultat } from '@/lib/calculations/compte-resultat'
@@ -16,9 +16,19 @@ export default async function BilanPage({
 
     const { id } = await params
 
-    // 2. Fetch du prévisionnel avec TOUTES les relations
-    const previsionnel = await prisma.previsionnel.findUnique({
-        where: { id },
+    // Vérifier que l'utilisateur a un cabinet
+    if (!authUser.prismaUser.cabinetId) {
+        redirect('/login')
+    }
+
+    // 2. Fetch du prévisionnel avec vérification d'accès cabinet
+    const previsionnel = await prisma.previsionnel.findFirst({
+        where: {
+            id,
+            client: {
+                cabinetId: authUser.prismaUser.cabinetId
+            }
+        },
         include: {
             lignesCA: true,
             lignesCharge: true,
@@ -28,7 +38,21 @@ export default async function BilanPage({
         }
     })
 
-    if (!previsionnel) return <div>Prévisionnel introuvable</div>
+    if (!previsionnel) {
+        // Debug: vérifier si le prévisionnel existe (sans filtre cabinet)
+        const existsGlobally = await prisma.previsionnel.findUnique({
+            where: { id },
+            select: { id: true, clientId: true }
+        })
+
+        if (existsGlobally) {
+            console.error(`Bilan: Previsionnel ${id} exists but user ${authUser.prismaUser.id} has no access (cabinet mismatch)`)
+        } else {
+            console.error(`Bilan: Previsionnel ${id} does not exist in database`)
+        }
+
+        notFound()
+    }
 
     // 3. Calculs Préliminaires (Nécessaires pour le Bilan)
 
