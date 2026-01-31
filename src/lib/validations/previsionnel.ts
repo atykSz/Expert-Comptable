@@ -127,7 +127,7 @@ export const InvestissementSchema = z.object({
 export const FinancementSchema = z.object({
     libelle: z.string().min(1).max(255),
     type: z.enum(['CAPITAL_SOCIAL', 'COMPTE_COURANT_ASSOCIE', 'EMPRUNT_BANCAIRE', 'SUBVENTION', 'LEASING']),
-    montant: z.number().positive(),
+    montant: z.number().min(0),
     dateDebut: z.string().datetime().or(z.string().regex(/^\d{4}-\d{2}-\d{2}$/)),
     duree: z.number().int().min(0).optional(),
     tauxInteret: z.number().min(0).max(100).optional(),
