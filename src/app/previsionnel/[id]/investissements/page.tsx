@@ -1,14 +1,10 @@
 'use client'
 
-import { useState, useMemo, use } from 'react'
+import { useState, useMemo, use, useEffect } from 'react'
 import Link from 'next/link'
 import {
     ArrowLeft,
     Save,
-    FileSpreadsheet,
-    TrendingUp,
-    PiggyBank,
-    Calculator,
     Building,
     Car,
     Monitor,
@@ -17,7 +13,7 @@ import {
     ChevronRight,
     Trash2
 } from 'lucide-react'
-import { Button, Input, Select, Card, CardContent, CardHeader, CardTitle } from '@/components/ui'
+import { Button, Input, Select, Card, CardContent, CardHeader, CardTitle, useToast } from '@/components/ui'
 import { formatCurrency } from '@/lib/utils'
 import { PrevisionnelSidebar } from '@/components/layout/PrevisionnelSidebar'
 import {
@@ -224,46 +220,91 @@ export default function InvestissementsPage({
     params: Promise<{ id: string }>
 }) {
     const { id: previsionnelId } = use(params)
+    const { addToast } = useToast()
+    const [isSaving, setIsSaving] = useState(false)
+    const [isLoading, setIsLoading] = useState(true)
     const annees = [2026, 2027, 2028]
 
-    // État pour les investissements
-    const [investissements, setInvestissements] = useState<Investissement[]>([
-        {
-            id: generateId(),
-            libelle: 'Matériel informatique',
-            categorie: 'MATERIEL_INFORMATIQUE',
-            montantHT: 5000,
-            tauxTVA: 20,
-            dateAcquisition: '2026-01-01',
-            modeAmortissement: 'LINEAIRE',
-            dureeAmortissement: 3,
-        },
-        {
-            id: generateId(),
-            libelle: 'Véhicule utilitaire',
-            categorie: 'MATERIEL_TRANSPORT',
-            montantHT: 25000,
-            tauxTVA: 20,
-            dateAcquisition: '2026-01-01',
-            modeAmortissement: 'DEGRESSIF',
-            dureeAmortissement: 5,
-        },
-        {
-            id: generateId(),
-            libelle: 'Mobilier de bureau',
-            categorie: 'MOBILIER',
-            montantHT: 8000,
-            tauxTVA: 20,
-            dateAcquisition: '2026-01-01',
-            modeAmortissement: 'LINEAIRE',
-            dureeAmortissement: 10,
-        },
-    ])
+    // État pour les investissements - initialisé vide, rempli par useEffect
+    const [investissements, setInvestissements] = useState<Investissement[]>([])
+
+    // Charger les données depuis l'API
+    useEffect(() => {
+        if (!previsionnelId) return
+
+        const fetchData = async () => {
+            try {
+                const res = await fetch(`/api/previsionnels/${previsionnelId}`)
+                if (!res.ok) throw new Error('Erreur chargement')
+                const data = await res.json()
+
+                if (data.investissements && data.investissements.length > 0) {
+                    setInvestissements(data.investissements.map((inv: any) => ({
+                        id: inv.id,
+                        libelle: inv.libelle,
+                        categorie: inv.categorie as CategorieInvestissement,
+                        montantHT: inv.montantHT,
+                        tauxTVA: inv.tauxTVA || 20,
+                        dateAcquisition: inv.dateAcquisition?.split('T')[0] || new Date().toISOString().split('T')[0],
+                        modeAmortissement: inv.modeAmortissement || 'LINEAIRE',
+                        dureeAmortissement: inv.dureeAmortissement || 5,
+                    })))
+                }
+            } catch (err) {
+                console.error('Erreur chargement investissements:', err)
+            } finally {
+                setIsLoading(false)
+            }
+        }
+        fetchData()
+    }, [previsionnelId])
+
+    // Sauvegarder les données via l'API
+    const handleSave = async () => {
+        setIsSaving(true)
+
+        try {
+            // Fonction pour obtenir le compte PCG depuis la catégorie
+            const getComptePCG = (cat: CategorieInvestissement): string => {
+                const catInfo = categoriesInvestissement.find(c => c.value === cat)
+                return catInfo?.compte?.padEnd(6, '0') || '218300'
+            }
+
+            const response = await fetch(`/api/previsionnels/${previsionnelId}`, {
+                method: 'PUT',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                    investissements: investissements.map(inv => ({
+                        libelle: inv.libelle,
+                        categorie: inv.categorie,
+                        comptePCG: getComptePCG(inv.categorie),
+                        montantHT: inv.montantHT,
+                        tauxTVA: inv.tauxTVA,
+                        dateAcquisition: inv.dateAcquisition,
+                        dureeAmortissement: inv.dureeAmortissement,
+                        modeAmortissement: inv.modeAmortissement,
+                    })),
+                }),
+            })
+
+            if (!response.ok) {
+                const errorData = await response.json().catch(() => ({}))
+                throw new Error(errorData.error || 'Erreur lors de la sauvegarde')
+            }
+
+            addToast('Investissements enregistrés avec succès !', 'success')
+        } catch (error) {
+            console.error('Erreur sauvegarde:', error)
+            addToast(error instanceof Error ? error.message : 'Erreur lors de la sauvegarde', 'error')
+        } finally {
+            setIsSaving(false)
+        }
+    }
 
     // Ajouter un investissement
     const addInvestissement = (categorie: typeof categoriesInvestissement[0]) => {
         setInvestissements([...investissements, {
-            id: generateId(),
+            id: 'new-' + generateId(),
             libelle: categorie.label,
             categorie: categorie.value as CategorieInvestissement,
             montantHT: 0,
@@ -344,9 +385,9 @@ export default function InvestissementsPage({
                         <h1 className="text-2xl font-bold text-gray-900">Investissements & Amortissements</h1>
                         <p className="text-gray-600">Gérez vos immobilisations et leur amortissement</p>
                     </div>
-                    <Button variant="primary">
+                    <Button variant="primary" onClick={handleSave} disabled={isSaving}>
                         <Save className="h-4 w-4 mr-2" />
-                        Enregistrer
+                        {isSaving ? 'Enregistrement...' : 'Enregistrer'}
                     </Button>
                 </div>
 

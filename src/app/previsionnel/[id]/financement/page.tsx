@@ -1,16 +1,11 @@
 'use client'
 
-import { useState, useMemo, use } from 'react'
+import { useState, useMemo, use, useEffect } from 'react'
 import Link from 'next/link'
 import {
     ArrowLeft,
     Save,
-    FileSpreadsheet,
-    TrendingUp,
-    PiggyBank,
-    Calculator,
     Building,
-    Plus,
     Trash2,
     ChevronDown,
     ChevronRight,
@@ -18,9 +13,10 @@ import {
     Users,
     Wallet,
     ArrowUpRight,
-    ArrowDownRight
+    ArrowDownRight,
+    Calculator
 } from 'lucide-react'
-import { Button, Input, Select, Card, CardContent, CardHeader, CardTitle, Modal } from '@/components/ui'
+import { Button, Input, Select, Card, CardContent, CardHeader, CardTitle, Modal, useToast } from '@/components/ui'
 import { formatCurrency } from '@/lib/utils'
 import { PrevisionnelSidebar } from '@/components/layout/PrevisionnelSidebar'
 import { calculerEcheancier, calculerCoutTotalEmprunt, type EcheanceEmprunt, type Emprunt } from '@/lib/calculations/emprunts'
@@ -380,28 +376,96 @@ export default function FinancementPage({
     params: Promise<{ id: string }>
 }) {
     const { id: previsionnelId } = use(params)
+    const { addToast } = useToast()
+    const [isSaving, setIsSaving] = useState(false)
+    const [isLoading, setIsLoading] = useState(true)
     const annees = [2026, 2027, 2028]
 
-    // État pour les financements
-    const [financements, setFinancements] = useState<Financement[]>([
-        {
-            id: generateId(),
-            type: 'CAPITAL_SOCIAL',
-            libelle: 'Apport en capital',
-            montant: 10000,
-            dateDeblocage: '2026-01-01',
-        },
-        {
-            id: generateId(),
-            type: 'EMPRUNT',
-            libelle: 'Emprunt bancaire principal',
-            montant: 30000,
-            dateDeblocage: '2026-01-15',
-            tauxInteret: 4.5,
-            dureeEmprunt: 60, // 5 ans
-            differe: 0,
-        },
-    ])
+    // État pour les financements - initialisé vide, rempli par useEffect
+    const [financements, setFinancements] = useState<Financement[]>([])
+
+    // Mapping des types locaux vers les types API
+    const typeMapping: Record<TypeFinancement, string> = {
+        'CAPITAL_SOCIAL': 'CAPITAL_SOCIAL',
+        'APPORT_CCA': 'COMPTE_COURANT_ASSOCIE',
+        'EMPRUNT': 'EMPRUNT_BANCAIRE',
+        'SUBVENTION': 'SUBVENTION',
+        'CREDIT_BAIL': 'LEASING',
+    }
+
+    const reverseTypeMapping: Record<string, TypeFinancement> = {
+        'CAPITAL_SOCIAL': 'CAPITAL_SOCIAL',
+        'COMPTE_COURANT_ASSOCIE': 'APPORT_CCA',
+        'EMPRUNT_BANCAIRE': 'EMPRUNT',
+        'SUBVENTION': 'SUBVENTION',
+        'LEASING': 'CREDIT_BAIL',
+    }
+
+    // Charger les données depuis l'API
+    useEffect(() => {
+        if (!previsionnelId) return
+
+        const fetchData = async () => {
+            try {
+                const res = await fetch(`/api/previsionnels/${previsionnelId}`)
+                if (!res.ok) throw new Error('Erreur chargement')
+                const data = await res.json()
+
+                if (data.financements && data.financements.length > 0) {
+                    setFinancements(data.financements.map((fin: any) => ({
+                        id: fin.id,
+                        type: reverseTypeMapping[fin.type] || 'CAPITAL_SOCIAL',
+                        libelle: fin.libelle,
+                        montant: fin.montant,
+                        dateDeblocage: fin.dateDebut?.split('T')[0] || new Date().toISOString().split('T')[0],
+                        tauxInteret: fin.tauxInteret,
+                        dureeEmprunt: fin.duree,
+                        differe: fin.differe,
+                    })))
+                }
+            } catch (err) {
+                console.error('Erreur chargement financements:', err)
+            } finally {
+                setIsLoading(false)
+            }
+        }
+        fetchData()
+    }, [previsionnelId])
+
+    // Sauvegarder les données via l'API
+    const handleSave = async () => {
+        setIsSaving(true)
+
+        try {
+            const response = await fetch(`/api/previsionnels/${previsionnelId}`, {
+                method: 'PUT',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                    financements: financements.map(fin => ({
+                        libelle: fin.libelle,
+                        type: typeMapping[fin.type],
+                        montant: fin.montant,
+                        dateDebut: fin.dateDeblocage,
+                        duree: fin.dureeEmprunt,
+                        tauxInteret: fin.tauxInteret,
+                        differe: fin.differe,
+                    })),
+                }),
+            })
+
+            if (!response.ok) {
+                const errorData = await response.json().catch(() => ({}))
+                throw new Error(errorData.error || 'Erreur lors de la sauvegarde')
+            }
+
+            addToast('Financements enregistrés avec succès !', 'success')
+        } catch (error) {
+            console.error('Erreur sauvegarde:', error)
+            addToast(error instanceof Error ? error.message : 'Erreur lors de la sauvegarde', 'error')
+        } finally {
+            setIsSaving(false)
+        }
+    }
 
     // Besoins de financement (liés aux investissements)
     const besoins: BesoinFinancement[] = [
@@ -414,7 +478,7 @@ export default function FinancementPage({
     const addFinancement = (type: TypeFinancement) => {
         const typeInfo = typesFinancement.find(t => t.value === type)
         setFinancements([...financements, {
-            id: generateId(),
+            id: 'new-' + generateId(),
             type,
             libelle: typeInfo?.label || 'Nouveau financement',
             montant: 0,
@@ -551,9 +615,9 @@ export default function FinancementPage({
                         <h1 className="text-2xl font-bold text-gray-900">Plan de Financement</h1>
                         <p className="text-gray-600">Gérez vos ressources et suivez l'équilibre besoins/ressources</p>
                     </div>
-                    <Button variant="primary">
+                    <Button variant="primary" onClick={handleSave} disabled={isSaving}>
                         <Save className="h-4 w-4 mr-2" />
-                        Enregistrer
+                        {isSaving ? 'Enregistrement...' : 'Enregistrer'}
                     </Button>
                 </div>
 
