@@ -76,15 +76,18 @@ function LigneRecetteRow({
     ligne,
     onUpdate,
     onDelete,
-    mois
+    mois,
+    yearOffset
 }: {
     ligne: LigneRecette
     onUpdate: (id: string, field: keyof LigneRecette, value: unknown) => void
     onDelete: (id: string) => void
     mois: string[]
+    yearOffset: number
 }) {
     const [expanded, setExpanded] = useState(false)
-    const totalAnnuel = ligne.montantsMensuels.reduce((a, b) => a + b, 0)
+    // Total pour l'année sélectionnée
+    const totalAnnuel = ligne.montantsMensuels.slice(yearOffset, yearOffset + 12).reduce((a, b) => a + b, 0)
 
     return (
         <div className="border border-gray-200 rounded-lg mb-2">
@@ -115,30 +118,37 @@ function LigneRecetteRow({
             {expanded && (
                 <div className="p-4 border-t border-gray-200">
                     <div className="grid grid-cols-6 md:grid-cols-12 gap-2">
-                        {mois.map((m, index) => (
-                            <div key={m}>
-                                <label className="text-xs text-gray-500 block mb-1">{m}</label>
-                                <Input
-                                    type="number"
-                                    value={ligne.montantsMensuels[index] || 0}
-                                    onChange={(e) => {
-                                        const newMontants = [...ligne.montantsMensuels]
-                                        newMontants[index] = parseFloat(e.target.value) || 0
-                                        onUpdate(ligne.id, 'montantsMensuels', newMontants)
-                                    }}
-                                    className="text-sm"
-                                />
-                            </div>
-                        ))}
+                        {mois.map((m, index) => {
+                            const actualIndex = yearOffset + index
+                            return (
+                                <div key={m}>
+                                    <label className="text-xs text-gray-500 block mb-1">{m}</label>
+                                    <Input
+                                        type="number"
+                                        value={ligne.montantsMensuels[actualIndex] || 0}
+                                        onChange={(e) => {
+                                            const newMontants = [...ligne.montantsMensuels]
+                                            newMontants[actualIndex] = parseFloat(e.target.value) || 0
+                                            onUpdate(ligne.id, 'montantsMensuels', newMontants)
+                                        }}
+                                        className="text-sm"
+                                    />
+                                </div>
+                            )
+                        })}
                     </div>
                     <button
                         onClick={() => {
-                            const janValue = ligne.montantsMensuels[0] || 0
-                            const newMontants = Array(12).fill(janValue)
+                            const janValue = ligne.montantsMensuels[yearOffset] || 0
+                            const newMontants = [...ligne.montantsMensuels]
+                            // Copier sur les 12 mois de l'année sélectionnée
+                            for (let i = 0; i < 12; i++) {
+                                newMontants[yearOffset + i] = janValue
+                            }
                             onUpdate(ligne.id, 'montantsMensuels', newMontants)
                         }}
                         className="mt-3 inline-flex items-center gap-2 px-3 py-1.5 text-sm text-green-600 hover:text-green-800 hover:bg-green-50 rounded-md transition-colors"
-                        title="Copier le montant de Janvier sur tous les mois"
+                        title="Copier le montant de Janvier sur tous les mois de l'année"
                     >
                         <Copy className="h-4 w-4" />
                         Répéter Janvier sur l'année
@@ -154,15 +164,18 @@ function LigneDepenseRow({
     ligne,
     onUpdate,
     onDelete,
-    mois
+    mois,
+    yearOffset
 }: {
     ligne: LigneDepense
     onUpdate: (id: string, field: keyof LigneDepense, value: unknown) => void
     onDelete: (id: string) => void
     mois: string[]
+    yearOffset: number
 }) {
     const [expanded, setExpanded] = useState(false)
-    const totalAnnuel = ligne.montantsMensuels.reduce((a, b) => a + b, 0)
+    // Total pour l'année sélectionnée
+    const totalAnnuel = ligne.montantsMensuels.slice(yearOffset, yearOffset + 12).reduce((a, b) => a + b, 0)
 
     return (
         <div className="border border-gray-200 rounded-lg mb-2">
@@ -194,30 +207,37 @@ function LigneDepenseRow({
             {expanded && (
                 <div className="p-4 border-t border-gray-200">
                     <div className="grid grid-cols-6 md:grid-cols-12 gap-2">
-                        {mois.map((m, index) => (
-                            <div key={m}>
-                                <label className="text-xs text-gray-500 block mb-1">{m}</label>
-                                <Input
-                                    type="number"
-                                    value={ligne.montantsMensuels[index] || 0}
-                                    onChange={(e) => {
-                                        const newMontants = [...ligne.montantsMensuels]
-                                        newMontants[index] = parseFloat(e.target.value) || 0
-                                        onUpdate(ligne.id, 'montantsMensuels', newMontants)
-                                    }}
-                                    className="text-sm"
-                                />
-                            </div>
-                        ))}
+                        {mois.map((m, index) => {
+                            const actualIndex = yearOffset + index
+                            return (
+                                <div key={m}>
+                                    <label className="text-xs text-gray-500 block mb-1">{m}</label>
+                                    <Input
+                                        type="number"
+                                        value={ligne.montantsMensuels[actualIndex] || 0}
+                                        onChange={(e) => {
+                                            const newMontants = [...ligne.montantsMensuels]
+                                            newMontants[actualIndex] = parseFloat(e.target.value) || 0
+                                            onUpdate(ligne.id, 'montantsMensuels', newMontants)
+                                        }}
+                                        className="text-sm"
+                                    />
+                                </div>
+                            )
+                        })}
                     </div>
                     <button
                         onClick={() => {
-                            const janValue = ligne.montantsMensuels[0] || 0
-                            const newMontants = Array(12).fill(janValue)
+                            const janValue = ligne.montantsMensuels[yearOffset] || 0
+                            const newMontants = [...ligne.montantsMensuels]
+                            // Copier sur les 12 mois de l'année sélectionnée
+                            for (let i = 0; i < 12; i++) {
+                                newMontants[yearOffset + i] = janValue
+                            }
                             onUpdate(ligne.id, 'montantsMensuels', newMontants)
                         }}
                         className="mt-3 inline-flex items-center gap-2 px-3 py-1.5 text-sm text-red-600 hover:text-red-800 hover:bg-red-50 rounded-md transition-colors"
-                        title="Copier le montant de Janvier sur tous les mois"
+                        title="Copier le montant de Janvier sur tous les mois de l'année"
                     >
                         <Copy className="h-4 w-4" />
                         Répéter Janvier sur l'année
@@ -232,30 +252,40 @@ export default function Declaration2035Page() {
     const params = useParams()
     const previsionnelId = params.id as string
 
+    // Année sélectionnée (1, 2 ou 3)
+    const [selectedYear, setSelectedYear] = useState(1)
+
     const mois = ['Jan', 'Fév', 'Mar', 'Avr', 'Mai', 'Jun', 'Jul', 'Aoû', 'Sep', 'Oct', 'Nov', 'Déc']
 
-    // État pour les lignes de recettes
+    // Calcule l'offset pour les montants mensuels selon l'année
+    const yearOffset = (selectedYear - 1) * 12
+
+    // État pour les lignes de recettes (36 mois pour 3 ans)
     const [lignesRecettes, setLignesRecettes] = useState<LigneRecette[]>([])
 
-    // État pour les lignes de dépenses
+    // État pour les lignes de dépenses (36 mois pour 3 ans)
     const [lignesDepenses, setLignesDepenses] = useState<LigneDepense[]>([])
+
+    // État de sauvegarde
+    const [isSaving, setIsSaving] = useState(false)
+    const [saveMessage, setSaveMessage] = useState<{ type: 'success' | 'error', text: string } | null>(null)
 
     // Chargement des données
     useEffect(() => {
         if (!previsionnelId || previsionnelId === 'demo') {
-            // Mock data fallback
+            // Mock data fallback - 36 mois pour 3 ans
             setLignesRecettes([{
                 id: generateId(),
                 rubrique: 'HONORAIRES',
                 libelle: 'Honoraires consultations',
-                montantsMensuels: Array(12).fill(8000),
+                montantsMensuels: Array(36).fill(8000),
             }])
             setLignesDepenses([{
                 id: generateId(),
                 rubrique: 'LOYERS',
                 numeroLigne: 20,
                 libelle: 'Loyer cabinet',
-                montantsMensuels: Array(12).fill(1200),
+                montantsMensuels: Array(36).fill(1200),
             }])
             return
         }
@@ -268,36 +298,46 @@ export default function Declaration2035Page() {
 
                 // Mapper les données API vers le format local
                 if (data.lignesCA?.length) {
-                    setLignesRecettes(data.lignesCA.map((l: any) => ({
-                        id: l.id || generateId(),
-                        rubrique: l.categorie || 'HONORAIRES',
-                        libelle: l.libelle,
-                        montantsMensuels: l.montantsMensuels || Array(12).fill(0)
-                    })))
+                    setLignesRecettes(data.lignesCA.map((l: any) => {
+                        // S'assurer qu'on a 36 mois
+                        const montants = l.montantsMensuels || []
+                        const normalizedMontants = [...montants, ...Array(36 - montants.length).fill(0)].slice(0, 36)
+                        return {
+                            id: l.id || generateId(),
+                            rubrique: l.categorie || 'HONORAIRES',
+                            libelle: l.libelle,
+                            montantsMensuels: normalizedMontants
+                        }
+                    }))
                 } else {
                     setLignesRecettes([{
                         id: generateId(),
                         rubrique: 'HONORAIRES',
                         libelle: 'Honoraires consultations',
-                        montantsMensuels: Array(12).fill(data.hypotheses?.tauxTVAVentes ? 0 : 8000), // Exemple
+                        montantsMensuels: Array(36).fill(8000),
                     }])
                 }
 
                 if (data.lignesCharge?.length) {
-                    setLignesDepenses(data.lignesCharge.map((l: any) => ({
-                        id: l.id || generateId(),
-                        rubrique: l.categorie || 'AUTRES_FRAIS',
-                        numeroLigne: 0, // À déduire de la rubrique si possible
-                        libelle: l.libelle,
-                        montantsMensuels: l.montantsMensuels || Array(12).fill(0)
-                    })))
+                    setLignesDepenses(data.lignesCharge.map((l: any) => {
+                        // S'assurer qu'on a 36 mois
+                        const montants = l.montantsMensuels || []
+                        const normalizedMontants = [...montants, ...Array(36 - montants.length).fill(0)].slice(0, 36)
+                        return {
+                            id: l.id || generateId(),
+                            rubrique: l.categorie || 'AUTRES_FRAIS',
+                            numeroLigne: rubriquesDepenses.find(r => r.value === l.categorie)?.ligne || 0,
+                            libelle: l.libelle,
+                            montantsMensuels: normalizedMontants
+                        }
+                    }))
                 } else {
                     setLignesDepenses([{
                         id: generateId(),
                         rubrique: 'LOYERS',
                         numeroLigne: 20,
                         libelle: 'Loyer cabinet',
-                        montantsMensuels: Array(12).fill(1200),
+                        montantsMensuels: Array(36).fill(1200),
                     }])
                 }
 
@@ -313,24 +353,24 @@ export default function Declaration2035Page() {
     const [cotisationsSociales, setCotisationsSociales] = useState(1800)
     const [csgDeductible, setCsgDeductible] = useState(500)
 
-    // Ajouter une ligne de recette
+    // Ajouter une ligne de recette (36 mois)
     const addLigneRecette = () => {
         setLignesRecettes([...lignesRecettes, {
             id: generateId(),
             rubrique: 'HONORAIRES',
             libelle: '',
-            montantsMensuels: Array(12).fill(0),
+            montantsMensuels: Array(36).fill(0),
         }])
     }
 
-    // Ajouter une ligne de dépense
+    // Ajouter une ligne de dépense (36 mois)
     const addLigneDepense = (rubrique: typeof rubriquesDepenses[0]) => {
         setLignesDepenses([...lignesDepenses, {
             id: generateId(),
             rubrique: rubrique.value,
             numeroLigne: rubrique.ligne,
             libelle: rubrique.label,
-            montantsMensuels: Array(12).fill(0),
+            montantsMensuels: Array(36).fill(0),
         }])
     }
 
@@ -352,17 +392,19 @@ export default function Declaration2035Page() {
         setLignesDepenses(lignesDepenses.filter(l => l.id !== id))
     }
 
-    // Calculs 2035
+    // Calculs 2035 pour l'année sélectionnée
     const calculs = useMemo(() => {
-        // Total des recettes (Ligne 7)
-        const totalRecettes = lignesRecettes.reduce((sum, l) =>
-            sum + l.montantsMensuels.reduce((a, b) => a + b, 0), 0
-        )
+        // Total des recettes pour l'année sélectionnée (Ligne 7)
+        const totalRecettes = lignesRecettes.reduce((sum, l) => {
+            const yearMontants = l.montantsMensuels.slice(yearOffset, yearOffset + 12)
+            return sum + yearMontants.reduce((a, b) => a + b, 0)
+        }, 0)
 
-        // Total des dépenses (Ligne 33)
-        const totalDepenses = lignesDepenses.reduce((sum, l) =>
-            sum + l.montantsMensuels.reduce((a, b) => a + b, 0), 0
-        )
+        // Total des dépenses pour l'année sélectionnée (Ligne 33)
+        const totalDepenses = lignesDepenses.reduce((sum, l) => {
+            const yearMontants = l.montantsMensuels.slice(yearOffset, yearOffset + 12)
+            return sum + yearMontants.reduce((a, b) => a + b, 0)
+        }, 0)
 
         // Cotisations sociales annuelles
         const cotisationsAnnuelles = cotisationsSociales * 12
@@ -395,9 +437,41 @@ export default function Declaration2035Page() {
             estimationIR,
             revenuNet,
         }
-    }, [lignesRecettes, lignesDepenses, cotisationsSociales, csgDeductible])
+    }, [lignesRecettes, lignesDepenses, cotisationsSociales, csgDeductible, yearOffset])
+
+    // Mapping des rubriques 2035 vers les catégories Prisma
+    const mapRubriqueToCategorieCA = (rubrique: string): string => {
+        // Pour BNC, on utilise principalement PRESTATIONS_SERVICES
+        return 'PRESTATIONS_SERVICES'
+    }
+
+    const mapRubriqueToCategorieCharge = (rubrique: string): string => {
+        const mapping: Record<string, string> = {
+            'ACHATS': 'ACHATS_FOURNITURES',
+            'FRAIS_PERSONNEL': 'ACHATS_FOURNITURES', // Simplifié, devrait être dans effectifs
+            'IMPOTS_TAXES': 'IMPOTS_TAXES',
+            'CSG_DEDUCTIBLE': 'IMPOTS_TAXES',
+            'LOYERS': 'LOCATIONS',
+            'LOCATION_MATERIEL': 'LOCATIONS',
+            'ENTRETIEN': 'ENTRETIEN_REPARATIONS',
+            'PERSONNEL_EXTERIEUR': 'AUTRES_SERVICES',
+            'PETIT_OUTILLAGE': 'ACHATS_FOURNITURES',
+            'CHAUFFAGE_EAU': 'AUTRES_SERVICES',
+            'HONORAIRES_RETROCEDES': 'HONORAIRES',
+            'FOURNITURES_BUREAU': 'ACHATS_FOURNITURES',
+            'FRAIS_ACTES': 'AUTRES_SERVICES',
+            'COTISATIONS': 'AUTRES_SERVICES',
+            'AUTRES_FRAIS': 'AUTRES_SERVICES',
+            'FRAIS_FINANCIERS': 'INTERETS_EMPRUNTS',
+            'PERTES_DIVERSES': 'CHARGES_EXCEPTIONNELLES',
+        }
+        return mapping[rubrique] || 'AUTRES_SERVICES'
+    }
 
     const handleSave = async () => {
+        setIsSaving(true)
+        setSaveMessage(null)
+
         try {
             const response = await fetch(`/api/previsionnels/${previsionnelId}`, {
                 method: 'PUT',
@@ -405,23 +479,40 @@ export default function Declaration2035Page() {
                 body: JSON.stringify({
                     lignesCA: lignesRecettes.map(l => ({
                         libelle: l.libelle,
-                        categorie: l.rubrique,
-                        comptePCG: '706000', // À affiner
-                        montantsMensuels: l.montantsMensuels
+                        categorie: mapRubriqueToCategorieCA(l.rubrique),
+                        comptePCG: '706000',
+                        montantsMensuels: l.montantsMensuels,
+                        evolutionAn2: 0,
+                        evolutionAn3: 0,
+                        tauxTVA: 0 // BNC souvent exonéré ou franchise
                     })),
                     lignesCharge: lignesDepenses.map(l => ({
                         libelle: l.libelle,
-                        categorie: l.rubrique,
-                        comptePCG: '600000', // À affiner
-                        montantsMensuels: l.montantsMensuels
+                        categorie: mapRubriqueToCategorieCharge(l.rubrique),
+                        comptePCG: '6' + l.numeroLigne.toString().padStart(5, '0'),
+                        typeCharge: 'FIXE',
+                        montantsMensuels: l.montantsMensuels,
+                        evolutionAn2: 0,
+                        evolutionAn3: 0,
+                        tauxTVA: 20,
+                        deductibleTVA: true,
+                        recurrence: 'MENSUEL'
                     }))
                 })
             })
-            if (!response.ok) throw new Error('Erreur sauvegarde')
-            alert('Sauvegarde effectuée avec succès !')
+
+            if (!response.ok) {
+                const errorData = await response.json().catch(() => ({}))
+                throw new Error(errorData.error || 'Erreur lors de la sauvegarde')
+            }
+
+            setSaveMessage({ type: 'success', text: 'Données enregistrées avec succès !' })
+            setTimeout(() => setSaveMessage(null), 3000)
         } catch (error) {
             console.error(error)
-            alert('Erreur lors de la sauvegarde.')
+            setSaveMessage({ type: 'error', text: error instanceof Error ? error.message : 'Erreur lors de la sauvegarde' })
+        } finally {
+            setIsSaving(false)
         }
     }
 
@@ -441,16 +532,43 @@ export default function Declaration2035Page() {
                             Modifier les paramètres
                         </Link>
                         <h1 className="text-2xl font-bold text-gray-900">Prévisionnel 2035 - BNC</h1>
-                        <p className="text-gray-600">Année 1 - Saisissez vos recettes et dépenses professionnelles</p>
+                        <p className="text-gray-600">Saisissez vos recettes et dépenses professionnelles</p>
                     </div>
-                    <Button
-                        variant="primary"
-                        className="bg-purple-600 hover:bg-purple-700"
-                        onClick={handleSave}
-                    >
-                        <Save className="h-4 w-4 mr-2" />
-                        Enregistrer
-                    </Button>
+                    <div className="flex items-center gap-3">
+                        {saveMessage && (
+                            <div className={`px-3 py-1.5 rounded-lg text-sm font-medium ${saveMessage.type === 'success'
+                                ? 'bg-green-100 text-green-700'
+                                : 'bg-red-100 text-red-700'
+                                }`}>
+                                {saveMessage.text}
+                            </div>
+                        )}
+                        <Button
+                            variant="primary"
+                            className="bg-purple-600 hover:bg-purple-700"
+                            onClick={handleSave}
+                            disabled={isSaving}
+                        >
+                            <Save className="h-4 w-4 mr-2" />
+                            {isSaving ? 'Enregistrement...' : 'Enregistrer'}
+                        </Button>
+                    </div>
+                </div>
+
+                {/* Sélecteur d'année */}
+                <div className="flex gap-2 mb-6">
+                    {[1, 2, 3].map(year => (
+                        <button
+                            key={year}
+                            onClick={() => setSelectedYear(year)}
+                            className={`px-4 py-2 rounded-lg font-medium transition-colors border ${selectedYear === year
+                                ? 'bg-purple-600 text-white border-purple-600'
+                                : 'bg-white text-gray-600 border-gray-200 hover:bg-gray-50'
+                                }`}
+                        >
+                            Année {year}
+                        </button>
+                    ))}
                 </div>
 
                 {/* Résumé 2035 */}
@@ -497,6 +615,7 @@ export default function Declaration2035Page() {
                                 onUpdate={updateLigneRecette}
                                 onDelete={deleteLigneRecette}
                                 mois={mois}
+                                yearOffset={yearOffset}
                             />
                         ))}
 
@@ -540,6 +659,7 @@ export default function Declaration2035Page() {
                                 onUpdate={updateLigneDepense}
                                 onDelete={deleteLigneDepense}
                                 mois={mois}
+                                yearOffset={yearOffset}
                             />
                         ))}
 

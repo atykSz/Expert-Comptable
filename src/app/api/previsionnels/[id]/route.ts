@@ -1,6 +1,17 @@
 import { NextResponse } from 'next/server'
 import prisma from '@/lib/prisma'
 import { getAuthenticatedUser, userOwnsPrevisionnel } from '@/lib/auth'
+import {
+    StatutPrevisionnel,
+    CategorieCA,
+    CategorieCharge,
+    TypeCharge,
+    Recurrence,
+    CategorieInvestissement,
+    ModeAmortissement,
+    TypeFinancement,
+    TypeContrat
+} from '@/generated/prisma/client'
 
 // GET /api/previsionnels/[id] - Récupérer un prévisionnel complet
 export async function GET(
@@ -111,6 +122,20 @@ export async function PUT(
 
         const body = await request.json()
 
+        // Validation Zod
+        const { PrevisionnelUpdateSchema, validateWithErrors } = await import('@/lib/validations/previsionnel')
+        const validation = validateWithErrors(PrevisionnelUpdateSchema, body)
+
+        if (!validation.success) {
+            return NextResponse.json(
+                {
+                    error: 'Données invalides',
+                    details: validation.errors
+                },
+                { status: 400 }
+            )
+        }
+
         const {
             titre,
             description,
@@ -121,7 +146,7 @@ export async function PUT(
             investissements,
             financements,
             effectifs,
-        } = body
+        } = validation.data
 
         // Mettre à jour le prévisionnel
         const previsionnel = await prisma.previsionnel.update({
@@ -129,7 +154,7 @@ export async function PUT(
             data: {
                 titre,
                 description,
-                statut,
+                statut: statut as StatutPrevisionnel | undefined,
                 ...(hypotheses && {
                     hypotheses: {
                         update: hypotheses,
@@ -158,7 +183,7 @@ export async function PUT(
                     }) => ({
                         previsionnelId: id,
                         libelle: ligne.libelle,
-                        categorie: ligne.categorie,
+                        categorie: ligne.categorie as CategorieCA,
                         comptePCG: ligne.comptePCG || '701000',
                         montantsMensuels: ligne.montantsMensuels,
                         evolutionAn2: ligne.evolutionAn2 || 0,
@@ -188,15 +213,15 @@ export async function PUT(
                     }) => ({
                         previsionnelId: id,
                         libelle: ligne.libelle,
-                        categorie: ligne.categorie,
+                        categorie: ligne.categorie as CategorieCharge,
                         comptePCG: ligne.comptePCG,
-                        typeCharge: ligne.typeCharge || 'FIXE',
+                        typeCharge: (ligne.typeCharge || 'FIXE') as TypeCharge,
                         montantsMensuels: ligne.montantsMensuels,
                         evolutionAn2: ligne.evolutionAn2 || 0,
                         evolutionAn3: ligne.evolutionAn3 || 0,
                         tauxTVA: ligne.tauxTVA,
                         deductibleTVA: ligne.deductibleTVA ?? true,
-                        recurrence: ligne.recurrence || 'MENSUEL',
+                        recurrence: (ligne.recurrence || 'MENSUEL') as Recurrence,
                     })),
                 })
             }
@@ -220,13 +245,13 @@ export async function PUT(
                     }) => ({
                         previsionnelId: id,
                         libelle: inv.libelle,
-                        categorie: inv.categorie,
+                        categorie: inv.categorie as CategorieInvestissement,
                         comptePCG: inv.comptePCG,
                         montantHT: inv.montantHT,
                         tauxTVA: inv.tauxTVA || 20.0,
                         dateAcquisition: new Date(inv.dateAcquisition),
                         dureeAmortissement: inv.dureeAmortissement,
-                        modeAmortissement: inv.modeAmortissement || 'LINEAIRE',
+                        modeAmortissement: (inv.modeAmortissement || 'LINEAIRE') as ModeAmortissement,
                         valeurResiduelle: inv.valeurResiduelle || 0,
                     })),
                 })
@@ -250,13 +275,13 @@ export async function PUT(
                     }) => ({
                         previsionnelId: id,
                         libelle: fin.libelle,
-                        type: fin.type,
+                        type: fin.type as TypeFinancement,
                         montant: fin.montant,
                         dateDebut: new Date(fin.dateDebut),
                         duree: fin.duree,
                         tauxInteret: fin.tauxInteret,
                         differe: fin.differe,
-                        echeancier: fin.echeancier,
+                        echeancier: fin.echeancier as object | undefined,
                     })),
                 })
             }
@@ -267,18 +292,10 @@ export async function PUT(
             await prisma.effectif.deleteMany({ where: { previsionnelId: id } })
             if (effectifs.length > 0) {
                 await prisma.effectif.createMany({
-                    data: effectifs.map((eff: {
-                        poste: string
-                        typeContrat: string
-                        salaireBrutMensuel: number
-                        primes?: number
-                        dateEmbauche: string
-                        dateFin?: string
-                        tauxChargesPatronales?: number
-                    }) => ({
+                    data: effectifs.map((eff) => ({
                         previsionnelId: id,
                         poste: eff.poste,
-                        typeContrat: eff.typeContrat,
+                        typeContrat: eff.typeContrat as TypeContrat,
                         salaireBrutMensuel: eff.salaireBrutMensuel,
                         primes: eff.primes || 0,
                         dateEmbauche: new Date(eff.dateEmbauche),
