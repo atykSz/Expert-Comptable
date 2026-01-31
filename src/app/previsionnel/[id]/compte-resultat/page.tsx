@@ -8,11 +8,12 @@ import {
     Plus,
     Trash2,
     Save,
-
     ChevronDown,
     ChevronRight,
     Copy,
-    Calendar
+    Calendar,
+    TrendingUp,
+    ArrowDownToLine
 } from 'lucide-react'
 import { Button, Input, Select, Card, CardContent, CardHeader, CardTitle, useToast } from '@/components/ui'
 import { formatCurrency } from '@/lib/utils'
@@ -252,12 +253,15 @@ function LigneChargeRow({
                     </div>
                     <button
                         onClick={() => {
-                            const janValue = ligne.montantsMensuels[0] || 0
-                            const newMontants = Array(12).fill(janValue)
+                            const janValue = ligne.montantsMensuels[yearOffset] || 0
+                            const newMontants = [...ligne.montantsMensuels]
+                            for (let i = 0; i < 12; i++) {
+                                newMontants[yearOffset + i] = janValue
+                            }
                             onUpdate(ligne.id, 'montantsMensuels', newMontants)
                         }}
                         className="mt-3 inline-flex items-center gap-2 px-3 py-1.5 text-sm text-blue-600 hover:text-blue-800 hover:bg-blue-50 rounded-md transition-colors"
-                        title="Copier le montant de Janvier sur tous les mois"
+                        title="Copier le montant de Janvier sur tous les mois de cette année"
                     >
                         <Copy className="h-4 w-4" />
                         Répéter Janvier sur l'année
@@ -608,7 +612,28 @@ export default function CompteResultatPage() {
                 {/* Section Chiffre d'affaires */}
                 <Card variant="bordered" className="mb-6">
                     <CardHeader className="flex flex-row items-center justify-between">
-                        <CardTitle className="text-lg">Chiffre d'affaires</CardTitle>
+                        <div>
+                            <CardTitle className="text-lg">Chiffre d'affaires</CardTitle>
+                            {selectedYear > 1 && (
+                                <button
+                                    onClick={() => {
+                                        const prevOffset = (selectedYear - 2) * 12
+                                        setLignesCA(lignesCA.map(l => {
+                                            const newMontants = [...l.montantsMensuels]
+                                            for (let i = 0; i < 12; i++) {
+                                                newMontants[yearOffset + i] = l.montantsMensuels[prevOffset + i]
+                                            }
+                                            return { ...l, montantsMensuels: newMontants }
+                                        }))
+                                        addToast(`Valeurs de l'année ${selectedYear - 1} copiées`, 'success')
+                                    }}
+                                    className="mt-2 inline-flex items-center gap-1.5 px-3 py-1.5 text-xs font-medium text-indigo-600 bg-indigo-50 hover:bg-indigo-100 rounded-md transition-colors"
+                                >
+                                    <ArrowDownToLine className="h-3.5 w-3.5" />
+                                    Reprendre Année {selectedYear - 1}
+                                </button>
+                            )}
+                        </div>
                         <Button variant="outline" size="sm" onClick={addLigneCA}>
                             <Plus className="h-4 w-4 mr-2" />
                             Ajouter une ligne
@@ -638,7 +663,50 @@ export default function CompteResultatPage() {
                 {/* Section Charges */}
                 <Card variant="bordered" className="mb-6">
                     <CardHeader className="flex flex-row items-center justify-between">
-                        <CardTitle className="text-lg">Charges externes</CardTitle>
+                        <div>
+                            <CardTitle className="text-lg">Charges externes</CardTitle>
+                            {selectedYear > 1 && (
+                                <div className="flex gap-2 mt-2">
+                                    <button
+                                        onClick={() => {
+                                            const prevOffset = (selectedYear - 2) * 12
+                                            setLignesCharges(lignesCharges.map(l => {
+                                                const newMontants = [...l.montantsMensuels]
+                                                for (let i = 0; i < 12; i++) {
+                                                    newMontants[yearOffset + i] = l.montantsMensuels[prevOffset + i]
+                                                }
+                                                return { ...l, montantsMensuels: newMontants }
+                                            }))
+                                            addToast(`Valeurs de l'année ${selectedYear - 1} copiées`, 'success')
+                                        }}
+                                        className="inline-flex items-center gap-1.5 px-3 py-1.5 text-xs font-medium text-indigo-600 bg-indigo-50 hover:bg-indigo-100 rounded-md transition-colors"
+                                    >
+                                        <ArrowDownToLine className="h-3.5 w-3.5" />
+                                        Reprendre Année {selectedYear - 1}
+                                    </button>
+                                    <button
+                                        onClick={() => {
+                                            const taux = prompt('Taux d\'inflation à appliquer (en %) :', '2')
+                                            if (taux === null) return
+                                            const tauxNum = parseFloat(taux) / 100
+                                            const prevOffset = (selectedYear - 2) * 12
+                                            setLignesCharges(lignesCharges.map(l => {
+                                                const newMontants = [...l.montantsMensuels]
+                                                for (let i = 0; i < 12; i++) {
+                                                    newMontants[yearOffset + i] = Math.round(l.montantsMensuels[prevOffset + i] * (1 + tauxNum))
+                                                }
+                                                return { ...l, montantsMensuels: newMontants }
+                                            }))
+                                            addToast(`+${taux}% appliqué sur les charges`, 'success')
+                                        }}
+                                        className="inline-flex items-center gap-1.5 px-3 py-1.5 text-xs font-medium text-orange-600 bg-orange-50 hover:bg-orange-100 rounded-md transition-colors"
+                                    >
+                                        <TrendingUp className="h-3.5 w-3.5" />
+                                        Inflation +%
+                                    </button>
+                                </div>
+                            )}
+                        </div>
                         <Button variant="outline" size="sm" onClick={addLigneCharge}>
                             <Plus className="h-4 w-4 mr-2" />
                             Ajouter une ligne
