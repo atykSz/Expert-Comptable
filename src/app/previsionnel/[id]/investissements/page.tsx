@@ -223,7 +223,14 @@ export default function InvestissementsPage({
     const { addToast } = useToast()
     const [isSaving, setIsSaving] = useState(false)
     const [isLoading, setIsLoading] = useState(true)
-    const annees = [2026, 2027, 2028]
+    const [dateDebut, setDateDebut] = useState<Date | null>(null)
+
+    // Calcul dynamique des années basé sur dateDebut
+    const annees = useMemo(() => {
+        if (!dateDebut) return [new Date().getFullYear(), new Date().getFullYear() + 1, new Date().getFullYear() + 2]
+        const startYear = new Date(dateDebut).getFullYear()
+        return [startYear, startYear + 1, startYear + 2]
+    }, [dateDebut])
 
     // État pour les investissements - initialisé vide, rempli par useEffect
     const [investissements, setInvestissements] = useState<Investissement[]>([])
@@ -237,6 +244,11 @@ export default function InvestissementsPage({
                 const res = await fetch(`/api/previsionnels/${previsionnelId}`)
                 if (!res.ok) throw new Error('Erreur chargement')
                 const data = await res.json()
+
+                // Récupérer la date de début du prévisionnel
+                if (data.dateDebut) {
+                    setDateDebut(new Date(data.dateDebut))
+                }
 
                 if (data.investissements && data.investissements.length > 0) {
                     setInvestissements(data.investissements.map((inv: any) => ({

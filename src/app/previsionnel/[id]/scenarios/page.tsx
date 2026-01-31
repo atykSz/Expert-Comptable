@@ -1,6 +1,6 @@
 'use client'
 
-import { useState, useEffect, useCallback } from 'react'
+import { useState, useEffect, useCallback, use } from 'react'
 import Link from 'next/link'
 import { ArrowLeft, Plus, Sparkles } from 'lucide-react'
 import { Button, Card, CardContent, CardHeader, CardTitle, Modal, useToast } from '@/components/ui'
@@ -30,18 +30,13 @@ export default function ScenariosPage({
 }: {
     params: Promise<{ id: string }>
 }) {
-    const [previsionnelId, setPrevisionnelId] = useState<string>('')
+    const { id: previsionnelId } = use(params)
     const [scenarios, setScenarios] = useState<ScenarioData[]>([])
     const [loading, setLoading] = useState(true)
     const [showCreate, setShowCreate] = useState(false)
     const [creating, setCreating] = useState(false)
     const [selectedIds, setSelectedIds] = useState<string[]>([])
     const { addToast } = useToast()
-
-    // Récupérer l'ID du prévisionnel
-    useEffect(() => {
-        params.then(p => setPrevisionnelId(p.id))
-    }, [params])
 
     // Charger les scénarios
     const loadScenarios = useCallback(async () => {

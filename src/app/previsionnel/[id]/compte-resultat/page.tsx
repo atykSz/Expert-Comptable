@@ -1,8 +1,7 @@
 'use client'
 
-import { useState, useMemo, useEffect } from 'react'
+import { useState, useMemo, useEffect, use } from 'react'
 import Link from 'next/link'
-import { useParams } from 'next/navigation'
 import {
     ArrowLeft,
     Plus,
@@ -65,17 +64,26 @@ const categoriesCA = [
 ]
 
 const categoriesCharges = [
-    { value: 'ACHATS_MARCHANDISES', label: 'Achats de marchandises', compte: '607' },
-    { value: 'ACHATS_MATIERES', label: 'Achats matières premières', compte: '601' },
-    { value: 'LOCATIONS', label: 'Locations', compte: '613' },
-    { value: 'ENTRETIEN', label: 'Entretien et réparations', compte: '615' },
-    { value: 'ASSURANCES', label: 'Assurances', compte: '616' },
-    { value: 'HONORAIRES', label: 'Honoraires', compte: '622' },
-    { value: 'PUBLICITE', label: 'Publicité', compte: '623' },
-    { value: 'DEPLACEMENTS', label: 'Déplacements', compte: '625' },
-    { value: 'TELECOM', label: 'Télécom et internet', compte: '626' },
-    { value: 'SERVICES_BANCAIRES', label: 'Services bancaires', compte: '627' },
-    { value: 'AUTRES', label: 'Autres charges', compte: '628' },
+    { value: 'ACHATS_MARCHANDISES', label: 'Achats de marchandises', compte: '607000' },
+    { value: 'ACHATS_MATIERES_PREMIERES', label: 'Achats matières premières', compte: '601000' },
+    { value: 'ACHATS_FOURNITURES', label: 'Achats de fournitures', compte: '602000' },
+    { value: 'SOUS_TRAITANCE', label: 'Sous-traitance', compte: '611000' },
+    { value: 'LOCATIONS', label: 'Locations', compte: '613000' },
+    { value: 'ENTRETIEN_REPARATIONS', label: 'Entretien et réparations', compte: '615000' },
+    { value: 'ASSURANCES', label: 'Assurances', compte: '616000' },
+    { value: 'DOCUMENTATION', label: 'Documentation', compte: '618000' },
+    { value: 'HONORAIRES', label: 'Honoraires', compte: '622000' },
+    { value: 'PUBLICITE', label: 'Publicité', compte: '623000' },
+    { value: 'TRANSPORTS', label: 'Transports', compte: '624000' },
+    { value: 'DEPLACEMENTS', label: 'Déplacements', compte: '625000' },
+    { value: 'FRAIS_POSTAUX_TELECOM', label: 'Télécom et internet', compte: '626000' },
+    { value: 'SERVICES_BANCAIRES', label: 'Services bancaires', compte: '627000' },
+    { value: 'AUTRES_SERVICES', label: 'Autres charges', compte: '628000' },
+    { value: 'IMPOTS_TAXES', label: 'Impôts et taxes', compte: '635000' },
+    { value: 'CFE', label: 'CFE', compte: '635100' },
+    { value: 'CVAE', label: 'CVAE', compte: '635200' },
+    { value: 'INTERETS_EMPRUNTS', label: 'Intérêts d\'emprunts', compte: '661000' },
+    { value: 'CHARGES_EXCEPTIONNELLES', label: 'Charges exceptionnelles', compte: '671000' },
 ]
 
 function generateId() {
@@ -272,9 +280,12 @@ function LigneChargeRow({
     )
 }
 
-export default function CompteResultatPage() {
-    const params = useParams()
-    const previsionnelId = params.id as string
+export default function CompteResultatPage({
+    params
+}: {
+    params: Promise<{ id: string }>
+}) {
+    const { id: previsionnelId } = use(params)
     const [selectedYear, setSelectedYear] = useState(1)
     const yearOffset = (selectedYear - 1) * 12
     const [isSaving, setIsSaving] = useState(false)
@@ -313,7 +324,7 @@ export default function CompteResultatPage() {
                 id: generateId(),
                 libelle: 'Loyer',
                 categorie: 'LOCATIONS',
-                comptePCG: '613',
+                comptePCG: '613000',
                 montantsMensuels: Array(36).fill(0),
                 tauxTVA: 20,
             }])
@@ -448,9 +459,9 @@ export default function CompteResultatPage() {
         setLignesCharges([...lignesCharges, {
             id: generateId(),
             libelle: '',
-            categorie: 'AUTRES',
-            comptePCG: '628',
-            montantsMensuels: Array(12).fill(0),
+            categorie: 'AUTRES_SERVICES',
+            comptePCG: '628000',
+            montantsMensuels: Array(36).fill(0),
             tauxTVA: 20,
         }])
     }

@@ -175,7 +175,7 @@ export async function PUT(
                     data: lignesCA.map((ligne: {
                         libelle: string
                         categorie: string
-                        comptePCG: string
+                        comptePCG?: string
                         montantsMensuels: number[]
                         evolutionAn2?: number
                         evolutionAn3?: number

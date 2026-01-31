@@ -1,8 +1,7 @@
 'use client'
 
-import { useState, useMemo, useEffect } from 'react'
+import { useState, useMemo, useEffect, use } from 'react'
 import Link from 'next/link'
-import { useParams } from 'next/navigation'
 import {
     ArrowLeft,
     Plus,
@@ -248,9 +247,12 @@ function LigneDepenseRow({
     )
 }
 
-export default function Declaration2035Page() {
-    const params = useParams()
-    const previsionnelId = params.id as string
+export default function Declaration2035Page({
+    params
+}: {
+    params: Promise<{ id: string }>
+}) {
+    const { id: previsionnelId } = use(params)
 
     // Année sélectionnée (1, 2 ou 3)
     const [selectedYear, setSelectedYear] = useState(1)

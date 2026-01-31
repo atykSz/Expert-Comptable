@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { prisma } from '@/lib/prisma'
-import { getAuthenticatedUser } from '@/lib/auth'
+import { getAuthenticatedUser, userOwnsPrevisionnel } from '@/lib/auth'
 import { TypeScenario } from '@/generated/prisma'
 import { calculerScenario, SCENARIOS_PREDEFINIS } from '@/lib/calculations/scenarios'
 
@@ -17,7 +17,18 @@ export async function GET(
 
         const { id } = await params
 
-        // Vérifier l'accès au prévisionnel
+        // Vérifier que le prévisionnel appartient à l'utilisateur
+        const hasAccess = await userOwnsPrevisionnel(
+            authUser.prismaUser.id,
+            authUser.prismaUser.cabinetId,
+            id
+        )
+
+        if (!hasAccess) {
+            return NextResponse.json({ error: 'Accès non autorisé' }, { status: 403 })
+        }
+
+        // Récupérer le prévisionnel avec ses données
         const previsionnel = await prisma.previsionnel.findUnique({
             where: { id },
             include: {
@@ -75,7 +86,18 @@ export async function POST(
         const { id } = await params
         const body = await request.json()
 
-        // Vérifier le prévisionnel
+        // Vérifier que le prévisionnel appartient à l'utilisateur
+        const hasAccess = await userOwnsPrevisionnel(
+            authUser.prismaUser.id,
+            authUser.prismaUser.cabinetId,
+            id
+        )
+
+        if (!hasAccess) {
+            return NextResponse.json({ error: 'Accès non autorisé' }, { status: 403 })
+        }
+
+        // Récupérer le prévisionnel avec ses données
         const previsionnel = await prisma.previsionnel.findUnique({
             where: { id },
             include: {
@@ -151,11 +173,33 @@ export async function DELETE(
             return NextResponse.json({ error: 'Non autorisé' }, { status: 401 })
         }
 
+        const { id } = await params
+
+        // Vérifier que le prévisionnel appartient à l'utilisateur
+        const hasAccess = await userOwnsPrevisionnel(
+            authUser.prismaUser.id,
+            authUser.prismaUser.cabinetId,
+            id
+        )
+
+        if (!hasAccess) {
+            return NextResponse.json({ error: 'Accès non autorisé' }, { status: 403 })
+        }
+
         const { searchParams } = new URL(request.url)
         const scenarioId = searchParams.get('scenarioId')
 
         if (!scenarioId) {
             return NextResponse.json({ error: 'scenarioId requis' }, { status: 400 })
+        }
+
+        // Vérifier que le scénario appartient bien au prévisionnel
+        const scenario = await prisma.scenario.findFirst({
+            where: { id: scenarioId, previsionnelId: id }
+        })
+
+        if (!scenario) {
+            return NextResponse.json({ error: 'Scénario non trouvé' }, { status: 404 })
         }
 
         await prisma.scenario.delete({
