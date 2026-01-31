@@ -30,7 +30,7 @@ export default function EtudeResultatsPage() {
             <div className="flex items-center justify-between">
                 <div className="flex items-center gap-4">
                     <Link href="/etude-marche">
-                        <Button variant="ghost" size="icon">
+                        <Button variant="ghost" size="sm" className="w-9 px-0">
                             <ArrowLeft className="h-4 w-4" />
                         </Button>
                     </Link>
@@ -56,7 +56,7 @@ export default function EtudeResultatsPage() {
                     <p className="text-sm text-blue-700 mt-1">
                         Ces données peuvent être automatiquement annexées à votre dossier prévisionnel pour renforcer votre demande de financement.
                     </p>
-                    <Button variant="link" className="text-blue-700 p-0 h-auto mt-2 font-semibold">
+                    <Button variant="ghost" className="text-blue-700 p-0 h-auto mt-2 font-semibold hover:bg-transparent hover:underline">
                         Lier à un dossier existant &rarr;
                     </Button>
                 </div>
