@@ -116,8 +116,8 @@ export const InvestissementSchema = z.object({
     montantHT: z.number().positive('Le montant doit être positif'),
     tauxTVA: z.number().min(0).max(100).default(20),
     dateAcquisition: z.string().datetime().or(z.string().regex(/^\d{4}-\d{2}-\d{2}$/)),
-    dureeAmortissement: z.number().int().min(1).max(50),
-    modeAmortissement: z.enum(['LINEAIRE', 'DEGRESSIF']).default('LINEAIRE'),
+    dureeAmortissement: z.number().int().min(0).max(50),
+    modeAmortissement: z.enum(['LINEAIRE', 'DEGRESSIF', 'NON_AMORTISSABLE']).default('LINEAIRE'),
     valeurResiduelle: z.number().min(0).default(0),
 })
 
