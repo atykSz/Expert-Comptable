@@ -645,3 +645,59 @@ enum TypeClientele {
   B2C
   MIXTE
 }
+
+// ========================
+// BENCHMARKS SECTORIELS
+// ========================
+
+model BenchmarkSectoriel {
+  id              String   @id @default(cuid())
+  codeNAF         String   // "56.10A"
+  codeNAF2        String?  // "56.10" (fallback)
+  division        String?  // "56" (fallback niveau 2)
+  libelleNAF      String
+  annee           Int
+
+  // Ratios de rentabilité (Q1, Médiane, Q3)
+  margeBruteQ1       Float?
+  margeBruteMedian   Float?
+  margeBruteQ3       Float?
+  margeNetteQ1       Float?
+  margeNetteMedian   Float?
+  margeNetteQ3       Float?
+  tauxVAQ1           Float?
+  tauxVAMedian       Float?
+  tauxVAQ3           Float?
+  ebeCAQ1            Float?
+  ebeCAMedian        Float?
+  ebeCAQ3            Float?
+
+  // Ratios de structure
+  tauxEndettementQ1     Float?
+  tauxEndettementMedian Float?
+  tauxEndettementQ3     Float?
+
+  // Ratios de rotation (jours)
+  delaiClientsQ1        Float?
+  delaiClientsMedian    Float?
+  delaiClientsQ3        Float?
+  delaiFournisseursQ1   Float?
+  delaiFournisseursMedian Float?
+  delaiFournisseursQ3   Float?
+
+  source          SourceBenchmark @default(INTERNE)
+  nbEntreprises   Int?
+
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
+
+  @@unique([codeNAF, annee, source])
+  @@index([codeNAF2, annee])
+  @@index([division, annee])
+}
+
+enum SourceBenchmark {
+  BANQUE_DE_FRANCE
+  INSEE
+  INTERNE
+}

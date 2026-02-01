@@ -1,5 +1,22 @@
 import ExcelJS from 'exceljs'
 
+export interface BenchmarkExportData {
+    secteur: {
+        codeNAF: string
+        libelle: string
+        annee: number
+    }
+    scoreGlobal: number
+    comparaisons: {
+        nom: string
+        valeur: number
+        mediane: number | null
+        ecart: number | null
+        position: string
+        unite: string
+    }[]
+}
+
 export interface ExcelExportData {
     titre: string
     client: {
@@ -46,6 +63,9 @@ export interface ExcelExportData {
         solde: number
         tresorerieFin: number
     }[]
+
+    // Benchmarks sectoriels (optionnel)
+    benchmarks?: BenchmarkExportData
 }
 
 export async function generateExcelExport(data: ExcelExportData): Promise<Buffer> {
@@ -306,6 +326,85 @@ export async function generateExcelExport(data: ExcelExportData): Promise<Buffer
         { width: 20 },
         { width: 15 },
     ]
+
+    // ============================================
+    // ONGLET 6 : BENCHMARKS SECTORIELS
+    // ============================================
+    if (data.benchmarks) {
+        const benchSheet = workbook.addWorksheet('Benchmarks Sectoriels', {
+            properties: { tabColor: { argb: '00BCD4' } },
+        })
+
+        benchSheet.mergeCells('A1:F1')
+        benchSheet.getCell('A1').value = `BENCHMARKS SECTORIELS - ${data.client.raisonSociale}`
+        benchSheet.getCell('A1').font = { size: 16, bold: true, color: { argb: '006064' } }
+        benchSheet.getCell('A1').alignment = { horizontal: 'center' }
+
+        // Infos secteur
+        benchSheet.getCell('A3').value = 'Secteur d\'activité :'
+        benchSheet.getCell('A3').font = { bold: true }
+        benchSheet.getCell('B3').value = `${data.benchmarks.secteur.codeNAF} - ${data.benchmarks.secteur.libelle}`
+
+        benchSheet.getCell('A4').value = 'Année de référence :'
+        benchSheet.getCell('A4').font = { bold: true }
+        benchSheet.getCell('B4').value = data.benchmarks.secteur.annee
+
+        // Score global
+        benchSheet.getCell('A6').value = 'Score de positionnement :'
+        benchSheet.getCell('A6').font = { bold: true }
+        benchSheet.getCell('B6').value = `${Math.round(data.benchmarks.scoreGlobal)} / 100`
+        const scoreCell = benchSheet.getCell('B6')
+        if (data.benchmarks.scoreGlobal >= 75) {
+            scoreCell.font = { bold: true, color: { argb: '388E3C' } }
+        } else if (data.benchmarks.scoreGlobal >= 50) {
+            scoreCell.font = { bold: true, color: { argb: 'F57C00' } }
+        } else {
+            scoreCell.font = { bold: true, color: { argb: 'D32F2F' } }
+        }
+
+        // Tableau des ratios
+        benchSheet.getRow(8).values = ['Ratio', 'Votre valeur', 'Médiane secteur', 'Écart', 'Position']
+        benchSheet.getRow(8).font = { bold: true }
+        benchSheet.getRow(8).fill = { type: 'pattern', pattern: 'solid', fgColor: { argb: 'B2EBF2' } }
+
+        data.benchmarks.comparaisons.forEach((comp, idx) => {
+            const row = benchSheet.getRow(9 + idx)
+            row.values = [
+                comp.nom,
+                comp.unite === '%' ? `${comp.valeur.toFixed(1)}%` : `${Math.round(comp.valeur)} j`,
+                comp.mediane !== null
+                    ? (comp.unite === '%' ? `${comp.mediane.toFixed(1)}%` : `${Math.round(comp.mediane)} j`)
+                    : 'N/A',
+                comp.ecart !== null
+                    ? (comp.ecart > 0 ? `+${comp.ecart.toFixed(1)}` : comp.ecart.toFixed(1))
+                    : 'N/A',
+                comp.position === 'SUPERIEUR' ? 'Au-dessus'
+                    : comp.position === 'INFERIEUR' ? 'En-dessous'
+                    : 'Aligné'
+            ]
+
+            // Colorer la position
+            const posCell = row.getCell(5)
+            if (comp.position === 'SUPERIEUR') {
+                posCell.font = { color: { argb: '388E3C' } }
+                posCell.fill = { type: 'pattern', pattern: 'solid', fgColor: { argb: 'E8F5E9' } }
+            } else if (comp.position === 'INFERIEUR') {
+                posCell.font = { color: { argb: 'D32F2F' } }
+                posCell.fill = { type: 'pattern', pattern: 'solid', fgColor: { argb: 'FFEBEE' } }
+            } else {
+                posCell.font = { color: { argb: 'F57C00' } }
+                posCell.fill = { type: 'pattern', pattern: 'solid', fgColor: { argb: 'FFF3E0' } }
+            }
+        })
+
+        benchSheet.columns = [
+            { width: 28 },
+            { width: 15 },
+            { width: 18 },
+            { width: 12 },
+            { width: 14 },
+        ]
+    }
 
     // Générer le buffer
     const buffer = await workbook.xlsx.writeBuffer()

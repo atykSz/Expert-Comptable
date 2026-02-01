@@ -14,6 +14,11 @@ import {
     Cell,
     LineChart,
     Line,
+    RadarChart,
+    Radar,
+    PolarGrid,
+    PolarAngleAxis,
+    PolarRadiusAxis,
 } from 'recharts'
 import { formatCurrency } from '@/lib/utils'
 
@@ -168,6 +173,74 @@ export function ComboChartComponent({
                         strokeWidth={2}
                     />
                 </BarChart>
+            </ResponsiveContainer>
+        </div>
+    )
+}
+
+/**
+ * Graphique radar pour les benchmarks sectoriels
+ */
+interface RadarDataPoint {
+    ratio: string
+    entreprise: number
+    secteur: number
+    fullMark: number
+}
+
+export function RadarChartComponent({
+    data,
+    title
+}: {
+    data: RadarDataPoint[]
+    title?: string
+}) {
+    return (
+        <div className="w-full h-80">
+            {title && <h3 className="text-sm font-medium text-gray-700 mb-4">{title}</h3>}
+            <ResponsiveContainer width="100%" height="100%">
+                <RadarChart cx="50%" cy="50%" outerRadius="70%" data={data}>
+                    <PolarGrid stroke="#E5E7EB" />
+                    <PolarAngleAxis
+                        dataKey="ratio"
+                        tick={{ fontSize: 11, fill: '#6B7280' }}
+                    />
+                    <PolarRadiusAxis
+                        angle={90}
+                        domain={[0, 100]}
+                        tick={{ fontSize: 10, fill: '#9CA3AF' }}
+                        tickCount={5}
+                    />
+                    <Radar
+                        name="Votre entreprise"
+                        dataKey="entreprise"
+                        stroke="#3B82F6"
+                        fill="#3B82F6"
+                        fillOpacity={0.3}
+                        strokeWidth={2}
+                    />
+                    <Radar
+                        name="Médiane secteur"
+                        dataKey="secteur"
+                        stroke="#10B981"
+                        fill="#10B981"
+                        fillOpacity={0.15}
+                        strokeWidth={2}
+                        strokeDasharray="5 5"
+                    />
+                    <Legend
+                        wrapperStyle={{ fontSize: 12 }}
+                    />
+                    <Tooltip
+                        contentStyle={{
+                            backgroundColor: 'white',
+                            border: '1px solid #E5E7EB',
+                            borderRadius: '8px',
+                            fontSize: 12,
+                        }}
+                        formatter={(value) => typeof value === 'number' ? `${value.toFixed(1)}` : value}
+                    />
+                </RadarChart>
             </ResponsiveContainer>
         </div>
     )
