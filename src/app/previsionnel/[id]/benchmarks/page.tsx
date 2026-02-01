@@ -11,11 +11,11 @@ import {
 import { calculatePrevisionnelCashFlow, calculateBilan } from '@/lib/financial-calculations'
 import { getBenchmarkByNAF, BENCHMARKS_SEED_DATA } from '@/lib/data/benchmarks-seed'
 
-export default async function BenchmarksPage({
-  params
-}: {
+export default async function BenchmarksPage(props: {
   params: Promise<{ id: string }>
+  searchParams: Promise<{ [key: string]: string | string[] | undefined }>
 }) {
+  const params = await props.params
   // 1. Authentification
   const authUser = await getAuthenticatedUser()
   if (!authUser) redirect('/login')
@@ -39,8 +39,10 @@ export default async function BenchmarksPage({
     return <div className="p-8">Prévisionnel introuvable</div>
   }
 
-  // 3. Vérifier le code NAF du client
-  const codeNAF = previsionnel.client.codeNAF
+  // 3. Vérifier le code NAF (soit paramètre URL, soit client)
+  const { naf } = await params as unknown as { naf?: string } // TypeScript workaround if needed, or better access searchParams
+  const searchParamsValue = (await props.searchParams)?.naf as string | undefined
+  const codeNAF = searchParamsValue || previsionnel.client.codeNAF
 
   if (!codeNAF) {
     return (
@@ -231,7 +233,7 @@ export default async function BenchmarksPage({
     nbEntreprises: benchmarkSource?.nbEntreprises ?? undefined,
     source: benchmarkFromDB
       ? (benchmarkFromDB.source === 'BANQUE_DE_FRANCE' ? 'Banque de France' :
-         benchmarkFromDB.source === 'INSEE' ? 'INSEE' : 'Interne')
+        benchmarkFromDB.source === 'INSEE' ? 'INSEE' : 'Interne')
       : benchmarkSeed?.source || 'Données publiques'
   }
 
@@ -242,6 +244,7 @@ export default async function BenchmarksPage({
         ratios={ratios}
         secteur={secteurInfo}
         previsionnelId={id}
+        currentNAF={codeNAF}
       />
     </div>
   )

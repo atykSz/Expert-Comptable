@@ -1,5 +1,7 @@
 'use client'
 
+import { useRouter, usePathname, useSearchParams } from 'next/navigation'
+import { SelecteurNAF } from '@/components/etude-marche/SelecteurNAF'
 import { RadarChartComponent } from '@/components/charts'
 import { BenchmarkCard } from './BenchmarkCard'
 import { BenchmarkSummary } from './BenchmarkSummary'
@@ -18,14 +20,26 @@ export interface BenchmarkViewProps {
     source?: string
   }
   previsionnelId: string
+  currentNAF: string
 }
 
 export function BenchmarkView({
   resultat,
   ratios: _ratios,
   secteur,
-  previsionnelId: _previsionnelId
+  previsionnelId: _previsionnelId,
+  currentNAF
 }: BenchmarkViewProps) {
+  const router = useRouter()
+  const pathname = usePathname()
+  const searchParams = useSearchParams()
+
+  const handleNafChange = (value: string) => {
+    const params = new URLSearchParams(searchParams.toString())
+    params.set('naf', value)
+    router.push(`${pathname}?${params.toString()}`)
+  }
+
   // ratios and previsionnelId reserved for future use (export, etc.)
   const { comparaisons, radarData } = resultat
 
@@ -54,20 +68,17 @@ export function BenchmarkView({
           </p>
         </div>
 
-        {/* Badge secteur */}
-        <div className="inline-flex flex-col items-end gap-1">
-          <span className="inline-flex items-center gap-2 px-3 py-1.5 rounded-lg bg-primary/10 text-primary text-sm font-medium">
-            <BarChart3 className="h-4 w-4" />
-            {secteur.codeNAF} - {secteur.libelle}
-          </span>
-          <span className="text-xs text-muted-foreground">
-            Données {secteur.annee}
-            {secteur.nbEntreprises && ` (${secteur.nbEntreprises.toLocaleString('fr-FR')} entreprises)`}
-          </span>
+        {/* Sélecteur de secteur */}
+        <div className="w-full md:w-80">
+          <div className="mb-2 text-xs font-medium text-muted-foreground uppercase tracking-wider">Secteur de comparaison</div>
+          <SelecteurNAF
+            value={currentNAF}
+            onSelect={(val) => handleNafChange(val)}
+          />
           {secteur.source && (
-            <span className="text-xs text-muted-foreground">
-              Source : {secteur.source}
-            </span>
+            <div className="text-xs text-right text-muted-foreground mt-1">
+              Source : {secteur.source} ({secteur.annee})
+            </div>
           )}
         </div>
       </div>
