@@ -26,12 +26,21 @@ export default async function EtudeResultatsPage({ params }: PageProps) {
     return (
         <div className="space-y-6 pb-20 p-6 max-w-7xl mx-auto">
             <div className="flex items-center gap-4">
-                <Link href="/etude-marche">
-                    <Button variant="ghost" size="sm">
-                        <ArrowLeft className="mr-2 h-4 w-4" />
-                        Retour
-                    </Button>
-                </Link>
+                {etude.previsionnelId ? (
+                    <Link href={`/previsionnel/${etude.previsionnelId}`}>
+                        <Button variant="ghost" size="sm">
+                            <ArrowLeft className="mr-2 h-4 w-4" />
+                            Retour au tableau de bord
+                        </Button>
+                    </Link>
+                ) : (
+                    <Link href="/etude-marche">
+                        <Button variant="ghost" size="sm">
+                            <ArrowLeft className="mr-2 h-4 w-4" />
+                            Retour à la liste
+                        </Button>
+                    </Link>
+                )}
                 <div className="flex-1" />
                 <Button variant="outline">
                     <Printer className="mr-2 h-4 w-4" />
