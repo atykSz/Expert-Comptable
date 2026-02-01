@@ -18,7 +18,8 @@ const MOCK_DEMO_DATA = {
         '60-74': 10,
         '75+': 5
     },
-    revenuMedian: 22400
+    revenuMedian: 22400,
+    nomCommune: 'Paris (75)'
 }
 
 let cachedToken: { value: string, expiresAt: number } | null = null

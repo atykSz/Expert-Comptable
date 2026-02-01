@@ -128,4 +128,15 @@ export interface DonneesRapport {
             tresorerieFin: number[]
         }
     }[]
+    etudeMarche?: {
+        codeNAF: string
+        libelleNAF: string
+        adresse: string
+        codePostal: string
+        commune: string
+        nbConcurrents: number
+        potentielMarche: string
+        zoneChalandise: number
+        population: number
+    }
 }

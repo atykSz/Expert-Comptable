@@ -27,7 +27,7 @@ export function UserSidebar() { // Suppression de { user } car non utilisé pour
 
     const navItems = [
         { href: '/dashboard', label: 'Espace Client', icon: LayoutDashboard },
-        { href: '/previsionnel/nouveau', label: 'Nouveau Dossier', icon: PlusCircle },
+        { href: '/previsionnel/nouveau', label: 'Nouveau Projet', icon: PlusCircle },
         { href: '/etude-marche', label: 'Étude de Marché', icon: TrendingUp },
     ]
 

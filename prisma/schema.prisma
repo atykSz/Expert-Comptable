@@ -609,11 +609,12 @@ model EtudeMarche {
   commune         String
   latitude        Float?
   longitude       Float?
-  rayonKm         Int      @default(10)
+  rayonKm         Float      @default(10)
   typeClientele   TypeClientele @default(MIXTE)
   
   // Résultats concurrence
   nbConcurrents           Int?
+  concurrents             Json?  // Liste détaillée des concurrents
   repartitionEffectifs    Json?  // { "0": 45, "1-5": 30, "6-19": 15, "20+": 10 }
   ancienneteMediane       Float?
   tauxCreation3ans        Float?

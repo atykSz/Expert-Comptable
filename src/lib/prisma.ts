@@ -1,4 +1,4 @@
-import { PrismaClient } from '../generated/prisma/client'
+import { PrismaClient } from '../generated/prisma'
 // import { PrismaPg } from '@prisma/adapter-pg'
 // import { Pool } from 'pg'
 
@@ -23,7 +23,8 @@ try {
     }
     prisma = global.prisma
   }
-} catch {
+} catch (error) {
+  console.error('Prisma Client initialization failed:', error)
   // En mode build ou sans DATABASE_URL, on crée un mock
   prisma = {} as PrismaClient
 }

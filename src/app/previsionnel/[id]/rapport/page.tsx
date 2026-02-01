@@ -27,7 +27,8 @@ import {
     InvestissementsSection,
     SIGSection,
     GraphicsSection,
-    ScenarioSection
+    ScenarioSection,
+    EtudeMarcheSection
 } from '@/components/rapport'
 import type { DonneesRapport } from './types'
 
@@ -713,14 +714,15 @@ export default function RapportPage() {
 
     const sections = [
         { number: '1', title: 'Présentation du Projet' },
-        { number: '2', title: 'Investissements et Amortissements' },
-        { number: '3', title: 'Compte de Résultat Prévisionnel' },
-        { number: '4', title: 'Soldes Intermédiaires de Gestion' },
-        { number: '5', title: 'Bilan Prévisionnel' },
-        { number: '6', title: 'Plan de Financement' },
-        { number: '7', title: 'Plan de Trésorerie' },
-        { number: '8', title: 'Indicateurs Clés' },
-        { number: '9', title: 'Analyse des Scénarios' },
+        { number: '2', title: 'Étude de Marché' },
+        { number: '3', title: 'Investissements et Amortissements' },
+        { number: '4', title: 'Compte de Résultat Prévisionnel' },
+        { number: '5', title: 'Soldes Intermédiaires de Gestion' },
+        { number: '6', title: 'Bilan Prévisionnel' },
+        { number: '7', title: 'Plan de Financement' },
+        { number: '8', title: 'Plan de Trésorerie' },
+        { number: '9', title: 'Indicateurs Clés' },
+        { number: '10', title: 'Analyse des Scénarios' },
     ]
 
     const handlePrint = () => window.print()
@@ -790,6 +792,7 @@ export default function RapportPage() {
                 <div className="bg-white rounded-2xl border border-gray-200 p-10 mt-8 print:border-0 print:shadow-none print:rounded-none print:mt-0">
                     <TableOfContents sections={sections} />
                     <ProjectPresentation entreprise={donnees.entreprise} projet={donnees.projet} />
+                    <EtudeMarcheSection donnees={donnees} />
                     <InvestissementsSection investissements={donnees.investissements} amortissementsCumules={donnees.amortissementsCumules} />
                     <SyntheseExecutive donnees={donnees} />
                     <GraphicsSection data={donnees.compteResultat} />

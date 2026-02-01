@@ -1,114 +1,94 @@
-'use client'
-
 import Link from 'next/link'
-import { Button } from '@/components/ui/Button'
-import { Card, CardHeader, CardTitle, CardDescription, CardContent } from '@/components/ui/Card'
-import { PlusCircle, Search, TrendingUp, Store, Users, Calendar } from 'lucide-react'
-import { Input } from '@/components/ui/Input'
+import { Button } from '@/components/ui'
+import { PlusCircle, MapPin, TrendingUp, ArrowRight, Calendar } from 'lucide-react'
+import { Card, CardContent, CardDescription, CardHeader, CardTitle, CardFooter } from '@/components/ui/Card'
+import { prisma } from '@/lib/prisma'
+import { format } from 'date-fns'
+import { fr } from 'date-fns/locale'
 
-export default function EtudeMarchePage() {
-    // Dans une version réelle, on récupérerait la liste des études depuis la BDD
-    // Pour le MVP, on affiche l'état vide ou une liste simulée
-    const etudes = [] as any[] // Placeholder
+export default async function EtudeMarcheListPage() {
+    const etudes = await prisma.etudeMarche.findMany({
+        orderBy: { dateAnalyse: 'desc' }
+    })
 
     return (
-        <div className="p-8 max-w-7xl mx-auto space-y-8">
-            <div className="flex items-center justify-between">
+        <div className="space-y-8">
+            <div className="flex justify-between items-center">
                 <div>
                     <h1 className="text-3xl font-bold tracking-tight">Étude de Marché</h1>
                     <p className="text-muted-foreground mt-2">
-                        Analysez votre zone de chalandise et évaluez la concurrence en quelques clics.
+                        Analysez la concurrence et la démographie de votre zone d'implantation.
                     </p>
                 </div>
                 <Link href="/etude-marche/nouveau">
-                    <Button className="gap-2">
-                        <PlusCircle className="h-4 w-4" />
+                    <Button>
+                        <PlusCircle className="mr-2 h-4 w-4" />
                         Nouvelle Étude
                     </Button>
                 </Link>
             </div>
 
             {etudes.length === 0 ? (
-                <Card className="border-dashed bg-muted/50">
-                    <CardContent className="flex flex-col items-center justify-center py-16 text-center">
-                        <div className="w-16 h-16 bg-primary/10 rounded-full flex items-center justify-center mb-4">
+                <Card className="border-dashed">
+                    <CardContent className="flex flex-col items-center justify-center py-12 text-center">
+                        <div className="bg-primary/10 p-4 rounded-full mb-4">
                             <TrendingUp className="h-8 w-8 text-primary" />
                         </div>
-                        <h3 className="text-lg font-semibold mb-2">Aucune étude de marché</h3>
+                        <h3 className="text-lg font-semibold mb-2">Aucune étude réalisée</h3>
                         <p className="text-muted-foreground max-w-sm mb-6">
-                            Commencez par créer votre première étude pour obtenir des données précieuses sur votre futur emplacement.
+                            Lancez votre première analyse de marché pour identifier vos concurrents
+                            et comprendre votre zone de chalandise.
                         </p>
                         <Link href="/etude-marche/nouveau">
-                            <Button>Lancer une analyse</Button>
+                            <Button variant="outline">
+                                Commencer une analyse
+                            </Button>
                         </Link>
                     </CardContent>
                 </Card>
             ) : (
-                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-                    {/* Liste des études */}
+                <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
                     {etudes.map((etude) => (
-                        <Card key={etude.id} className="hover:border-primary/50 transition-colors cursor-pointer">
-                            <CardHeader>
-                                <CardTitle className="text-lg">{etude.libelleNAF}</CardTitle>
-                                <CardDescription>{etude.commune} ({etude.codePostal})</CardDescription>
-                            </CardHeader>
-                            <CardContent>
-                                <div className="space-y-2 text-sm">
-                                    <div className="flex items-center gap-2 text-muted-foreground">
-                                        <Store className="h-4 w-4" />
-                                        <span>{etude.nbConcurrents} concurrents</span>
+                        <Link key={etude.id} href={`/etude-marche/${etude.id}`}>
+                            <Card className="hover:bg-accent/50 transition-colors cursor-pointer h-full border-l-4 border-l-primary/50">
+                                <CardHeader>
+                                    <div className="flex justify-between items-start">
+                                        <CardTitle className="text-lg truncate pr-2">{etude.libelleNAF}</CardTitle>
+                                        <div className={`px-2 py-1 rounded text-xs font-bold ${etude.potentielMarche === 'FORT' ? 'bg-green-100 text-green-700' :
+                                            etude.potentielMarche === 'FAIBLE' ? 'bg-red-100 text-red-700' :
+                                                'bg-yellow-100 text-yellow-700'
+                                            }`}>
+                                            {etude.potentielMarche}
+                                        </div>
                                     </div>
-                                    <div className="flex items-center gap-2 text-muted-foreground">
-                                        <Users className="h-4 w-4" />
-                                        <span>{etude.populationZone.toLocaleString()} habitants</span>
+                                    <CardDescription className="flex items-center gap-1">
+                                        <MapPin className="h-3 w-3" />
+                                        {etude.commune} ({etude.codePostal})
+                                    </CardDescription>
+                                </CardHeader>
+                                <CardContent>
+                                    <div className="flex justify-between text-sm text-muted-foreground">
+                                        <div className="flex flex-col">
+                                            <span className="font-semibold text-foreground">{etude.nbConcurrents}</span>
+                                            <span className="text-xs">Concurrents</span>
+                                        </div>
+                                        <div className="flex flex-col text-right">
+                                            <span className="font-semibold text-foreground">
+                                                {Math.round(etude.ratioHabConcurrent || 0).toLocaleString()}
+                                            </span>
+                                            <span className="text-xs">Hab/Conc.</span>
+                                        </div>
                                     </div>
-                                    <div className="flex items-center gap-2 text-muted-foreground pt-2">
-                                        <Calendar className="h-4 w-4" />
-                                        <span>{new Date(etude.dateAnalyse).toLocaleDateString()}</span>
-                                    </div>
-                                </div>
-                            </CardContent>
-                        </Card>
+                                </CardContent>
+                                <CardFooter className="text-xs text-muted-foreground pt-0 flex gap-2">
+                                    <Calendar className="h-3 w-3" />
+                                    {format(new Date(etude.dateAnalyse), 'd MMM yyyyy', { locale: fr })}
+                                </CardFooter>
+                            </Card>
+                        </Link>
                     ))}
                 </div>
             )}
-
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mt-12">
-                <Card className="bg-blue-50/50 border-blue-100">
-                    <CardHeader>
-                        <CardTitle className="flex items-center gap-2 text-base">
-                            <Store className="h-5 w-5 text-blue-600" />
-                            Analyse de la Concurrence
-                        </CardTitle>
-                    </CardHeader>
-                    <CardContent className="text-sm text-muted-foreground">
-                        Identifiez tous les établissements concurrents dans votre zone (5 à 50km).
-                        Visualisez leur ancienneté et leur taille.
-                    </CardContent>
-                </Card>
-                <Card className="bg-indigo-50/50 border-indigo-100">
-                    <CardHeader>
-                        <CardTitle className="flex items-center gap-2 text-base">
-                            <Users className="h-5 w-5 text-indigo-600" />
-                            Données Démographiques
-                        </CardTitle>
-                    </CardHeader>
-                    <CardContent className="text-sm text-muted-foreground">
-                        Accédez aux données de l&apos;INSEE sur la population locale : revenus, catégories socio-professionnelles, âges.
-                    </CardContent>
-                </Card>
-                <Card className="bg-green-50/50 border-green-100">
-                    <CardHeader>
-                        <CardTitle className="flex items-center gap-2 text-base">
-                            <TrendingUp className="h-5 w-5 text-green-600" />
-                            Potentiel de Marché
-                        </CardTitle>
-                    </CardHeader>
-                    <CardContent className="text-sm text-muted-foreground">
-                        Obtenez un score de potentiel calculé automatiquement en croisant offre et demande locale.
-                    </CardContent>
-                </Card>
-            </div>
         </div>
     )
 }

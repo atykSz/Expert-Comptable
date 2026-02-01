@@ -787,34 +787,35 @@ export default function FinancementPage({
                                 </tr>
                                 <tr className="border-b">
                                     <td className="py-2 px-4 pl-8">Investissements</td>
-                                    <td className="py-2 px-4 text-right">{formatCurrency(38000)}</td>
+                                    <td className="py-2 px-4 text-right">{formatCurrency(totalInvestissements)}</td>
                                     <td className="py-2 px-4 text-right">{formatCurrency(0)}</td>
                                     <td className="py-2 px-4 text-right">{formatCurrency(0)}</td>
                                 </tr>
                                 <tr className="border-b">
                                     <td className="py-2 px-4 pl-8">Variation du BFR</td>
-                                    <td className="py-2 px-4 text-right">{formatCurrency(5000)}</td>
-                                    <td className="py-2 px-4 text-right">{formatCurrency(500)}</td>
-                                    <td className="py-2 px-4 text-right">{formatCurrency(500)}</td>
+                                    <td className="py-2 px-4 text-right">{formatCurrency(0)}</td>
+                                    <td className="py-2 px-4 text-right">{formatCurrency(0)}</td>
+                                    <td className="py-2 px-4 text-right">{formatCurrency(0)}</td>
                                 </tr>
                                 <tr className="border-b">
                                     <td className="py-2 px-4 pl-8">Remboursement emprunts</td>
-                                    <td className="py-2 px-4 text-right">{formatCurrency(calculs.remboursementsParAnnee[2026] || 0)}</td>
-                                    <td className="py-2 px-4 text-right">{formatCurrency(calculs.remboursementsParAnnee[2027] || 0)}</td>
-                                    <td className="py-2 px-4 text-right">{formatCurrency(calculs.remboursementsParAnnee[2028] || 0)}</td>
+                                    <td className="py-2 px-4 text-right">{formatCurrency(calculs.remboursementsParAnnee[annees[0]] || 0)}</td>
+                                    <td className="py-2 px-4 text-right">{formatCurrency(calculs.remboursementsParAnnee[annees[1]] || 0)}</td>
+                                    <td className="py-2 px-4 text-right">{formatCurrency(calculs.remboursementsParAnnee[annees[2]] || 0)}</td>
                                 </tr>
                                 <tr className="bg-red-100 font-bold">
                                     <td className="py-2 px-4">Total Emplois</td>
-                                    <td className="py-2 px-4 text-right text-red-600">
-                                        {formatCurrency(38000 + 5000 + (calculs.remboursementsParAnnee[2026] || 0))}
+                                    <td className="py-2 px-4 text-right text-red-700">
+                                        {formatCurrency(totalInvestissements + (calculs.remboursementsParAnnee[annees[0]] || 0))}
                                     </td>
-                                    <td className="py-2 px-4 text-right text-red-600">
-                                        {formatCurrency(500 + (calculs.remboursementsParAnnee[2027] || 0))}
+                                    <td className="py-2 px-4 text-right text-red-700">
+                                        {formatCurrency((calculs.remboursementsParAnnee[annees[1]] || 0))}
                                     </td>
-                                    <td className="py-2 px-4 text-right text-red-600">
-                                        {formatCurrency(500 + (calculs.remboursementsParAnnee[2028] || 0))}
+                                    <td className="py-2 px-4 text-right text-red-700">
+                                        {formatCurrency((calculs.remboursementsParAnnee[annees[2]] || 0))}
                                     </td>
                                 </tr>
+
 
                                 {/* SOLDE */}
                                 <tr className="bg-gray-100 font-bold text-lg">
@@ -840,6 +841,6 @@ export default function FinancementPage({
                     </CardContent>
                 </Card>
             </main>
-        </div>
+        </div >
     )
 }

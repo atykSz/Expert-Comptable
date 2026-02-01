@@ -21,6 +21,10 @@ export async function aggregateRapportData(previsionnelId: string): Promise<Donn
             client: true,
             scenarios: {
                 orderBy: { createdAt: 'asc' }
+            },
+            etudes: {
+                orderBy: { dateAnalyse: 'desc' },
+                take: 1
             }
         }
     })
@@ -319,6 +323,18 @@ export async function aggregateRapportData(previsionnelId: string): Promise<Donn
                 tresorerieFinAn3: scenario.tresorerieFinAn3,
                 resultats
             }
-        })
+        }),
+        // 11. Étude de marché liée
+        etudeMarche: previsionnel.etudes[0] ? {
+            codeNAF: previsionnel.etudes[0].codeNAF,
+            libelleNAF: previsionnel.etudes[0].libelleNAF,
+            adresse: previsionnel.etudes[0].adresse,
+            codePostal: previsionnel.etudes[0].codePostal,
+            commune: previsionnel.etudes[0].commune,
+            nbConcurrents: previsionnel.etudes[0].nbConcurrents || 0,
+            potentielMarche: previsionnel.etudes[0].potentielMarche || 'NON_DEFINI',
+            zoneChalandise: previsionnel.etudes[0].rayonKm,
+            population: previsionnel.etudes[0].populationZone || 0
+        } : undefined
     }
 }

@@ -1,5 +1,5 @@
 import { createClient } from '@/lib/supabase/server'
-import prisma from '@/lib/prisma'
+import { prisma } from '@/lib/prisma'
 import type { User } from '@supabase/supabase-js'
 
 export interface AuthenticatedUser {

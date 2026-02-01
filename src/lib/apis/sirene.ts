@@ -6,27 +6,48 @@ interface SireneResponse {
 
 export const sireneApi = {
     /**
-     * Recherche le nombre d'établissements pour un code NAF dans une zone géographique
+     * Recherche le nombre d'établissements pour un code NAF
+     * Supporte filtre par Code Postal OU par Rayon géospatial (prioritaire)
      */
-    async countConcurrents(codeNAF: string, codePostal: string) {
-        // Nettoyage du code NAF (ex: 56.10A -> 5610A)
-        const nafClean = codeNAF.replace('.', '')
+    async countConcurrents(codeNAF: string, codePostal: string, lat?: number, lon?: number, radiusKm?: number) {
+        // Pour /search (texte/CP), il faut le NAF sans point (ex: 5610A)
+        // Pour /near_point (geo), il faut le NAF AVEC point (ex: 56.10A)
 
-        // API Recherche d'entreprises (data.gouv.fr) - Gratuite sans clé
-        // Note: On filtre par code activité principale (NAF) et code postal
-        const params = new URLSearchParams({
-            code_activite_principale: nafClean,
-            code_postal: codePostal,
-            etat_administratif: 'A', // Actifs uniquement
-            per_page: '1', // On veut juste le total pour commencer
-            limite_publication_legale_1: 'false' // Inclure ceux qui s'opposent à la diffusion commerciale (comptage statistique)
-        })
+        let url = ''
+
+        // Priorité à la recherche géographique si les coordonnées sont fournies
+        if (lat && lon && radiusKm) {
+            // Endpoint géospatial
+            // Note: activite_principale attend le format AVEC point (ex 56.10A)
+            const params = new URLSearchParams({
+                activite_principale: codeNAF, // Garder le point
+                lat: lat.toString(),
+                long: lon.toString(),
+                radius: radiusKm.toString(),
+                etat_administratif: 'A', // Actifs
+                per_page: '1', // Juste pour le count
+                limite_publication_legale_1: 'false'
+            })
+            url = `https://recherche-entreprises.api.gouv.fr/near_point?${params}`
+        } else {
+            // Endpoint recherche textuelle standard
+            const nafClean = codeNAF.replace('.', '')
+            const params = new URLSearchParams({
+                code_activite_principale: nafClean,
+                code_postal: codePostal,
+                etat_administratif: 'A',
+                per_page: '1',
+                limite_publication_legale_1: 'false'
+            })
+            url = `https://recherche-entreprises.api.gouv.fr/search?${params}`
+        }
 
         try {
-            const response = await fetch(`https://recherche-entreprises.api.gouv.fr/search?${params}`)
+            const response = await fetch(url)
 
             if (!response.ok) {
-                throw new Error('Erreur API Recherche Entreprises')
+                console.warn('Erreur API Sirene Count:', response.statusText)
+                return 0
             }
 
             const data = await response.json() as SireneResponse
@@ -40,29 +61,50 @@ export const sireneApi = {
     /**
      * Récupère un échantillon de concurrents avec détails
      */
-    async searchConcurrents(codeNAF: string, codePostal: string, limit = 10) {
-        const nafClean = codeNAF.replace('.', '')
+    async searchConcurrents(codeNAF: string, codePostal: string, limit = 10, lat?: number, lon?: number, radiusKm?: number) {
+        let url = ''
 
-        const params = new URLSearchParams({
-            code_activite_principale: nafClean,
-            code_postal: codePostal,
-            etat_administratif: 'A',
-            per_page: limit.toString(),
-        })
+        if (lat && lon && radiusKm) {
+            const params = new URLSearchParams({
+                activite_principale: codeNAF, // Avec point
+                lat: lat.toString(),
+                long: lon.toString(),
+                radius: radiusKm.toString(),
+                etat_administratif: 'A',
+                per_page: limit.toString(),
+                limite_publication_legale_1: 'false'
+            })
+            url = `https://recherche-entreprises.api.gouv.fr/near_point?${params}`
+        } else {
+            const nafClean = codeNAF.replace('.', '')
+            const params = new URLSearchParams({
+                code_activite_principale: nafClean,
+                code_postal: codePostal,
+                etat_administratif: 'A',
+                per_page: limit.toString(),
+                limite_publication_legale_1: 'false'
+            })
+            url = `https://recherche-entreprises.api.gouv.fr/search?${params}`
+        }
 
         try {
-            const response = await fetch(`https://recherche-entreprises.api.gouv.fr/search?${params}`)
+            const response = await fetch(url)
 
-            if (!response.ok) throw new Error('Erreur API')
+            if (!response.ok) {
+                console.warn('Erreur API Sirene Search:', response.statusText)
+                return []
+            }
 
             const data = await response.json() as SireneResponse
 
+            if (!data.results) return []
+
             return data.results.map((etab: any) => ({
                 siret: etab.siret,
-                nom: etab.nom_complet,
+                nom: etab.nom_complet || etab.nom_raison_sociale || 'Nom inconnu',
                 adresse: etab.adresse,
                 dateCreation: etab.date_creation,
-                trancheEffectif: etab.tranche_effectif_salarie
+                trancheEffectif: etab.tranche_effectif_salarie,
             }))
         } catch (error) {
             console.error('Erreur searchConcurrents:', error)

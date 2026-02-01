@@ -54,6 +54,71 @@ export function calculatePrevisionnelCashFlow(
     const tvaCollectee = new Array(monthsCount + 12).fill(0)
     const tvaDeductible = new Array(monthsCount + 12).fill(0)
 
+    // Helper pour trouver l'index du mois
+    const startDate = new Date(previsionnel.dateDebut)
+    const getMonthIndex = (dateParams: string | Date) => {
+        const date = new Date(dateParams)
+        // Différence en mois
+        return (date.getFullYear() - startDate.getFullYear()) * 12 + (date.getMonth() - startDate.getMonth())
+    }
+
+    // Tableaux pour les flux financiers et d'investissement
+    const fluxCapital = new Array(monthsCount + 12).fill(0)
+    const fluxEmprunt = new Array(monthsCount + 12).fill(0)
+    const fluxSubvention = new Array(monthsCount + 12).fill(0)
+    const fluxRemboursementEmprunt = new Array(monthsCount + 12).fill(0)
+    const fluxInvestissements = new Array(monthsCount + 12).fill(0)
+
+    // 0a. Traitement des Financements (Encaissements + Remboursements)
+    previsionnel.financements.forEach(fin => {
+        const monthIdx = getMonthIndex(fin.dateDebut)
+        if (monthIdx >= 0 && monthIdx < monthsCount) {
+            if (fin.type === 'CAPITAL_SOCIAL' || fin.type === 'COMPTE_COURANT_ASSOCIE' || fin.type === 'LOVE_MONEY') {
+                fluxCapital[monthIdx] += fin.montant
+            } else if (fin.type === 'EMPRUNT_BANCAIRE' || fin.type === 'PRET_HONNEUR') {
+                fluxEmprunt[monthIdx] += fin.montant
+            } else if (fin.type === 'SUBVENTION' || fin.type === 'CROWDFUNDING') {
+                fluxSubvention[monthIdx] += fin.montant
+            }
+        }
+
+        // Remboursement Emprunt (Simulation simplifiée)
+        if (fin.type === 'EMPRUNT_BANCAIRE' && fin.duree && fin.duree > 0 && fin.montant) {
+            // Recalculer la mensualité avec la formule des intérêts composés pour plus de réalisme
+            const tauxMensuel = (fin.tauxInteret || 4) / 100 / 12
+            let mensualiteReelle = 0
+
+            if (tauxMensuel > 0) {
+                mensualiteReelle = (fin.montant * tauxMensuel) / (1 - Math.pow(1 + tauxMensuel, -fin.duree))
+            } else {
+                mensualiteReelle = fin.montant / fin.duree
+            }
+
+            const debutRemboursement = monthIdx + (fin.differe || 0) + 1
+            for (let i = 0; i < fin.duree; i++) {
+                const idx = debutRemboursement + i
+                if (idx >= 0 && idx < monthsCount) {
+                    fluxRemboursementEmprunt[idx] += mensualiteReelle
+                }
+            }
+        }
+    })
+
+    // 0b. Traitement des Investissements (Décaissements)
+    previsionnel.investissements.forEach(inv => {
+        const monthIdx = getMonthIndex(inv.dateAcquisition)
+        if (monthIdx >= 0 && monthIdx < monthsCount) {
+            const montantTVA = inv.montantHT * ((inv.tauxTVA || 20) / 100)
+            const montantTTC = inv.montantHT + montantTVA
+            fluxInvestissements[monthIdx] += montantTTC
+
+            // La TVA sur immo est déductible
+            if (monthIdx < tvaDeductible.length) {
+                tvaDeductible[monthIdx] += montantTVA
+            }
+        }
+    })
+
     // 1. Traitement du Chiffre d'Affaires (Encaissements + TVA Collectée)
     previsionnel.lignesCA.forEach(ligne => {
         const montants = ligne.montantsMensuels as number[]
@@ -104,13 +169,16 @@ export function calculatePrevisionnelCashFlow(
     for (let i = 0; i < monthsCount; i++) {
         // --- Encaissements ---
         const caTTC = encaissementsCA[i] || 0
-        const apportCapital = 0 // TODO: Lier aux Financements
-        const emprunt = 0 // TODO: Lier aux Financements
+        const apportCapital = fluxCapital[i] || 0
+        const emprunt = fluxEmprunt[i] || 0
+        const subvention = fluxSubvention[i] || 0
 
-        const totalEncaissements = caTTC + apportCapital + emprunt
+        const totalEncaissements = caTTC + apportCapital + emprunt + subvention
 
         // --- Décaissements ---
         const achatsTTC = decaissementsAchats[i] || 0
+        const investissements = fluxInvestissements[i] || 0
+        const remboursementEmprunt = fluxRemboursementEmprunt[i] || 0
 
         // TVA à payer (Simplification: TVA Collectée M-1 - TVA Déductible M-1)
         // Si i=0, on suppose TVA M-1 = 0
@@ -120,7 +188,7 @@ export function calculatePrevisionnelCashFlow(
             tvaDecaissee = soldeTVA > 0 ? soldeTVA : 0 // Si crédit de TVA, on reporte (TODO: gestion report)
         }
 
-        const totalDecaissements = achatsTTC + tvaDecaissee
+        const totalDecaissements = achatsTTC + investissements + remboursementEmprunt + tvaDecaissee
 
         const soldeFlux = totalEncaissements - totalDecaissements
         currentTreso += soldeFlux
@@ -139,7 +207,7 @@ export function calculatePrevisionnelCashFlow(
                 chargesSociales: 0, // TODO
                 salairesNet: 0, // TODO
                 tvaDecaissee,
-                remboursementEmprunt: 0,
+                remboursementEmprunt,
                 total: totalDecaissements
             },
             soldeFlux,

@@ -35,6 +35,7 @@ export async function POST(request: Request) {
         const authUser = await getAuthenticatedUser()
 
         if (!authUser) {
+            console.log('API POST /previsionnels: User not authenticated')
             return NextResponse.json(
                 { error: 'Non authentifié' },
                 { status: 401 }
@@ -42,6 +43,7 @@ export async function POST(request: Request) {
         }
 
         const body = await request.json()
+        console.log('API POST /previsionnels Body:', JSON.stringify(body))
 
         const {
             clientId,
@@ -56,6 +58,9 @@ export async function POST(request: Request) {
 
         // Utiliser le client par défaut si non fourni
         let effectiveClientId = clientId || authUser.defaultClientId
+        console.log(`API POST /previsionnels: defaultClientId=${authUser.defaultClientId}, providedClientId=${clientId}, effective=${effectiveClientId}, cabinetId=${authUser.prismaUser.cabinetId}`)
+
+        // Si aucun client n'existe, on en crée un par défaut (Fallback robustesse)
 
         // Si aucun client n'existe, on en crée un par défaut (Fallback robustesse)
         if (!effectiveClientId && authUser.prismaUser.cabinetId) {

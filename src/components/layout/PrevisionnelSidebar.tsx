@@ -27,6 +27,7 @@ export function PrevisionnelSidebar({ previsionnelId }: { previsionnelId: string
         { href: `/previsionnel/${previsionnelId}/financement`, label: 'Plan de Financement', icon: TrendingUp },
         { href: `/previsionnel/${previsionnelId}/tresorerie`, label: 'Plan de Trésorerie', icon: PiggyBank },
         { href: `/previsionnel/${previsionnelId}/scenarios`, label: 'Scénarios', icon: Sparkles },
+        { href: `/previsionnel/${previsionnelId}/etude-marche`, label: 'Étude de Marché', icon: TrendingUp },
     ]
 
     // Determine active item
