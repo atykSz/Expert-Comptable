@@ -107,24 +107,8 @@ export function EtudeResultats({ etude }: EtudeResultatsProps) {
                     <CarteConcurrents
                         center={[etude.latitude || 48.8566, etude.longitude || 2.3522]}
                         radius={etude.rayonKm}
-                        concurrents={[]} // TODO: Stocker et récupérer la liste des concurrents en JSON dans l'objet Etude ?
-                    // Pour l'instant on n'a que le nombre, mais l'API renvoie la liste.
-                    // Il faudrait stocker la liste dans `etude.concurrents` (Json field?)
-                    // Le schéma actuel n'a PAS de champ `concurrents` Json. Il a `repartitionEffectifs`.
-                    // J'ai oublié de stocker la liste des concurrents en BDD !
-                    // Je vais le passer via props si disponible ou afficher vide.
+                        concurrents={Array.isArray(etude.concurrents) ? etude.concurrents : []}
                     />
-                    {/* NOTE: Le modèle Prisma n'a pas de champ `concurrents` (JSON). 
-                         J'ai mis `nbConcurrents`, mais pas la liste.
-                         Je devrais ajouter `concurrents Json?` au modèle ou faire sans pour l'instant.
-                         L'API `POST` renvoie la liste `results.concurrents`.
-                         
-                         Si je suis sur la page `[id]`, j'ai récupéré l'objet `Etude` de la BDD.
-                         Si je n'ai pas stocké les concurrents, je ne peux pas les afficher sur la carte (sauf si je refais une recherche API).
-                         
-                         Solution rapide: Ajouter `concurrents Json?` au modèle Prisma ou stocker dans `repartitionEffectifs` (abus).
-                         Mieux: Modifier le schéma Prisma rapidement.
-                      */}
                 </div>
 
                 {/* Graphiques Démographie */}
@@ -157,6 +141,40 @@ export function EtudeResultats({ etude }: EtudeResultatsProps) {
                     </CardContent>
                 </Card>
             </div>
+
+            {/* Liste des concurrents */}
+            <Card>
+                <CardHeader>
+                    <CardTitle>Liste des Concurrents ({etude.nbConcurrents})</CardTitle>
+                    <CardDescription>Établissements identifiés dans l'analyse</CardDescription>
+                </CardHeader>
+                <CardContent>
+                    <div className="rounded-md border">
+                        <div className="grid grid-cols-12 gap-4 p-4 font-medium bg-muted/50 border-b">
+                            <div className="col-span-5">Nom</div>
+                            <div className="col-span-5">Adresse</div>
+                            <div className="col-span-2 text-right">Création</div>
+                        </div>
+                        <div className="max-h-[300px] overflow-y-auto">
+                            {Array.isArray(etude.concurrents) && etude.concurrents.length > 0 ? (
+                                etude.concurrents.map((c: any, i: number) => (
+                                    <div key={i} className="grid grid-cols-12 gap-4 p-4 text-sm border-b last:border-0 hover:bg-muted/20 items-center">
+                                        <div className="col-span-5 font-medium">{c.nom}</div>
+                                        <div className="col-span-5 text-muted-foreground truncate">{c.adresse}</div>
+                                        <div className="col-span-2 text-right text-muted-foreground">
+                                            {c.dateCreation ? new Date(c.dateCreation).getFullYear() : '-'}
+                                        </div>
+                                    </div>
+                                ))
+                            ) : (
+                                <div className="p-8 text-center text-muted-foreground">
+                                    Aucun concurrent listé
+                                </div>
+                            )}
+                        </div>
+                    </div>
+                </CardContent>
+            </Card>
         </div>
     )
 }
