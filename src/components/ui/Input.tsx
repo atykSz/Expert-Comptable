@@ -19,14 +19,14 @@ const Input = React.forwardRef<HTMLInputElement, InputProps>(
                 {label && (
                     <label
                         htmlFor={inputId}
-                        className="block text-sm font-medium mb-2"
+                        className="block text-sm font-medium text-foreground mb-1.5"
                     >
                         {label}
                     </label>
                 )}
                 <div className="relative">
                     {leftIcon && (
-                        <div className="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none text-muted-foreground">
+                        <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none text-muted-foreground">
                             {leftIcon}
                         </div>
                     )}
@@ -34,13 +34,13 @@ const Input = React.forwardRef<HTMLInputElement, InputProps>(
                         type={type}
                         id={inputId}
                         className={cn(
-                            'block w-full rounded-xl border border-border bg-card px-4 py-3 text-foreground placeholder-muted-foreground',
-                            'focus:outline-none focus:ring-2 focus:ring-ring focus:border-transparent',
-                            'disabled:bg-secondary disabled:text-muted-foreground disabled:cursor-not-allowed',
-                            'transition-all duration-200',
-                            leftIcon && 'pl-11',
-                            rightIcon && 'pr-11',
-                            error && 'border-danger focus:ring-danger',
+                            'block w-full rounded-lg border border-border bg-background px-3 py-2.5 text-sm text-foreground placeholder:text-muted-foreground',
+                            'focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-0 focus:border-ring',
+                            'disabled:bg-muted disabled:text-muted-foreground disabled:cursor-not-allowed',
+                            'transition-colors duration-150',
+                            leftIcon && 'pl-10',
+                            rightIcon && 'pr-10',
+                            error && 'border-danger focus:ring-danger/20 focus:border-danger',
                             className
                         )}
                         ref={ref}
@@ -49,18 +49,18 @@ const Input = React.forwardRef<HTMLInputElement, InputProps>(
                         {...props}
                     />
                     {rightIcon && (
-                        <div className="absolute inset-y-0 right-0 pr-3.5 flex items-center pointer-events-none text-muted-foreground">
+                        <div className="absolute inset-y-0 right-0 pr-3 flex items-center pointer-events-none text-muted-foreground">
                             {rightIcon}
                         </div>
                     )}
                 </div>
                 {error && (
-                    <p id={`${inputId}-error`} className="mt-2 text-sm text-danger">
+                    <p id={`${inputId}-error`} className="mt-1.5 text-sm text-danger">
                         {error}
                     </p>
                 )}
                 {hint && !error && (
-                    <p id={`${inputId}-hint`} className="mt-2 text-sm text-muted-foreground">
+                    <p id={`${inputId}-hint`} className="mt-1.5 text-sm text-muted-foreground">
                         {hint}
                     </p>
                 )}

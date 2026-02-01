@@ -1,24 +1,35 @@
 @import "tailwindcss";
 
 :root {
-  --background: #faf9f7;
-  --foreground: #1a1a1a;
-  --muted: #f5f4f2;
-  --muted-foreground: #6b6b6b;
+  /* Premium Finance Theme - Warm neutral with professional accents */
+  --background: #fafaf9;
+  --foreground: #18181b;
+  --muted: #f4f4f5;
+  --muted-foreground: #71717a;
   --card: #ffffff;
-  --card-foreground: #1a1a1a;
-  --primary: #1a1a1a;
-  --primary-foreground: #faf9f7;
-  --secondary: #f5f4f2;
-  --secondary-foreground: #1a1a1a;
+  --card-foreground: #18181b;
+  --primary: #18181b;
+  --primary-foreground: #fafaf9;
+  --secondary: #f4f4f5;
+  --secondary-foreground: #18181b;
   --accent: #0d9488;
   --accent-foreground: #ffffff;
   --success: #059669;
+  --success-foreground: #ffffff;
   --warning: #d97706;
+  --warning-foreground: #ffffff;
   --danger: #dc2626;
-  --border: #e5e4e2;
-  --ring: #1a1a1a;
-  --radius: 0.75rem;
+  --danger-foreground: #ffffff;
+  --border: #e4e4e7;
+  --ring: #18181b;
+  --radius: 0.5rem;
+  
+  /* Chart colors */
+  --chart-1: #0d9488;
+  --chart-2: #059669;
+  --chart-3: #3b82f6;
+  --chart-4: #8b5cf6;
+  --chart-5: #f59e0b;
 }
 
 @theme inline {
@@ -35,10 +46,17 @@
   --color-accent: var(--accent);
   --color-accent-foreground: var(--accent-foreground);
   --color-success: var(--success);
+  --color-success-foreground: var(--success-foreground);
   --color-warning: var(--warning);
+  --color-warning-foreground: var(--warning-foreground);
   --color-danger: var(--danger);
+  --color-danger-foreground: var(--danger-foreground);
   --color-border: var(--border);
   --font-sans: var(--font-inter), system-ui, -apple-system, sans-serif;
+  --radius-sm: calc(var(--radius) - 2px);
+  --radius-md: var(--radius);
+  --radius-lg: calc(var(--radius) + 4px);
+  --radius-xl: calc(var(--radius) + 8px);
 }
 
 * {
@@ -54,42 +72,46 @@ body {
   -moz-osx-font-smoothing: grayscale;
 }
 
-/* Styles pour les tableaux financiers */
+/* Financial table styles - Premium look */
 .financial-table {
   @apply w-full border-collapse;
 }
 
 .financial-table th,
 .financial-table td {
-  @apply px-4 py-3 text-sm border-b border-gray-200;
+  @apply px-4 py-3.5 text-sm border-b border-border;
 }
 
 .financial-table th {
-  @apply bg-gray-50 font-semibold text-left text-gray-700;
+  @apply bg-muted font-medium text-left text-muted-foreground uppercase text-xs tracking-wide;
 }
 
-.financial-table tr:hover {
-  @apply bg-blue-50/50;
+.financial-table tbody tr {
+  @apply transition-colors;
+}
+
+.financial-table tbody tr:hover {
+  @apply bg-muted/50;
 }
 
 .financial-table .total-row {
-  @apply bg-gray-100 font-semibold;
+  @apply bg-foreground/5 font-semibold;
 }
 
 .financial-table .subtotal-row {
-  @apply bg-gray-50 font-medium;
+  @apply bg-muted/50 font-medium;
 }
 
-/* Montants positifs/négatifs */
+/* Amount styling */
 .amount-positive {
-  @apply text-green-600;
+  @apply text-success font-medium;
 }
 
 .amount-negative {
-  @apply text-red-600;
+  @apply text-danger font-medium;
 }
 
-/* Inputs monétaires */
+/* Monetary inputs - clean number styling */
 input[type="number"]::-webkit-outer-spin-button,
 input[type="number"]::-webkit-inner-spin-button {
   -webkit-appearance: none;
@@ -100,12 +122,11 @@ input[type="number"] {
   -moz-appearance: textfield;
 }
 
-/* Animation de chargement */
+/* Premium loading animation */
 @keyframes shimmer {
   0% {
     background-position: -468px 0;
   }
-
   100% {
     background-position: 468px 0;
   }
@@ -113,13 +134,15 @@ input[type="number"] {
 
 .skeleton {
   animation: shimmer 1.5s infinite linear;
-  background: linear-gradient(to right, #f6f7f8 0%, #edeef1 20%, #f6f7f8 40%, #f6f7f8 100%);
+  background: linear-gradient(
+    to right,
+    var(--muted) 0%,
+    var(--background) 20%,
+    var(--muted) 40%,
+    var(--muted) 100%
+  );
   background-size: 800px 104px;
 }
-
-/* =====================================================
-   ANIMATIONS
-   ===================================================== */
 
 /* Toast slide-in animation */
 @keyframes slide-in-right {
@@ -127,7 +150,6 @@ input[type="number"] {
     transform: translateX(100%);
     opacity: 0;
   }
-
   100% {
     transform: translateX(0);
     opacity: 1;
@@ -135,15 +157,14 @@ input[type="number"] {
 }
 
 .animate-slide-in-right {
-  animation: slide-in-right 0.3s ease-out forwards;
+  animation: slide-in-right 0.3s cubic-bezier(0.16, 1, 0.3, 1) forwards;
 }
 
-/* Fade-in animation */
+/* Fade animations */
 @keyframes fade-in {
   0% {
     opacity: 0;
   }
-
   100% {
     opacity: 1;
   }
@@ -153,13 +174,11 @@ input[type="number"] {
   animation: fade-in 0.3s ease-out forwards;
 }
 
-/* Fade-in-up animation */
 @keyframes fade-in-up {
   0% {
     opacity: 0;
-    transform: translateY(20px);
+    transform: translateY(12px);
   }
-
   100% {
     opacity: 1;
     transform: translateY(0);
@@ -167,16 +186,15 @@ input[type="number"] {
 }
 
 .animate-fade-in-up {
-  animation: fade-in-up 0.4s ease-out forwards;
+  animation: fade-in-up 0.4s cubic-bezier(0.16, 1, 0.3, 1) forwards;
 }
 
-/* Scale-in animation */
+/* Scale animation */
 @keyframes scale-in {
   0% {
     opacity: 0;
-    transform: scale(0.95);
+    transform: scale(0.96);
   }
-
   100% {
     opacity: 1;
     transform: scale(1);
@@ -184,58 +202,26 @@ input[type="number"] {
 }
 
 .animate-scale-in {
-  animation: scale-in 0.2s ease-out forwards;
+  animation: scale-in 0.2s cubic-bezier(0.16, 1, 0.3, 1) forwards;
 }
 
-/* Staggered animation delays for lists */
-.animate-stagger>*:nth-child(1) {
-  animation-delay: 0ms;
-}
+/* Staggered animation delays */
+.animate-stagger > *:nth-child(1) { animation-delay: 0ms; }
+.animate-stagger > *:nth-child(2) { animation-delay: 50ms; }
+.animate-stagger > *:nth-child(3) { animation-delay: 100ms; }
+.animate-stagger > *:nth-child(4) { animation-delay: 150ms; }
+.animate-stagger > *:nth-child(5) { animation-delay: 200ms; }
+.animate-stagger > *:nth-child(6) { animation-delay: 250ms; }
+.animate-stagger > *:nth-child(7) { animation-delay: 300ms; }
+.animate-stagger > *:nth-child(8) { animation-delay: 350ms; }
+.animate-stagger > *:nth-child(9) { animation-delay: 400ms; }
+.animate-stagger > *:nth-child(10) { animation-delay: 450ms; }
 
-.animate-stagger>*:nth-child(2) {
-  animation-delay: 50ms;
-}
-
-.animate-stagger>*:nth-child(3) {
-  animation-delay: 100ms;
-}
-
-.animate-stagger>*:nth-child(4) {
-  animation-delay: 150ms;
-}
-
-.animate-stagger>*:nth-child(5) {
-  animation-delay: 200ms;
-}
-
-.animate-stagger>*:nth-child(6) {
-  animation-delay: 250ms;
-}
-
-.animate-stagger>*:nth-child(7) {
-  animation-delay: 300ms;
-}
-
-.animate-stagger>*:nth-child(8) {
-  animation-delay: 350ms;
-}
-
-.animate-stagger>*:nth-child(9) {
-  animation-delay: 400ms;
-}
-
-.animate-stagger>*:nth-child(10) {
-  animation-delay: 450ms;
-}
-
-/* Pulse animation for loading states */
+/* Pulse animation */
 @keyframes pulse-soft {
-
-  0%,
-  100% {
+  0%, 100% {
     opacity: 1;
   }
-
   50% {
     opacity: 0.7;
   }
@@ -245,52 +231,28 @@ input[type="number"] {
   animation: pulse-soft 1.5s ease-in-out infinite;
 }
 
-/* Smooth transitions for interactive elements */
-.transition-smooth {
-  transition: all 0.2s ease-in-out;
-}
-
-/* Card hover effects */
+/* Premium card hover effect */
 .card-hover {
-  transition: transform 0.2s ease-in-out, box-shadow 0.2s ease-in-out;
+  transition: transform 0.2s cubic-bezier(0.16, 1, 0.3, 1),
+    box-shadow 0.2s cubic-bezier(0.16, 1, 0.3, 1);
 }
 
 .card-hover:hover {
-  transform: translateY(-4px);
-  box-shadow: 0 12px 40px -12px rgba(0, 0, 0, 0.15);
+  transform: translateY(-2px);
+  box-shadow: 0 8px 30px -12px rgba(0, 0, 0, 0.12),
+    0 4px 6px -4px rgba(0, 0, 0, 0.05);
 }
 
 /* Button press effect */
 .btn-press:active {
-  transform: scale(0.97);
+  transform: scale(0.98);
 }
 
-/* Gradient animation */
-@keyframes gradient-shift {
-  0% {
-    background-position: 0% 50%;
-  }
-
-  50% {
-    background-position: 100% 50%;
-  }
-
-  100% {
-    background-position: 0% 50%;
-  }
-}
-
-.animate-gradient {
-  background-size: 200% 200%;
-  animation: gradient-shift 3s ease infinite;
-}
-
-/* Spin animation for loaders */
+/* Spin animation */
 @keyframes spin-slow {
   from {
     transform: rotate(0deg);
   }
-
   to {
     transform: rotate(360deg);
   }
@@ -300,27 +262,7 @@ input[type="number"] {
   animation: spin-slow 1.5s linear infinite;
 }
 
-/* Bounce-in animation */
-@keyframes bounce-in {
-  0% {
-    opacity: 0;
-    transform: scale(0.3);
-  }
-
-  50% {
-    opacity: 1;
-    transform: scale(1.05);
-  }
-
-  70% {
-    transform: scale(0.9);
-  }
-
-  100% {
-    transform: scale(1);
-  }
-}
-
-.animate-bounce-in {
-  animation: bounce-in 0.4s ease-out forwards;
+/* Focus ring utility */
+.focus-ring {
+  @apply focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2 focus:ring-offset-background;
 }
