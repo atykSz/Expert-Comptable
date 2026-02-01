@@ -15,9 +15,10 @@ import {
     ArrowLeft,
     DollarSign,
     Wallet,
-    PieChart
+    PieChart,
+    Lightbulb
 } from 'lucide-react'
-import { Button, Card, CardContent, CardHeader, CardTitle } from '@/components/ui'
+import { Button, Card, CardContent, CardHeader, CardTitle, Badge } from '@/components/ui'
 import { formatCurrency } from '@/lib/utils'
 import { PrevisionnelSidebar } from '@/components/layout/PrevisionnelSidebar'
 import { KPICard } from './KPICard'
@@ -27,6 +28,8 @@ import {
     LineChartComponent,
     PieChartComponent
 } from '@/components/charts'
+import { FinancialAlert } from '@/lib/analysis/alerts'
+import { BreakEvenAnalysis } from '@/lib/analysis/breakeven'
 
 // Types pour les données du dashboard
 export interface DashboardData {
@@ -46,6 +49,10 @@ export interface DashboardData {
     // Nouvelles données pour les graphiques
     tresorerieMensuelle?: { mois: string; solde: number }[]
     repartitionCharges?: { name: string; value: number }[]
+
+    // Analysis
+    alertes?: FinancialAlert[]
+    breakEven?: BreakEvenAnalysis
 }
 
 // Indicateur avec statut
@@ -124,6 +131,9 @@ export function DashboardView({ donnees }: { donnees: DashboardData }) {
     // Ratio endettement inversé (plus c'est bas, mieux c'est)
     const endettementScore = Math.max(0, 100 - donnees.ratioEndettement[donnees.ratioEndettement.length - 1] * 33)
 
+    // Alertes du backend
+    const dynamicAlertes = donnees.alertes || []
+
     return (
         <div className="flex min-h-screen bg-background">
             <PrevisionnelSidebar previsionnelId={previsionnelId} />
@@ -147,27 +157,40 @@ export function DashboardView({ donnees }: { donnees: DashboardData }) {
                     </Link>
                 </div>
 
-                {/* Alertes */}
-                {alertes.length > 0 && (
-                    <div className="mb-6 space-y-2">
-                        {alertes.map((alerte, idx) => (
+                {/* Alertes Intelligentes */}
+                {dynamicAlertes.length > 0 && (
+                    <div className="mb-6 grid gap-3">
+                        {dynamicAlertes.map((alerte, idx) => (
                             <div
                                 key={idx}
-                                className={`p-4 rounded-xl flex items-center gap-3 ${alerte.type === 'danger' ? 'bg-danger/10 text-danger' :
-                                    alerte.type === 'warning' ? 'bg-warning/10 text-warning' :
-                                        'bg-accent/10 text-accent'
+                                className={`p-4 rounded-xl flex items-start gap-4 border ${alerte.type === 'danger' ? 'bg-red-50 border-red-200 text-red-900' :
+                                    alerte.type === 'warning' ? 'bg-amber-50 border-amber-200 text-amber-900' :
+                                        'bg-blue-50 border-blue-200 text-blue-900'
                                     }`}
                             >
-                                {alerte.type === 'danger' ? (
-                                    <TrendingDown className="h-5 w-5" />
-                                ) : alerte.type === 'warning' ? (
-                                    <AlertTriangle className="h-5 w-5" />
-                                ) : (
-                                    <CheckCircle className="h-5 w-5" />
-                                )}
-                                <span className="text-sm font-medium">
-                                    {alerte.message}
-                                </span>
+                                <div className={`mt-0.5 p-1.5 rounded-full ${alerte.type === 'danger' ? 'bg-red-100 text-red-600' :
+                                    alerte.type === 'warning' ? 'bg-amber-100 text-amber-600' :
+                                        'bg-blue-100 text-blue-600'
+                                    }`}>
+                                    {alerte.type === 'danger' ? (
+                                        <TrendingDown className="h-4 w-4" />
+                                    ) : alerte.type === 'warning' ? (
+                                        <AlertTriangle className="h-4 w-4" />
+                                    ) : (
+                                        <Lightbulb className="h-4 w-4" />
+                                    )}
+                                </div>
+                                <div>
+                                    <h4 className="font-semibold text-sm mb-1 flex items-center gap-2">
+                                        {alerte.title}
+                                        {alerte.type === 'danger' && <Badge variant="destructive" className="h-5 text-[10px]">Critique</Badge>}
+                                    </h4>
+                                    <p className="text-sm opacity-90 mb-1">{alerte.message}</p>
+                                    <p className="text-xs font-medium opacity-75 flex items-center gap-1">
+                                        <ArrowRight className="h-3 w-3" />
+                                        Conseil : {alerte.suggestion}
+                                    </p>
+                                </div>
                             </div>
                         ))}
                     </div>
@@ -227,6 +250,42 @@ export function DashboardView({ donnees }: { donnees: DashboardData }) {
                                 { key: 'resultat', color: '#8B5CF6', name: 'Résultat Net' }
                             ]}
                         />
+                        {/* Seuil de Rentabilité Widget */}
+                        {donnees.breakEven && (
+                            <div className="mt-6 pt-6 border-t border-border grid grid-cols-2 lg:grid-cols-4 gap-6">
+                                <div>
+                                    <div className="text-sm text-muted-foreground mb-1">Seuil de Rentabilité</div>
+                                    <div className="text-2xl font-bold">{formatCurrency(donnees.breakEven.seuilRentabilite)}</div>
+                                    <div className="text-xs text-muted-foreground mt-1">
+                                        Charges Fixes : {formatCurrency(donnees.breakEven.chargesFixes)}
+                                    </div>
+                                </div>
+                                <div>
+                                    <div className="text-sm text-muted-foreground mb-1">Point Mort</div>
+                                    <div className="text-2xl font-bold flex items-center gap-2">
+                                        {donnees.breakEven.pointMortMois.toFixed(1)} <span className="text-sm font-normal text-muted-foreground">mois</span>
+                                    </div>
+                                    {donnees.breakEven.pointMortDate && (
+                                        <div className="text-xs text-green-600 font-medium mt-1 flex items-center gap-1">
+                                            <CheckCircle className="h-3 w-3" />
+                                            Atteint le {new Date(donnees.breakEven.pointMortDate).toLocaleDateString('fr-FR')}
+                                        </div>
+                                    )}
+                                </div>
+                                <div className="col-span-2 bg-secondary/20 p-3 rounded-lg flex items-center gap-3">
+                                    <div className="p-2 bg-white rounded-full shadow-sm">
+                                        <TrendingUp className="h-5 w-5 text-accent" />
+                                    </div>
+                                    <div>
+                                        <div className="text-sm font-medium">Analyse Point Mort</div>
+                                        <p className="text-xs text-muted-foreground">
+                                            Vous commencez à gagner de l'argent après {formatCurrency(donnees.breakEven.seuilRentabilite)} de CA.
+                                            Les charges fixes représentent {((donnees.breakEven.chargesFixes / (donnees.ca[0] || 1)) * 100).toFixed(0)}% du CA Année 1.
+                                        </p>
+                                    </div>
+                                </div>
+                            </div>
+                        )}
                     </CardContent>
                 </Card>
 

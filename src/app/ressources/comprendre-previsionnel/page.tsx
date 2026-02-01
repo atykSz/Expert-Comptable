@@ -103,7 +103,7 @@ export default function ComprendrePrevisionnelPage() {
                                 <Lightbulb className="h-6 w-6 text-yellow-300" />
                             </div>
                             <div>
-                                <h3 className="text-lg font-bold mb-2">Le conseil de l'Expert-Comptable</h3>
+                                <h3 className="text-lg font-bold mb-2">Le conseil de l'Expert</h3>
                                 <p className="text-blue-100 leading-relaxed">
                                     Ne cherchez pas à "faire plaisir" au banquier en gonflant les chiffres.
                                     Un prévisionnel réaliste, voire prudent, inspirera beaucoup plus confiance qu'un

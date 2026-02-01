@@ -35,7 +35,7 @@ export function UserSidebar() { // Suppression de { user } car non utilisé pour
 
     return (
         <aside className="w-64 bg-card border-r border-border min-h-screen p-5 shrink-0 hidden md:flex flex-col sticky top-0 h-screen">
-            <Link href="/" className="flex items-center gap-2.5 mb-8">
+            <Link href="/dashboard" className="flex items-center gap-2.5 mb-8">
                 <div className="w-8 h-8 bg-foreground rounded-lg flex items-center justify-center">
                     <BarChart3 className="h-5 w-5 text-background" />
                 </div>

@@ -26,7 +26,7 @@ function Header() {
           </Link>
           <nav className="hidden md:flex items-center gap-8">
             <Link href="#features" className="text-sm text-muted-foreground hover:text-foreground transition-colors">
-              Fonctionnalites
+              Fonctionnalités
             </Link>
             <Link href="#pricing" className="text-sm text-muted-foreground hover:text-foreground transition-colors">
               Tarifs
@@ -83,7 +83,7 @@ function Hero() {
               href="/previsionnel/demo/dashboard"
               className="inline-flex items-center gap-2 text-muted-foreground hover:text-foreground px-6 py-3.5 font-medium transition-colors"
             >
-              Decouvrir les fonctionnalites
+              Découvrir les fonctionnalités
             </Link>
           </div>
         </div>
@@ -120,8 +120,8 @@ function Features() {
   const features = [
     {
       icon: FileSpreadsheet,
-      title: 'Compte de Resultat',
-      description: 'Construisez votre compte de resultat previsionnel avec les Soldes Intermediaires de Gestion conformes aux normes PCG.',
+      title: 'Compte de Résultat',
+      description: 'Construisez votre compte de résultat prévisionnel avec les Soldes Intermédiaires de Gestion conformes aux normes PCG.',
       number: '01',
     },
     {
@@ -176,7 +176,7 @@ function Features() {
                 {feature.description}
               </p>
               <div className="mt-6 flex items-center gap-2 text-sm font-medium text-muted-foreground group-hover:text-foreground transition-colors">
-                Creer maintenant
+                Créer maintenant
                 <ArrowRight className="h-4 w-4 group-hover:translate-x-1 transition-transform" />
               </div>
             </Link>
@@ -254,7 +254,7 @@ function Testimonials() {
             Ils nous font confiance
           </h2>
           <p className="text-muted-foreground">
-            Professionnels et entrepreneurs utilisent Expert-Comptable au quotidien.
+            Professionnels et entrepreneurs utilisent Expert-Financement au quotidien.
           </p>
         </div>
         <div className="grid md:grid-cols-3 gap-8">
@@ -288,7 +288,7 @@ function CTA() {
             href="/previsionnel/nouveau"
             className="inline-flex items-center gap-2 bg-background text-foreground px-8 py-4 rounded-full font-medium hover:bg-background/90 transition-all hover:gap-3"
           >
-            Demarrer maintenant
+            Démarrer maintenant
             <ArrowRight className="h-5 w-5" />
           </Link>
         </div>

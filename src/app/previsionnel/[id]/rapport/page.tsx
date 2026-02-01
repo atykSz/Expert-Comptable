@@ -646,7 +646,7 @@ function RapportFooter() {
         <footer className="mt-12 pt-8 border-t-2 border-[#1e3a5f]">
             <div className="flex justify-between items-center text-sm text-gray-500">
                 <div>
-                    <p className="font-medium text-[#1e3a5f]">Document généré par Expert-Comptable SAAS</p>
+                    <p className="font-medium text-[#1e3a5f]">Document généré par Expert-Financement</p>
                     <p className="text-xs mt-1">Ce document est un prévisionnel. Les résultats réels peuvent différer.</p>
                 </div>
                 <div className="text-right">

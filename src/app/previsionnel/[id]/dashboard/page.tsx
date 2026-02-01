@@ -4,6 +4,8 @@ import { redirect } from 'next/navigation'
 import { DashboardView, DashboardData } from '@/components/dashboard/DashboardView'
 import { calculatePrevisionnelCashFlow, calculateBilan } from '@/lib/financial-calculations'
 import { calculerSIG, DonneesCompteResultat } from '@/lib/calculations/compte-resultat'
+import { generateFinancialAlerts, FinancialAlert } from '@/lib/analysis/alerts'
+import { calculateBreakEven, BreakEvenAnalysis } from '@/lib/analysis/breakeven'
 
 export default async function DashboardPage({
     params
@@ -25,7 +27,8 @@ export default async function DashboardPage({
             hypotheses: true,
             financements: true,
             investissements: true,
-            client: true
+            client: true,
+            effectifs: true
         }
     })
 
@@ -199,8 +202,58 @@ export default async function DashboardPage({
         }
     })
 
-    // 10. Construire les données du dashboard
-    const dashboardData: DashboardData = {
+    // 10. Calcul Analyse Financière (Alertes & Seuil)
+
+    // Pour l'année 1 (année de démarrage souvent critique)
+    const chargesFixesAn1 = previsionnel.lignesCharge
+        .filter(l => l.typeCharge === 'FIXE')
+        .reduce((sum, l) => {
+            const m = l.montantsMensuels as number[]
+            return sum + (m ? m.slice(0, 12).reduce((a, b) => a + b, 0) : 0)
+        }, 0)
+
+    const chargesVariablesAn1 = previsionnel.lignesCharge
+        .filter(l => l.typeCharge === 'VARIABLE')
+        .reduce((sum, l) => {
+            const m = l.montantsMensuels as number[]
+            return sum + (m ? m.slice(0, 12).reduce((a, b) => a + b, 0) : 0)
+        }, 0)
+
+    // Coût des achats marchandises (variable par nature)
+    const achatsMarchandisesAn1 = previsionnel.lignesCharge
+        .filter(l => l.categorie === 'ACHATS_MARCHANDISES' || l.categorie === 'ACHATS_MATIERES_PREMIERES')
+        .reduce((sum, l) => {
+            const m = l.montantsMensuels as number[]
+            return sum + (m ? m.slice(0, 12).reduce((a, b) => a + b, 0) : 0)
+        }, 0)
+
+    const totalChargesVariablesAn1 = chargesVariablesAn1 + achatsMarchandisesAn1
+    // Note: On pourrait raffiner en ajoutant les charges de personnel si considérées variables, mais restons simple
+
+    const breakEvenAnalysis = calculateBreakEven(
+        previsionnel as unknown as import('@/types').Previsionnel,
+        caAnnuels[0],
+        totalChargesVariablesAn1,
+        chargesFixesAn1
+    )
+
+    // Pour les alertes, on prend la situation la plus récente ou critique
+    const alertes = generateFinancialAlerts({
+        bfr: Math.abs(bfr), // BFR positif = Besoin
+        ca: caAnnuels[0], // Sur année 1 pour l'instant
+        tresorerieMin: Math.min(...tresorerieMin),
+        margeCommerciale: ebeAnnuels[0], // Approximation pour l'alerte
+        chargesFixes: chargesFixesAn1,
+        totalCharges: 0, // Pas utilisé dans la logique actuelle
+        endettement: endettement[0],
+        capitauxPropres: capitauxPropres[0]
+    })
+
+    // 11. Construire les données du dashboard
+    const dashboardData: DashboardData & {
+        alertes: FinancialAlert[];
+        breakEven: BreakEvenAnalysis
+    } = {
         previsionnelId: id,
         titre: previsionnel.titre || 'Prévisionnel',
         annees,
@@ -214,7 +267,9 @@ export default async function DashboardPage({
         bfr: Math.abs(bfr),
         tauxMarge,
         ratioEndettement,
-        tresorerieMensuelle
+        tresorerieMensuelle,
+        alertes,
+        breakEven: breakEvenAnalysis
     }
 
     return <DashboardView donnees={dashboardData} />
